@@ -144,4 +144,8 @@ public class Module {
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
   }
+
+  public double moduleAbsolutePosition() {
+    return io.getAbsoluteEncoderValue();
+  }
 }

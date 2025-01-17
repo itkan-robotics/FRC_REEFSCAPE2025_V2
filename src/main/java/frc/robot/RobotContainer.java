@@ -1,4 +1,4 @@
-// Copyright 2021-2025 FRC 6328
+// Copyright 2021-2024 FRC 6328
 // http://github.com/Mechanical-Advantage
 //
 // This program is free software; you can redistribute it and/or
@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CoralIntake;
+import frc.robot.subsystems.CoralOuttake;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -41,7 +44,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-
+  private final ElevatorSubsystem elevator;
+  private final CoralIntake intake = new CoralIntake();
+  private final CoralOuttake outtake = new CoralOuttake();
   // Controller
   private final CommandPS5Controller controller = new CommandPS5Controller(0);
 
@@ -60,6 +65,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+        elevator = new ElevatorSubsystem();
         break;
 
       case SIM:
@@ -71,6 +77,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        elevator = new ElevatorSubsystem();
         break;
 
       default:
@@ -82,6 +89,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        elevator = new ElevatorSubsystem();
         break;
     }
 
@@ -104,6 +112,8 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+    intake.setDefaultCommand(intake.DefaultCommand());
+    outtake.setDefaultCommand(outtake.DefaultCommand());
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -116,6 +126,14 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
+    // drive.setDefaultCommand(
+    //     DriveCommands.joystickDrive(
+    //         drive,
+    //         () -> -controller.getLeftY(),
+    //         () -> -controller.getLeftX(),
+    //         () -> controller.getRightX()));
+
+    // Default command, field-centric drive
     drive.setDefaultCommand(
         DriveCommands.joystickMDrive(
             drive,
@@ -125,21 +143,22 @@ public class RobotContainer {
             () -> controller.getRightX()));
 
     // Lock to 0° when A button is held
-    controller
-        .circle()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
+    // controller
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -controller.getLeftY(),
+    //             () -> -controller.getLeftX(),
+    //             () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when B button is pressed
+
     controller
-        .triangle()
+        .options()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -147,6 +166,13 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller.square().onTrue(elevator.setGoal(5));
+    controller.triangle().onTrue(elevator.setGoal(15));
+    controller.circle().onTrue(elevator.setGoal(10));
+    controller.cross().onTrue(elevator.setGoal(0.0));
+    controller.R2().whileTrue(intake.Intake(1));
+    controller.L2().whileTrue(outtake.Outtake(0.25));
   }
 
   /**

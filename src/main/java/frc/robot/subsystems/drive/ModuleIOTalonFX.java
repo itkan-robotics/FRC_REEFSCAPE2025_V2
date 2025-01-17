@@ -145,7 +145,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Position of motor should read absEncoderAsDouble value
     tryUntilOk(5, () -> turnTalon.setPosition(encoderToOffset(), 0.25));
-    
+
     // Create timestamp queue
     timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
@@ -260,6 +260,11 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   // Returns the encoder value in rotations with a specified offset
   public double encoderToOffset() {
-    return customEncoder.get() + (constants.EncoderOffset / (2 * Math.PI));
+    return customEncoder.get() + constants.EncoderOffset;
+  }
+
+  @Override
+  public double getAbsoluteEncoderValue() {
+    return customEncoder.get();
   }
 }
