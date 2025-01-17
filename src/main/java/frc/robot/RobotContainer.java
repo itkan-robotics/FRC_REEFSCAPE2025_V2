@@ -27,6 +27,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.CoralOuttake;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -45,6 +46,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final ElevatorSubsystem elevator;
+  private final LimelightSubsystem limelight;
   private final CoralIntake intake = new CoralIntake();
   private final CoralOuttake outtake = new CoralOuttake();
   // Controller
@@ -92,6 +94,7 @@ public class RobotContainer {
         elevator = new ElevatorSubsystem();
         break;
     }
+    limelight = new LimelightSubsystem();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -142,6 +145,8 @@ public class RobotContainer {
             () -> -controller.getRightY(),
             () -> controller.getRightX()));
 
+    limelight.setDefaultCommand(limelight.setLimelight());
+
     // Lock to 0° when A button is held
     // controller
     //     .a()
@@ -173,6 +178,8 @@ public class RobotContainer {
     controller.cross().onTrue(elevator.setGoal(0.0));
     controller.R2().whileTrue(intake.Intake(1));
     controller.L2().whileTrue(outtake.Outtake(0.25));
+
+    controller.povDown().whileTrue(DriveCommands.angleReef(drive));
   }
 
   /**

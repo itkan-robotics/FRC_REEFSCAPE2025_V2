@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -53,6 +54,8 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
   private static PIDController fieldPIDController;
+
+  private static LimelightSubsystem limelight = new LimelightSubsystem();
 
   private DriveCommands() {}
 
@@ -215,6 +218,51 @@ public class DriveCommands {
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
 
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds,
+                  isFlipped
+                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                      : drive.getRotation()));
+        },
+        drive);
+  }
+
+  /**
+   * Field relative drive command using joystick for linear control and PID for angular control.
+   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
+   * absolute rotation with a joystick.
+   */
+  public static Command angleReef(Drive drive) {
+
+    // Create PID controller
+    PIDController angleController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
+    angleController.enableContinuousInput(-180, 180);
+
+    // Construct command
+    return Commands.run(
+        () -> {
+          double reefAngle = limelight.getLLReefAngle();
+          // Get linear velocity
+          Translation2d linearVelocity = new Translation2d(); //DELETE WHEN TESTING CODE BELOW
+          // Translation2d linearVelocity = limelight.getAprilTagDrive(0.01, 0.0, 0.0);
+          ;
+
+          // Calculate angular speed
+          double omega =
+              reefAngle != -1
+                  ? angleController.calculate(drive.getRotation().getDegrees(), reefAngle)
+                  : 0;
+
+          // Convert to field relative speeds & send command
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                  omega);
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,

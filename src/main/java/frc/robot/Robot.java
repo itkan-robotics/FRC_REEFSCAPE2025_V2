@@ -108,6 +108,8 @@ public class Robot extends LoggedRobot {
     // Switch thread to high priority to improve loop timing
     Threads.setCurrentThreadPriority(true, 99);
 
+    // System.out.println("ID: " + LimelightHelpers.getFiducialID("limelight"));
+
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
     // finished or interrupted commands, and running subsystem periodic() methods.
