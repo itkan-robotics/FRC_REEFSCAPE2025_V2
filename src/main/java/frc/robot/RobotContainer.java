@@ -161,7 +161,6 @@ public class RobotContainer {
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-
     controller
         .options()
         .onTrue(
@@ -179,7 +178,7 @@ public class RobotContainer {
     controller.R2().whileTrue(intake.Intake(1));
     controller.L2().whileTrue(outtake.Outtake(0.25));
 
-    controller.povDown().whileTrue(DriveCommands.angleReef(drive));
+    controller.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
   }
 
   /**

@@ -85,6 +85,104 @@ public class DriveCommands {
   }
 
   /**
+   * Field centric drive command using joystick for linear control and PID for angular control.
+   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
+   * absolute rotation with a joystick. This specific drive based on Matthew's swerve drive from
+   * 2024 CRESCENDO season, where the right joystick controls heading of robot
+   */
+  public static Command joystickMDrive(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier jwxSupplier,
+      DoubleSupplier jwySupplier) {
+
+    // Create PID controller w/ +-180 degree range
+    fieldPIDController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
+    fieldPIDController.enableContinuousInput(-180, 180);
+
+    // Construct command
+    return Commands.run(
+        () -> {
+          // Get linear velocity
+          Translation2d linearVelocity =
+              getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+          // Calculate angular speed
+          double omega = 0.0;
+
+          if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
+            omega =
+                fieldPIDController.calculate(
+                    getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
+          }
+
+          // Convert to field relative speeds & send command
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                  omega);
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
+
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds,
+                  isFlipped
+                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                      : drive.getRotation()));
+        },
+        drive);
+  }
+
+  /** Command to drive towards reef based on target AprilTag */
+  public static Command limelightDriveToReef(Drive drive) {
+
+    // Create PID controller
+    angleController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
+    angleController.enableContinuousInput(-180, 180);
+
+    // Construct command
+    return Commands.run(
+        () -> {
+          // Default values in the case an AprilTag is not seen
+          Translation2d linearVelocity = new Translation2d();
+          double omega = 0.0;
+
+          if (limelight.canSeeTarget()) {
+
+            // Get the target angle for the robot based on the AprilTag ID
+            double reefAngle = limelight.getLLReefAngle();
+
+            // Get linear velocity (dist & angle) based on distance and angle
+            linearVelocity = limelight.getAprilTagVelocity(0.0, 0.035, 0.0, 0.0);
+
+            // Calculate angular speed
+            omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
+          }
+
+          // Convert to field relative speeds & send command
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                  omega);
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds,
+                  isFlipped
+                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                      : drive.getRotation()));
+        },
+        drive);
+  }
+
+  /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
   public static Command joystickDrive(
@@ -175,106 +273,6 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
-  }
-  /**
-   * Field centric drive command using joystick for linear control and PID for angular control.
-   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-   * absolute rotation with a joystick. This specific drive based on Matthew's swerve drive from
-   * 2024 CRESCENDO season, where the right joystick controls heading of robot
-   */
-  public static Command joystickMDrive(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier jwxSupplier,
-      DoubleSupplier jwySupplier) {
-
-    // Create PID controller w/ +-180 degree range
-    fieldPIDController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
-    fieldPIDController.enableContinuousInput(-180, 180);
-
-    // Construct command
-    return Commands.run(
-        () -> {
-          // Get linear velocity
-          Translation2d linearVelocity =
-              getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-
-          // Calculate angular speed
-          double omega = 0.0;
-
-          if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
-            omega =
-                fieldPIDController.calculate(
-                    getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
-          }
-
-          // Convert to field relative speeds & send command
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
-                  omega);
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
-
-          drive.runVelocity(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds,
-                  isFlipped
-                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
-        },
-        drive);
-  }
-
-  /**
-   * Field relative drive command using joystick for linear control and PID for angular control.
-   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-   * absolute rotation with a joystick.
-   */
-  public static Command angleReef(Drive drive) {
-
-    // Create PID controller
-    angleController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
-    angleController.enableContinuousInput(-180, 180);
-
-    // Construct command
-    return Commands.run(
-        () -> {
-          Translation2d linearVelocity = new Translation2d();
-          double omega = 0.0;
-
-          if (limelight.canSeeTarget()) {
-            double reefAngle = limelight.getLLReefAngle();
-            // Get linear velocity
-            linearVelocity = limelight.getAprilTagVelocity(0.0, 0.035, 0.0, 0.0);
-
-            // Calculate angular speed
-            omega =
-                reefAngle != -1
-                    ? angleController.calculate(drive.getRotation().getDegrees(), reefAngle)
-                    : 0;
-          }
-
-          // Convert to field relative speeds & send command
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
-                  omega);
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
-          drive.runVelocity(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds,
-                  isFlipped
-                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
-        },
-        drive);
   }
 
   /**

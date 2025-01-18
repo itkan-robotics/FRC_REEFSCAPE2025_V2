@@ -51,9 +51,6 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double bumperOffset = 4.0;
-    public static final double reefAprilTagHeight = 12.125;
-    public static final double limelightHeight = 7.875;
     public static final double maxArea = 18.5;
   }
 }

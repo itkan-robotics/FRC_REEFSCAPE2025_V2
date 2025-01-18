@@ -37,7 +37,6 @@ public class LimelightSubsystem extends SubsystemBase {
   private final double areaMultiplier = 1.5;
   public double distance;
   public boolean limelightHeadingGood = true;
-  private PIDController m_thetaController = new PIDController(0, 0, 0);
   private PIDController m_moveController = new PIDController(0, 0, 0);
   private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
 
@@ -158,70 +157,59 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public void createReefHashMap() {
-    int blueAllianceOffset = 0;
-
-    if (getAllianceAsNum() == 2) blueAllianceOffset = 11;
+    int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
 
     reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
 
-    reefAngles.put(6 + blueAllianceOffset, 120.0);
+    reefAngles.put(6 + blueAllianceOffset, -120.0);
     reefAngles.put(7 + blueAllianceOffset, 180.0);
-    reefAngles.put(8 + blueAllianceOffset, -120.0);
-    reefAngles.put(9 + blueAllianceOffset, -60.0);
+    reefAngles.put(8 + blueAllianceOffset, 120.0);
+    reefAngles.put(9 + blueAllianceOffset, 60.0);
     reefAngles.put(10 + blueAllianceOffset, 0.0);
-    reefAngles.put(11 + blueAllianceOffset, 60.0);
+    reefAngles.put(11 + blueAllianceOffset, -60.0);
   }
 
-  public int getAllianceAsNum() {
+  public boolean isRedAlliance() {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == DriverStation.Alliance.Red) {
-        return 2;
+        return true;
       } else if (alliance.get() == DriverStation.Alliance.Blue) {
-        return 1;
+        return false;
       }
     }
-    return 0;
+    return false;
   }
 
+  /**
+   * Function to get angle of target AprilTag based on ID
+   *
+   * @return Angle of target AprilTag in degrees
+   */
   public double getLLReefAngle() {
     return reefAngles.get(getID());
   }
 
-  public double[] calculateAngleDistance() {
-    double normalization =
-        Math.sqrt(Math.pow(Math.tan(getX()), 2) + Math.pow(Math.tan(getY() + 10), 2) + 1.0);
-
-    double x = Math.tan(getX()) / normalization;
-    double y = Math.tan(getY() + 10) / normalization;
-    double z = 1.0 / normalization;
-
-    double scaleFactor = (reefAprilTagHeight - limelightHeight);
-
-    double distance = scaleFactor / (Math.tan(getY()) * Math.cos(getX()));
-
-    Rotation2d angle = new Rotation2d(x, y);
-
-    double[] values = {distance, angle.getRadians()};
-
-    return values;
-  }
-
+  /**
+   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
+   *
+   * <p>The method uses ta to calculate magnitude and tx to calculate direction
+   *
+   * @param offset offset for left and right branches
+   * @return the linear velocity of the robot as a Translation2d
+   */
   public Translation2d getAprilTagVelocity(double offset, double kP, double kI, double kD) {
 
     m_moveController = new PIDController(kP, kI, kD);
-    // double[] triangle = calculateTriangle();
-    // double opposite = triangle[0];
-    // double adjacent = triangle[1];
-    // double hypotenuse = triangle[2];
 
     // Apply deadband
     double linearMagnitude =
-        MathUtil.applyDeadband(m_moveController.calculate(getArea(), maxArea), 0.025);
-    Rotation2d linearDirection = new Rotation2d(-getX() * (Math.PI / 180));
+        MathUtil.applyDeadband(
+            // Calculate speed based on ta
+            m_moveController.calculate(getArea(), maxArea), 0.025);
 
-    SmartDashboard.putNumber("magnitude", linearMagnitude);
-    SmartDashboard.putNumber("direction", linearDirection.getDegrees());
+    // Calculate direction based on tx (*-1 b/c when we are to the left, we want robot to go right)
+    Rotation2d linearDirection = new Rotation2d(Math.toRadians((getX() + offset) * -1.0));
 
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
