@@ -7,11 +7,12 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.LimelightConstants.*;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,22 +28,18 @@ public class LimelightSubsystem extends SubsystemBase {
   public static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 
   Timer lastTargetTime = new Timer();
-  double detectedTargetDistance = -1;
-  double detectedYaw = -1;
   public boolean targetSeen = false;
   private final double imageWidth = 320;
   private final double imageHeight = 240;
   private final double fovHorizontalDegrees = 59.6;
   private final double fovVerticalDegrees = 49.7;
   private final double areaMultiplier = 1.5;
-  public double distance;
   public boolean limelightHeadingGood = true;
-  private PIDController m_moveController = new PIDController(0, 0, 0);
+  private ProfiledPIDController m_aTagSpeedContoller;
   private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
 
   public LimelightSubsystem() {
     createReefHashMap();
-    //// SmartDashboard.putNumber("tx - new", table.getEntry("tx").getDouble(0.0));
   }
 
   public Command setLimelight() {
@@ -54,41 +51,103 @@ public class LimelightSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    SmartDashboard.putNumber("Limelight Range", detectedTargetDistance);
+    // This method will be called once per scheduler run
     if (table.getEntry("tv").getDouble(0.0) == 1) {
       lastTargetTime.restart();
-      // SmartDashboard.putNumber("Photon Yaw", target.getYaw());
-      //   System.out.println("Skew: " + getSkew());
-      //   System.out.println("Tx" + table.getEntry("tx").getDouble(0.0));
-      // final double camera_height =
-      //     Units.inchesToMeters(Constants.LimelightConstants.limelightLensHeightInches);
-      // final double target_height =
-      //     Units.inchesToMeters(Constants.LimelightConstants.goalHeightInches);
-      // final double camera_pitch =
-      //     Units.degreesToRadians(Constants.LimelightConstants.limelightMountAngleDegrees);
-
-      // double range =
-      //     PhotonUtils.calculateDistanceToTargetMeters(
-      //         camera_height,
-      //         target_height,
-      //         camera_pitch,
-      //         Units.degreesToRadians(table.getEntry("ty").getDouble(0.0)));
-      // detectedTargetDistance =
-      //     Units.metersToInches(range) - Constants.LimelightConstants.cameraToReefDistance;
-      detectedYaw = table.getEntry("tx").getDouble(0.0);
       targetSeen = true;
-      //// SmartDashboard.putNumber("Limelight Range", detectedTargetDistance);
-
     }
-    if (lastTargetTime.get() < .1) {
-    } else {
+    if (lastTargetTime.get() > .1) {
       targetSeen = false;
-      detectedYaw = 0;
-      detectedTargetDistance = -1;
     }
-    // SmartDashboard.putNumber("Limelight Range", detectedTargetDistance);
-    // This method will be called once per scheduler run
+  }
+
+  /*******************************************************
+   * Function to get angle of target AprilTag based on its ID.
+   *
+   * <p> Last Updated by Abdullah Khaled, 1/17/2025
+   * @return Angle of the target AprilTag in degrees
+   *******************************************************/
+
+  public double getLLReefAngle() {
+    return reefAngles.get(getID());
+  }
+
+  /***************************************************************************************
+   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
+   * The method uses ta to calculate magnitude and tx to calculate direction.
+   * <p>Last Updated by Abdullah Khaled, 1/18/2025
+   *
+   * @param offset Offset for left and right branches
+   * @return The linear velocity of the robot as a Translation2d
+   *
+   **************************************************************************************/
+
+  public Translation2d getAprilTagVelocity(
+      double offset, double kP, double kI, double kD, double maxV, double maxA) {
+
+    m_aTagSpeedContoller =
+        new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(maxV, maxA));
+
+    // Once speed controller tuned, I'd like to tune direction as well so != linear
+    // PIDContoller m_aTagDirController = new PIDContoller(
+    // kP, kI, kD);
+
+    // Apply deadband
+    double linearMagnitude =
+        MathUtil.applyDeadband(
+            // Calculate speed based on ta
+            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA), 0.025);
+
+    // Calculate direction based on tx (*-1.2 b/c when we are to the left, we want robot to go
+    // right)
+    Rotation2d linearDirection = new Rotation2d(Math.toRadians((getX() + offset) * -1.2));
+
+    // Square magnitude for more precise control
+    linearMagnitude = linearMagnitude * linearMagnitude;
+
+    // Return new linear velocity
+    return new Pose2d(new Translation2d(), linearDirection)
+        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+        .getTranslation();
+  }
+
+  //Helper Methods
+
+  /***************************************************************************************
+   * Creates the hashMap for the reef AprilTags based on alliance;
+   * if blue alliance, adds 11 to the AprilTag keys to account for different IDs
+   * <p> Last Updated by Abdullah Khaled, 1/17/2025
+   **************************************************************************************/
+
+   public void createReefHashMap() {
+    int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
+
+    reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
+
+    reefAngles.put(6 + blueAllianceOffset, -120.0);
+    reefAngles.put(7 + blueAllianceOffset, 180.0);
+    reefAngles.put(8 + blueAllianceOffset, 120.0);
+    reefAngles.put(9 + blueAllianceOffset, 60.0);
+    reefAngles.put(10 + blueAllianceOffset, 0.0);
+    reefAngles.put(11 + blueAllianceOffset, -60.0);
+  }
+
+  /***************************************************************************************
+   * Get the current alliance as specific in the Driver Station.
+   * <p> Last Updated by Abdullah Khaled, 1/17/2025
+   * @return The current alliance, where red is true and blue is false
+   **************************************************************************************/
+
+   public boolean isRedAlliance() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        return true;
+      } else if (alliance.get() == DriverStation.Alliance.Blue) {
+        return false;
+      }
+    }
+    return false;
   }
 
   public double getX() {
@@ -111,20 +170,8 @@ public class LimelightSubsystem extends SubsystemBase {
     return (int) table.getEntry("tid").getDouble(0.0);
   }
 
-  public double getDistance() {
-    return detectedTargetDistance;
-  }
-
-  public double getYaw() {
-    return detectedYaw;
-  }
-
   public boolean canSeeTarget() {
     return targetSeen;
-  }
-
-  public double getSkew() {
-    return LimelightHelpers.getT2DArray("limelight")[16];
   }
 
   public void dynamicCropping() {
@@ -154,69 +201,5 @@ public class LimelightSubsystem extends SubsystemBase {
     double normalizedBottom = (bottom / (imageHeight / 2)) - 1;
 
     return new double[] {normalizedLeft, normalizedRight, normalizedTop, normalizedBottom};
-  }
-
-  public void createReefHashMap() {
-    int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
-
-    reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
-
-    reefAngles.put(6 + blueAllianceOffset, -120.0);
-    reefAngles.put(7 + blueAllianceOffset, 180.0);
-    reefAngles.put(8 + blueAllianceOffset, 120.0);
-    reefAngles.put(9 + blueAllianceOffset, 60.0);
-    reefAngles.put(10 + blueAllianceOffset, 0.0);
-    reefAngles.put(11 + blueAllianceOffset, -60.0);
-  }
-
-  public boolean isRedAlliance() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        return true;
-      } else if (alliance.get() == DriverStation.Alliance.Blue) {
-        return false;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Function to get angle of target AprilTag based on ID
-   *
-   * @return Angle of target AprilTag in degrees
-   */
-  public double getLLReefAngle() {
-    return reefAngles.get(getID());
-  }
-
-  /**
-   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
-   *
-   * <p>The method uses ta to calculate magnitude and tx to calculate direction
-   *
-   * @param offset offset for left and right branches
-   * @return the linear velocity of the robot as a Translation2d
-   */
-  public Translation2d getAprilTagVelocity(double offset, double kP, double kI, double kD) {
-
-    m_moveController = new PIDController(kP, kI, kD);
-
-    // Apply deadband
-    double linearMagnitude =
-        MathUtil.applyDeadband(
-            // Calculate speed based on ta
-            m_moveController.calculate(getArea(), maxArea), 0.025);
-
-    // Calculate direction based on tx (*-1 b/c when we are to the left, we want robot to go right)
-    Rotation2d linearDirection = new Rotation2d(Math.toRadians((getX() + offset) * -1.0));
-
-    // Square magnitude for more precise control
-    linearMagnitude = linearMagnitude * linearMagnitude;
-
-    // Return new linear velocity
-    return new Pose2d(new Translation2d(), linearDirection)
-        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-        .getTranslation();
   }
 }

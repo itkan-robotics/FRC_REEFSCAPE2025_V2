@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -51,6 +52,16 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double maxArea = 18.5;
+    public static final double MAX_AREA = 18.5;
+    public static final double SPEED_KP = 0.0;
+    public static final double SPEED_KI = 0.0;
+    public static final double SPEED_KD = 0.0;
+    public static final double SPEED_MAXVEL = 0.0;
+    public static final double SPEED_MAXACCEL = 0.0;
+    public static final TrapezoidProfile.Constraints SPEED_CONTRAINTS =
+        new TrapezoidProfile.Constraints(SPEED_MAXVEL, SPEED_MAXACCEL);
+    public static final double ALIGN_KP = 0.0;
+    public static final double ALIGN_KI = 0.0;
+    public static final double ALIGN_KD = 0.0;
   }
 }

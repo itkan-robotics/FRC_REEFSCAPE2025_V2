@@ -44,8 +44,6 @@ public class DriveCommands {
   private static final double ANGLE_FIELDKD = 0.01;
   private static final double ANGLE_KP = 1.0;
   private static final double ANGLE_KD = 1.0;
-  // private static final double ANGLE_KP = 0.43;
-  // private static final double ANGLE_KD = 0.01;
   private static final double ANGLE_MAX_VELOCITY = 9.86220055226554;
   private static final double ANGLE_MAX_ACCELERATION = 50.0;
   private static final double FF_START_DELAY = 2.0; // Secs
@@ -59,6 +57,14 @@ public class DriveCommands {
   private static LimelightSubsystem limelight = new LimelightSubsystem();
 
   private DriveCommands() {}
+
+  /*************************************************************************************
+   * Converts the values of the joystick into a vector based on the x and y components.
+   * Code taken from 6328 Mechanical Advantage's base code and moved since I didn't
+   * like there being so much stuff in the drive command.
+   * <p> Last Updated by Abdullah Khaled, 1/12/2025
+   * @return The vector of the joysticks as a Translation2d
+   ************************************************************************************/
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
     // Apply deadband
@@ -74,22 +80,37 @@ public class DriveCommands {
         .getTranslation();
   }
 
+
+  /***************************************************************************************
+   * Used in MDrive, converts the right joystick values into an angle,
+   * where up is 0 degrees and down is 180 degrees
+   * <p> Last Updated by Abdullah Khaled, 1/12/2025
+   * @return The angle of the joystick in degrees
+   **************************************************************************************/
+
   private static double getRightStickAngle(DoubleSupplier x, DoubleSupplier y) {
     double xx = MathUtil.applyDeadband(x.getAsDouble(), DEADBAND);
     double yy = MathUtil.applyDeadband(y.getAsDouble(), DEADBAND);
     return Math.toDegrees(Math.atan2(xx, yy)) - 90;
   }
 
+  /***************************************************************************************
+   * Gets the heading of the drivebase, normalized to +-180 degrees
+   * <p> Last Updated by Abdullah Khaled, 1/12/2025
+   * @return The angle of the robot in degrees (-180 to 180)
+   **************************************************************************************/
+  
   private static double getDriveHeading(Drive drive) {
     return MathUtil.inputModulus(drive.getRotation().getDegrees(), -180, 180);
   }
 
-  /**
+  /**********************************************************************************************
    * Field centric drive command using joystick for linear control and PID for angular control.
-   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-   * absolute rotation with a joystick. This specific drive based on Matthew's swerve drive from
-   * 2024 CRESCENDO season, where the right joystick controls heading of robot
-   */
+   * This specific drive based on Matthew's swerve drive from
+   * 2024 CRESCENDO season, where the right joystick controls the heading of robot.
+   * <p> Last Updated by Abdullah Khaled, 1/12/2025
+   **********************************************************************************************/
+
   public static Command joystickMDrive(
       Drive drive,
       DoubleSupplier xSupplier,
@@ -137,7 +158,13 @@ public class DriveCommands {
         drive);
   }
 
-  /** Command to drive towards reef based on target AprilTag */
+  /*************************************************************************************
+   * Field centric drive command using limelight target data to
+   * calculate the desired angle of the robot to align parallel to the target AprilTag
+   * and move to the AprilTag based on the target's ta and tx values using Profiled PID.
+   * <p> Last Updated by Abdullah Khaled, 1/18/2025
+   *************************************************************************************/
+
   public static Command limelightDriveToReef(Drive drive) {
 
     // Create PID controller
@@ -157,7 +184,23 @@ public class DriveCommands {
             double reefAngle = limelight.getLLReefAngle();
 
             // Get linear velocity (dist & angle) based on distance and angle
-            linearVelocity = limelight.getAprilTagVelocity(0.0, 0.035, 0.0, 0.0);
+            /* To-Do List
+             * Profiled PID Tuning for range movement
+             *    Add constants to limelightConstants file
+             * (Profiled?) PID Tuning for tx alignment
+             *    Add constants to limelightConstants file
+             * Remove kP, kI, kD, maxV, maxA values from getAprilTagVelocity method
+             * Test for offset degree #
+             *    Add constants to limelightConstants file
+             */
+            linearVelocity =
+                limelight.getAprilTagVelocity(
+                    0.0,
+                    0.04, // Prev 0.035
+                    0.0,
+                    0.0,
+                    3.0 / drive.getMaxLinearSpeedFeetPerSec(),
+                    30.0);
 
             // Calculate angular speed
             omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
