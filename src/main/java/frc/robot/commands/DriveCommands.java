@@ -80,7 +80,6 @@ public class DriveCommands {
         .getTranslation();
   }
 
-
   /***************************************************************************************
    * Used in MDrive, converts the right joystick values into an angle,
    * where up is 0 degrees and down is 180 degrees
@@ -99,7 +98,7 @@ public class DriveCommands {
    * <p> Last Updated by Abdullah Khaled, 1/12/2025
    * @return The angle of the robot in degrees (-180 to 180)
    **************************************************************************************/
-  
+
   private static double getDriveHeading(Drive drive) {
     return MathUtil.inputModulus(drive.getRotation().getDegrees(), -180, 180);
   }

@@ -17,10 +17,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
 import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
@@ -111,7 +109,7 @@ public class LimelightSubsystem extends SubsystemBase {
         .getTranslation();
   }
 
-  //Helper Methods
+  // Helper Methods
 
   /***************************************************************************************
    * Creates the hashMap for the reef AprilTags based on alliance;
@@ -119,7 +117,7 @@ public class LimelightSubsystem extends SubsystemBase {
    * <p> Last Updated by Abdullah Khaled, 1/17/2025
    **************************************************************************************/
 
-   public void createReefHashMap() {
+  public void createReefHashMap() {
     int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
 
     reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
@@ -138,7 +136,7 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return The current alliance, where red is true and blue is false
    **************************************************************************************/
 
-   public boolean isRedAlliance() {
+  public boolean isRedAlliance() {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
       if (alliance.get() == DriverStation.Alliance.Red) {
