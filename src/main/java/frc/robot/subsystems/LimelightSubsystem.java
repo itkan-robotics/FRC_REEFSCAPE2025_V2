@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.LimelightConstants.*;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,11 +14,13 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
@@ -35,8 +39,10 @@ public class LimelightSubsystem extends SubsystemBase {
   public boolean limelightHeadingGood = true;
   private PIDController m_thetaController = new PIDController(0, 0, 0);
   private PIDController m_moveController = new PIDController(0, 0, 0);
+  private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
 
   public LimelightSubsystem() {
+    createReefHashMap();
     //// SmartDashboard.putNumber("tx - new", table.getEntry("tx").getDouble(0.0));
   }
 
@@ -151,96 +157,78 @@ public class LimelightSubsystem extends SubsystemBase {
     return new double[] {normalizedLeft, normalizedRight, normalizedTop, normalizedBottom};
   }
 
-  /**
-   * Get rotation value (in m/s) robot needs to rotate to be parallel with AprilTag, given the robot
-   * heading. Uses getTargetSkew() to align parallel to the AprilTag.
-   *
-   * @param robotHeading
-   * @return Returns direction and magnitude of robot rotation between -2 and 2 m/s.
-   */
-  public double getAprilTagParallelRot(double kP, double kI, double kD, double robotHeading) {
-    m_thetaController = new PIDController(kP, kI, kD);
-    m_thetaController.enableContinuousInput(-180, 180);
-    double targetAngle = -getSkew();
+  public void createReefHashMap() {
+    int blueAllianceOffset = 0;
 
-    // Rest is the same as old code for angling
-    m_thetaController.setSetpoint(targetAngle);
-    double omega =
-        m_thetaController.calculate(
-            (MathUtil.inputModulus(robotHeading, -180, 180)), m_thetaController.getSetpoint());
+    if (getAllianceAsNum() == 2) blueAllianceOffset = 11;
 
-    return MathUtil.clamp(omega, -2, 2);
+    reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
+
+    reefAngles.put(6 + blueAllianceOffset, 120.0);
+    reefAngles.put(7 + blueAllianceOffset, 180.0);
+    reefAngles.put(8 + blueAllianceOffset, -120.0);
+    reefAngles.put(9 + blueAllianceOffset, -60.0);
+    reefAngles.put(10 + blueAllianceOffset, 0.0);
+    reefAngles.put(11 + blueAllianceOffset, 60.0);
   }
 
-  /**
-   * Gets how fast and at what angle the robot should drive towards the AprilTag.
-   *
-   * @return Returns how fast the robot should drive (in m/s) and in what direction
-   */
-  public Translation2d getAprilTagDrive(double kP, double kI, double kD) {
+  public int getAllianceAsNum() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        return 2;
+      } else if (alliance.get() == DriverStation.Alliance.Blue) {
+        return 1;
+      }
+    }
+    return 0;
+  }
+
+  public double getLLReefAngle() {
+    return reefAngles.get(getID());
+  }
+
+  public double[] calculateAngleDistance() {
+    double normalization =
+        Math.sqrt(Math.pow(Math.tan(getX()), 2) + Math.pow(Math.tan(getY() + 10), 2) + 1.0);
+
+    double x = Math.tan(getX()) / normalization;
+    double y = Math.tan(getY() + 10) / normalization;
+    double z = 1.0 / normalization;
+
+    double scaleFactor = (reefAprilTagHeight - limelightHeight);
+
+    double distance = scaleFactor / (Math.tan(getY()) * Math.cos(getX()));
+
+    Rotation2d angle = new Rotation2d(x, y);
+
+    double[] values = {distance, angle.getRadians()};
+
+    return values;
+  }
+
+  public Translation2d getAprilTagVelocity(double offset, double kP, double kI, double kD) {
+
     m_moveController = new PIDController(kP, kI, kD);
-
-    // Calculate forwards speed
-    double x = m_moveController.calculate(LimelightHelpers.getTY("limelight"));
-    x *= -1.0;
-
-    // Calculate sideways speed
-    double y = m_moveController.calculate(LimelightHelpers.getTX("limelight"));
-    y *= 1.0;
+    // double[] triangle = calculateTriangle();
+    // double opposite = triangle[0];
+    // double adjacent = triangle[1];
+    // double hypotenuse = triangle[2];
 
     // Apply deadband
-    double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), 0.1);
-    Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
+    double linearMagnitude =
+        MathUtil.applyDeadband(m_moveController.calculate(getArea(), maxArea), 0.025);
+    Rotation2d linearDirection = new Rotation2d(-getX() * (Math.PI / 180));
+
+    SmartDashboard.putNumber("magnitude", linearMagnitude);
+    SmartDashboard.putNumber("direction", linearDirection.getDegrees());
 
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
 
+    // Return new linear velocity
     return new Pose2d(new Translation2d(), linearDirection)
         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
         .getTranslation();
-  }
-
-  // simple proportional turning control with Limelight.
-  // "proportional control" is a control algorithm in which the output is proportional to the error.
-  // in this case, we are going to return an angular velocity that is proportional to the
-  // "tx" value from the Limelight.
-  public double limelight_aim_proportional(double kP) {
-    // kP (constant of proportionality)
-    // this is a hand-tuned number that determines the aggressiveness of our proportional control
-    // loop
-    // if it is too high, the robot will oscillate around.
-    // if it is too low, the robot will never reach its target
-    // if the robot never turns in the correct direction, kP should be inverted.
-
-    // tx ranges from (-hfov/2) to (hfov/2) in degrees. If your target is on the rightmost edge of
-    // your limelight 3 feed, tx should return roughly 31 degrees.
-    double targetingAngularVelocity = LimelightHelpers.getTX("limelight") * kP;
-
-    // convert to radians per second for our drive method
-
-    // invert since tx is positive when the target is to the right of the crosshair
-    targetingAngularVelocity *= -1.0;
-
-    return targetingAngularVelocity;
-  }
-
-  // simple proportional ranging control with Limelight's "ty" value
-  // this works best if your Limelight's mount height and target mount height are different.
-  // if your limelight and target are mounted at the same or similar heights, use "ta" (area) for
-  // target ranging rather than "ty"
-  public double limelight_range_proportional(double kP) {
-    double targetingForwardSpeed = LimelightHelpers.getTY("limelight") * kP;
-    targetingForwardSpeed *= -1.0;
-    return targetingForwardSpeed;
-  }
-
-  public double getLLReefAngle() {
-    double id = LimelightHelpers.getFiducialID("limelight");
-
-    if (id == 1) {
-      return 60;
-    }
-
-    return -1;
   }
 }

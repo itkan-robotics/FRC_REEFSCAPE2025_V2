@@ -54,6 +54,7 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
   private static PIDController fieldPIDController;
+  private static PIDController angleController;
 
   private static LimelightSubsystem limelight = new LimelightSubsystem();
 
@@ -236,23 +237,26 @@ public class DriveCommands {
   public static Command angleReef(Drive drive) {
 
     // Create PID controller
-    PIDController angleController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
+    angleController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
     angleController.enableContinuousInput(-180, 180);
 
     // Construct command
     return Commands.run(
         () -> {
-          double reefAngle = limelight.getLLReefAngle();
-          // Get linear velocity
-          Translation2d linearVelocity = new Translation2d(); //DELETE WHEN TESTING CODE BELOW
-          // Translation2d linearVelocity = limelight.getAprilTagDrive(0.01, 0.0, 0.0);
-          ;
+          Translation2d linearVelocity = new Translation2d();
+          double omega = 0.0;
 
-          // Calculate angular speed
-          double omega =
-              reefAngle != -1
-                  ? angleController.calculate(drive.getRotation().getDegrees(), reefAngle)
-                  : 0;
+          if (limelight.canSeeTarget()) {
+            double reefAngle = limelight.getLLReefAngle();
+            // Get linear velocity
+            linearVelocity = limelight.getAprilTagVelocity(0.0, 0.035, 0.0, 0.0);
+
+            // Calculate angular speed
+            omega =
+                reefAngle != -1
+                    ? angleController.calculate(drive.getRotation().getDegrees(), reefAngle)
+                    : 0;
+          }
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
