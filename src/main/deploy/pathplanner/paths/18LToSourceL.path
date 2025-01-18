@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6855,
-        "y": 5.555750000000001
+        "x": 2.78,
+        "y": 4.119730113636363
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9987499999999998,
-        "y": 4.48325
+        "x": 2.6723863636363636,
+        "y": 5.0969460227272725
       },
       "isLocked": false,
-      "linkedName": "CoralDrop"
+      "linkedName": "18L"
     },
     {
       "anchor": {
-        "x": 1.90125,
-        "y": 6.755
+        "x": 1.6153977272727271,
+        "y": 7.240838068181818
       },
       "prevControl": {
-        "x": 0.9012500000000001,
-        "y": 6.755
+        "x": 2.0541477272727273,
+        "y": 6.871889204545455
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "sourceLeft"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -55.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Left Source Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.39359296849061
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

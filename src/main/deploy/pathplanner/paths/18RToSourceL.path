@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.125,
-        "y": 4.0
+        "x": 2.78,
+        "y": 3.81
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.219974629024323,
-        "y": 3.9063554993113816
+        "x": 2.610482954545454,
+        "y": 4.747940340909091
       },
       "isLocked": false,
-      "linkedName": "bargeCenter"
+      "linkedName": "18R"
     },
     {
       "anchor": {
-        "x": 6.2,
-        "y": 3.811
+        "x": 1.6153977272727271,
+        "y": 7.240838068181818
       },
       "prevControl": {
-        "x": 7.04420903109295,
-        "y": 3.8929841735971933
+        "x": 2.1438920454545456,
+        "y": 6.742258522727273
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "21L"
+      "linkedName": "sourceLeft"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -55.0
   },
   "reversed": false,
-  "folder": "Leave Paths",
+  "folder": "Left Source Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

@@ -122,12 +122,12 @@ public class LimelightSubsystem extends SubsystemBase {
 
     reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
 
-    reefAngles.put(6 + blueAllianceOffset, -120.0);
-    reefAngles.put(7 + blueAllianceOffset, 180.0);
-    reefAngles.put(8 + blueAllianceOffset, 120.0);
-    reefAngles.put(9 + blueAllianceOffset, 60.0);
-    reefAngles.put(10 + blueAllianceOffset, 0.0);
-    reefAngles.put(11 + blueAllianceOffset, -60.0);
+    reefAngles.put(6 + blueAllianceOffset, 60.0);
+    reefAngles.put(7 + blueAllianceOffset, 0.0);
+    reefAngles.put(8 + blueAllianceOffset, -60.0);
+    reefAngles.put(9 + blueAllianceOffset, -120.0);
+    reefAngles.put(10 + blueAllianceOffset, 180.0);
+    reefAngles.put(11 + blueAllianceOffset, 120.0);
   }
 
   /***************************************************************************************

@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.8419034090909094,
-        "y": 3.8006392045454542
+        "x": 5.175255681818181,
+        "y": 2.4544744318181815
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.80411818001231,
-        "y": 2.801684539788948
+        "x": 4.596903409090909,
+        "y": 1.876122159090909
       },
       "isLocked": false,
-      "linkedName": "18R"
+      "linkedName": "22L"
     },
     {
       "anchor": {
-        "x": 2.492897727272727,
-        "y": 2.1353835227272726
+        "x": 1.69,
+        "y": 0.73
       },
       "prevControl": {
-        "x": 2.137119670762963,
-        "y": 1.9543205313635845
-      },
-      "nextControl": {
-        "x": 2.7157037928742436,
-        "y": 2.2487742504397827
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 1.2763636363636366,
+        "x": 2.6624147727272724,
         "y": 0.9886505681818175
-      },
-      "prevControl": {
-        "x": 1.5028389529124866,
-        "y": 1.237251506140384
       },
       "nextControl": null,
       "isLocked": false,
@@ -61,10 +45,10 @@
     "rotation": 50.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Right Source Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

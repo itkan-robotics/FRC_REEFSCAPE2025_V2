@@ -1,0 +1,79 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "setGyroTo180"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "centerTo21R"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "21RToSourceL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sourceLTo19L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "19LToSourceL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sourceLTo19R"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "19RToSourceL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sourceLTo18L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "18LToSourceL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sourceLTo18R"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "18RToSourceL"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

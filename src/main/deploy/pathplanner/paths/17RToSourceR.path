@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5199715909090905,
-        "y": 2.6339630681818176
+        "x": 3.819119318181818,
+        "y": 2.5043323863636364
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.028444498312924,
-        "y": 2.2764177419448393
+        "x": 2.577471007187459,
+        "y": 1.494621332990211
       },
       "isLocked": false,
-      "linkedName": "17L"
+      "linkedName": "17R"
     },
     {
       "anchor": {
-        "x": 1.2763636363636366,
-        "y": 0.9886505681818175
+        "x": 1.69,
+        "y": 0.73
       },
       "prevControl": {
-        "x": 1.0075636576695275,
-        "y": 0.7869540409606743
+        "x": 2.5161273916716427,
+        "y": 1.3982088690281924
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 50.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Right Source Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 59.99999999999999

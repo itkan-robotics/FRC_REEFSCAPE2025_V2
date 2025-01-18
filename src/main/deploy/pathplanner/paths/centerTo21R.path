@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.219974629024323,
-        "y": 3.9063554993113816
+        "x": 7.121563718185568,
+        "y": 4.109167546294384
       },
       "isLocked": false,
       "linkedName": "bargeCenter"
@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 6.2,
-        "y": 3.811
+        "y": 4.15
       },
       "prevControl": {
-        "x": 7.04420903109295,
-        "y": 3.8929841735971933
+        "x": 6.879002599039163,
+        "y": 4.0711839260688985
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "21L"
+      "linkedName": "21R"
     }
   ],
   "rotationTargets": [],
@@ -41,7 +41,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": 180.0
   },
   "reversed": false,

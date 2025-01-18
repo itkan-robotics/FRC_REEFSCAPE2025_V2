@@ -5,51 +5,69 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "centerTo21L"
+            "name": "setGyroTo180"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "21LToSource"
+            "pathName": "rightTo22R"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceTo17R"
+            "pathName": "22RToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "17RToSource"
+            "pathName": "sourceRTo17R"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceTo17L"
+            "pathName": "17RToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "17LToSource"
+            "pathName": "sourceRTo17L"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceTo18R"
+            "pathName": "17LToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "18RToSource"
+            "pathName": "sourceRTo18R"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "18RToSourceR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sourceRTo18L"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "18LToSourceR"
           }
         }
       ]

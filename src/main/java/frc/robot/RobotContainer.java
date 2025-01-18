@@ -14,6 +14,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -50,7 +51,7 @@ public class RobotContainer {
   private final CoralIntake intake = new CoralIntake();
   private final CoralOuttake outtake = new CoralOuttake();
   // Controller
-  private final CommandPS5Controller controller = new CommandPS5Controller(0);
+  private final CommandPS5Controller base = new CommandPS5Controller(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -115,8 +116,12 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    intake.setDefaultCommand(intake.DefaultCommand());
-    outtake.setDefaultCommand(outtake.DefaultCommand());
+    // Set default commands for all subsystems
+    setDefaultCommands();
+
+    // Register named commands for Pathplanner autonomous routines
+    registerNamedCommands();
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -128,22 +133,6 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // Default command, normal field-relative drive
-    // drive.setDefaultCommand(
-    //     DriveCommands.joystickDrive(
-    //         drive,
-    //         () -> -controller.getLeftY(),
-    //         () -> -controller.getLeftX(),
-    //         () -> controller.getRightX()));
-
-    // Default command, field-centric drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickMDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightY(),
-            () -> controller.getRightX()));
 
     limelight.setDefaultCommand(limelight.setLimelight());
 
@@ -153,16 +142,15 @@ public class RobotContainer {
     //     .whileTrue(
     //         DriveCommands.joystickDriveAtAngle(
     //             drive,
-    //             () -> -controller.getLeftY(),
-    //             () -> -controller.getLeftX(),
+    //             () -> -base.getLeftY(),
+    //             () -> -base.getLeftX(),
     //             () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
-    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // base.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    controller
-        .options()
+    base.options()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -171,14 +159,51 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.square().onTrue(elevator.setGoal(5));
-    controller.triangle().onTrue(elevator.setGoal(15));
-    controller.circle().onTrue(elevator.setGoal(10));
-    controller.cross().onTrue(elevator.setGoal(0.0));
-    controller.R2().whileTrue(intake.Intake(1));
-    controller.L2().whileTrue(outtake.Outtake(0.25));
+    base.square().onTrue(elevator.setGoal(5.0));
+    base.triangle().onTrue(elevator.setGoal(15.0));
+    base.circle().onTrue(elevator.setGoal(10.0));
+    base.cross().onTrue(elevator.setGoal(0.0));
+    base.R2().whileTrue(intake.Intake(1.0));
+    base.L2().whileTrue(outtake.Outtake(0.25));
 
-    controller.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
+    base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
+  }
+
+  /*********************************************************
+   * Use this to set up PathplannerLib Named Commands
+   * for autonomous routines.
+   * <p> Last Updated by Abdullah Khaled, 1/18/2025
+   *********************************************************/
+
+  public void registerNamedCommands() {
+    NamedCommands.registerCommand(
+        "setGyroTo180",
+        Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            drive.getPose().getTranslation(), new Rotation2d(Math.toRadians(180)))),
+                drive)
+            .ignoringDisable(true));
+  }
+
+  /*********************************************************
+   * Use this to set up default commands for subsystems.
+   * <p> Last Updated by Abdullah Khaled, 1/18/2025
+   *********************************************************/
+
+  public void setDefaultCommands() {
+    // Default command, field-centric drive & field-centric angle
+    drive.setDefaultCommand(
+        DriveCommands.joystickMDrive(
+            drive,
+            () -> -base.getLeftY(),
+            () -> -base.getLeftX(),
+            () -> -base.getRightY(),
+            () -> base.getRightX()));
+
+    intake.setDefaultCommand(intake.DefaultCommand());
+    outtake.setDefaultCommand(outtake.DefaultCommand());
   }
 
   /**
