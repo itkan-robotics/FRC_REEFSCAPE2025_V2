@@ -13,6 +13,8 @@
 
 package frc.robot.commands;
 
+import static frc.robot.Constants.LimelightConstants.*;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -35,6 +37,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -164,10 +167,11 @@ public class DriveCommands {
    * <p> Last Updated by Abdullah Khaled, 1/18/2025
    *************************************************************************************/
 
-  public static Command limelightDriveToReef(Drive drive) {
+  public static Command limelightDriveToReef(
+      Drive drive, BooleanSupplier alignLeft, BooleanSupplier alignRight) {
 
     // Create PID controller
-    angleController = new PIDController(ANGLE_FIELDKP - 0.2, 0.0, ANGLE_FIELDKD + 0.04);
+    angleController = new PIDController(TURN_KP, 0.0, TURN_KD);
     angleController.enableContinuousInput(-180, 180);
 
     // Construct command
@@ -176,32 +180,29 @@ public class DriveCommands {
           // Default values in the case an AprilTag is not seen
           Translation2d linearVelocity = new Translation2d();
           double omega = 0.0;
+          double offset =
+              alignLeft.getAsBoolean()
+                  ? BRANCH_OFFSET
+                  : alignRight.getAsBoolean() ? -BRANCH_OFFSET : 0.0;
 
           if (limelight.canSeeTarget()) {
 
             // Get the target angle for the robot based on the AprilTag ID
             double reefAngle = limelight.getLLReefAngle();
 
-            // Get linear velocity (dist & angle) based on distance and angle
             /* To-Do List
-             * Profiled PID Tuning for range movement
-             *    Add constants to limelightConstants file
-             * (Profiled?) PID Tuning for tx alignment
-             *    Add constants to limelightConstants file
-             * Remove kP, kI, kD, maxV, maxA values from getAprilTagVelocity method
              * Test for offset degree #
              *    Add constants to limelightConstants file
              */
-
             if (reefAngle != -1.0) {
               // Calculate angular speed
               omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
 
               // If within certain *arbitrary* turn range drive normally; else, drive slowly
               if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 20) {
-                linearVelocity = limelight.getAprilTagVelocity(0.0, false, reefAngle);
+                linearVelocity = limelight.getAprilTagVelocity(offset, false, reefAngle);
               } else {
-                linearVelocity = limelight.getAprilTagVelocity(0.0, true, reefAngle);
+                linearVelocity = limelight.getAprilTagVelocity(offset, true, reefAngle);
               }
             }
           }

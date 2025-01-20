@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -53,20 +52,19 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double MAX_AREA = 8.0;
+    public static final double VELOCITY_DEADBAND = 0.025;
+
+    public static final double MAX_AREA = 8.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
-    public static final double SPEED_KP = 1.0;
-    public static final double SPEED_KI = 0.0;
-    public static final double SPEED_KD = 0.0;
-    public static final double SPEED_KS = 0.05;
-    public static final double SPEED_KV = 0.0;
-    public static final double SPEED_KA = 0.0;
-    public static final double SPEED_MAXVEL = 16.4; // feet per second
-    public static final double SPEED_MAXACCEL = 80.0; // Should speed up to max vel in ~0.2s
-    public static final TrapezoidProfile.Constraints SPEED_CONTRAINTS =
-        new TrapezoidProfile.Constraints(SPEED_MAXVEL, SPEED_MAXACCEL);
-    public static final double ALIGN_KP = 0.0;
-    public static final double ALIGN_KI = 0.0;
-    public static final double ALIGN_KD = 0.0;
+    public static final double MAX_KP = 0.12; // Must be tuned once field is built
+    public static final double MIN_KP = 0.015; // Must be tuned once field is built
+    public static final double ALIGN_KS = 0.05;
+
+    public static final double TURN_KP = 0.23;
+    public static final double TURN_KD = 0.05;
+
+    public static final double CENTERING_KP = 1.695;
+    public static final double CENTERING_KD = 0.001;
+    public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 }

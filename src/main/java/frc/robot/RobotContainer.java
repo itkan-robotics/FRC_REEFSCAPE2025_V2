@@ -166,7 +166,8 @@ public class RobotContainer {
     base.R2().whileTrue(intake.Intake(0.4));
     base.L2().whileTrue(outtake.Outtake(0.25));
 
-    base.povDown().whileTrue(DriveCommands.limelightDriveToReef(drive));
+    base.povUp()
+        .whileTrue(DriveCommands.limelightDriveToReef(drive, base.povLeft(), base.povRight()));
   }
 
   /*********************************************************

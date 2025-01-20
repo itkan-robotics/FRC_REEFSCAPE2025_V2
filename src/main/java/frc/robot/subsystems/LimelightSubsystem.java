@@ -91,22 +91,19 @@ public class LimelightSubsystem extends SubsystemBase {
       m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
     }
 
-    // Once speed controller tuned, I'd like to tune direction as well so != linear
-    // PIDContoller m_aTagDirController = new PIDContoller(
-    // kP, kI, kD);
-
     // Apply deadband
     double linearMagnitude =
         MathUtil.applyDeadband(
             // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + SPEED_KS, 0.025);
+            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
 
     // Calculate direction based on tx
-    m_aTagDirController = new PIDController(1.695, 0.0, 0.001);
+    m_aTagDirController = new PIDController(CENTERING_KP, 0.0, CENTERING_KD);
     Rotation2d linearDirection =
         new Rotation2d(
             MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX() + offset)), 0.01)
+                    m_aTagDirController.calculate(Math.toRadians(getX() + offset)),
+                    VELOCITY_DEADBAND)
                 + Math.toRadians(reefAngle));
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
@@ -130,8 +127,8 @@ public class LimelightSubsystem extends SubsystemBase {
   public double kPExpInterpolation(double ta) {
 
     double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
-    double[] pair0 = {MIN_AREA, 0.12};
-    double[] pair1 = {MAX_AREA, 0.015};
+    double[] pair0 = {MIN_AREA, MAX_KP};
+    double[] pair1 = {MAX_AREA, MIN_KP};
 
     double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
     double A = pair0[1] * Math.exp(k * pair0[0]);
@@ -148,7 +145,6 @@ public class LimelightSubsystem extends SubsystemBase {
   public void createReefHashMap() {
     int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
     reefAngles.put(-1, -1.0);
-
     reefAngles.put(6 + blueAllianceOffset, 120.0);
     reefAngles.put(7 + blueAllianceOffset, 180.0);
     reefAngles.put(8 + blueAllianceOffset, -120.0);
