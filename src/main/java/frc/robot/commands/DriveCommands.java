@@ -167,7 +167,7 @@ public class DriveCommands {
   public static Command limelightDriveToReef(Drive drive) {
 
     // Create PID controller
-    angleController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
+    angleController = new PIDController(ANGLE_FIELDKP - 0.2, 0.0, ANGLE_FIELDKD + 0.04);
     angleController.enableContinuousInput(-180, 180);
 
     // Construct command
@@ -192,17 +192,18 @@ public class DriveCommands {
              * Test for offset degree #
              *    Add constants to limelightConstants file
              */
-            linearVelocity =
-                limelight.getAprilTagVelocity(
-                    0.0,
-                    0.04, // Prev 0.035
-                    0.0,
-                    0.0,
-                    3.0 / drive.getMaxLinearSpeedFeetPerSec(),
-                    30.0);
 
-            // Calculate angular speed
-            omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
+            if (reefAngle != -1.0) {
+              // Calculate angular speed
+              omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
+
+              // If within certain *arbitrary* turn range drive normally; else, drive slowly
+              if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 20) {
+                linearVelocity = limelight.getAprilTagVelocity(0.0, false, reefAngle);
+              } else {
+                linearVelocity = limelight.getAprilTagVelocity(0.0, true, reefAngle);
+              }
+            }
           }
 
           // Convert to field relative speeds & send command

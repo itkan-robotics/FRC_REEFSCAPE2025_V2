@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ElevatorConstants.CORAL_OUTTAKE_MOTOR_PORT;
+import static frc.robot.Constants.*;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;

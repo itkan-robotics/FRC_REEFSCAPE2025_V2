@@ -163,10 +163,10 @@ public class RobotContainer {
     base.triangle().onTrue(elevator.setGoal(15.0));
     base.circle().onTrue(elevator.setGoal(10.0));
     base.cross().onTrue(elevator.setGoal(0.0));
-    base.R2().whileTrue(intake.Intake(1.0));
+    base.R2().whileTrue(intake.Intake(0.4));
     base.L2().whileTrue(outtake.Outtake(0.25));
 
-    base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
+    base.povDown().whileTrue(DriveCommands.limelightDriveToReef(drive));
   }
 
   /*********************************************************

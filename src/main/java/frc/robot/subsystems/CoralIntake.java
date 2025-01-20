@@ -4,8 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ElevatorConstants.LEFT_CORAL_INATKE_MOTOR_PORT;
-import static frc.robot.Constants.ElevatorConstants.RIGHT_CORAL_INATKE_MOTOR_PORT;
+import static frc.robot.Constants.*;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,7 +24,7 @@ public class CoralIntake extends SubsystemBase {
     var motorConfigs = new MotorOutputConfigs();
 
     // set invert to CW+ and apply config change
-    motorConfigs.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
     talonFXConfigurator.apply(motorConfigs);
   }
 
@@ -41,7 +40,7 @@ public class CoralIntake extends SubsystemBase {
     return run(
         () -> {
           left_coral.set(speed);
-          right_coral.set(speed);
+          right_coral.set(speed * 0.5);
         });
   }
 

@@ -7,16 +7,16 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.LimelightConstants.*;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.HashMap;
@@ -33,7 +33,8 @@ public class LimelightSubsystem extends SubsystemBase {
   private final double fovVerticalDegrees = 49.7;
   private final double areaMultiplier = 1.5;
   public boolean limelightHeadingGood = true;
-  private ProfiledPIDController m_aTagSpeedContoller;
+  private PIDController m_aTagSpeedContoller;
+  private PIDController m_aTagDirController;
   private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
 
   public LimelightSubsystem() {
@@ -50,6 +51,7 @@ public class LimelightSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("AprilTag ID", getID());
     if (table.getEntry("tv").getDouble(0.0) == 1) {
       lastTargetTime.restart();
       targetSeen = true;
@@ -72,19 +74,22 @@ public class LimelightSubsystem extends SubsystemBase {
 
   /***************************************************************************************
    * Gets the magnitude and direction the robot should drive in based on AprilTag data.
-   * The method uses ta to calculate magnitude and tx to calculate direction.
-   * <p>Last Updated by Abdullah Khaled, 1/18/2025
+   * The method uses ta to calculate magnitude and tx to calculate direction, and an exponential
+   * interpolation equation to find the kP value the speed controller should use based on ta
+   * <p>Last Updated by Abdullah Khaled, 1/19/2025
    *
    * @param offset Offset for left and right branches
    * @return The linear velocity of the robot as a Translation2d
-   *
    **************************************************************************************/
 
-  public Translation2d getAprilTagVelocity(
-      double offset, double kP, double kI, double kD, double maxV, double maxA) {
+  public Translation2d getAprilTagVelocity(double offset, boolean overTurned, double reefAngle) {
 
-    m_aTagSpeedContoller =
-        new ProfiledPIDController(kP, kI, kD, new TrapezoidProfile.Constraints(maxV, maxA));
+    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
+    if (!overTurned) {
+      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
+
+      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
+    }
 
     // Once speed controller tuned, I'd like to tune direction as well so != linear
     // PIDContoller m_aTagDirController = new PIDContoller(
@@ -94,12 +99,15 @@ public class LimelightSubsystem extends SubsystemBase {
     double linearMagnitude =
         MathUtil.applyDeadband(
             // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA), 0.025);
+            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + SPEED_KS, 0.025);
 
-    // Calculate direction based on tx (*-1.2 b/c when we are to the left, we want robot to go
-    // right)
-    Rotation2d linearDirection = new Rotation2d(Math.toRadians((getX() + offset) * -1.2));
-
+    // Calculate direction based on tx
+    m_aTagDirController = new PIDController(1.695, 0.0, 0.001);
+    Rotation2d linearDirection =
+        new Rotation2d(
+            MathUtil.applyDeadband(
+                    m_aTagDirController.calculate(Math.toRadians(getX() + offset)), 0.01)
+                + Math.toRadians(reefAngle));
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
 
@@ -112,6 +120,26 @@ public class LimelightSubsystem extends SubsystemBase {
   // Helper Methods
 
   /***************************************************************************************
+   * Finds the kP of the speed controller using a linear interpolation equation as created by
+   * ChatGPT
+   * <p> Last Updated by Abdullah Khaled, 1/19/2025
+   * @param ta The area of the limelight's FOV the target fills.
+   * @return The interpolated value
+   **************************************************************************************/
+
+  public double kPExpInterpolation(double ta) {
+
+    double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
+    double[] pair0 = {MIN_AREA, 0.12};
+    double[] pair1 = {MAX_AREA, 0.015};
+
+    double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
+    double A = pair0[1] * Math.exp(k * pair0[0]);
+    double interpolatedVal = A * Math.exp(-k * area);
+    return interpolatedVal;
+  }
+
+  /***************************************************************************************
    * Creates the hashMap for the reef AprilTags based on alliance;
    * if blue alliance, adds 11 to the AprilTag keys to account for different IDs
    * <p> Last Updated by Abdullah Khaled, 1/17/2025
@@ -119,15 +147,14 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public void createReefHashMap() {
     int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
+    reefAngles.put(-1, -1.0);
 
-    reefAngles.put(1, 0.0); // Test Value b/c ID 10 no esta T_T
-
-    reefAngles.put(6 + blueAllianceOffset, 60.0);
-    reefAngles.put(7 + blueAllianceOffset, 0.0);
-    reefAngles.put(8 + blueAllianceOffset, -60.0);
-    reefAngles.put(9 + blueAllianceOffset, -120.0);
-    reefAngles.put(10 + blueAllianceOffset, 180.0);
-    reefAngles.put(11 + blueAllianceOffset, 120.0);
+    reefAngles.put(6 + blueAllianceOffset, 120.0);
+    reefAngles.put(7 + blueAllianceOffset, 180.0);
+    reefAngles.put(8 + blueAllianceOffset, -120.0);
+    reefAngles.put(9 + blueAllianceOffset, -60.0);
+    reefAngles.put(10 + blueAllianceOffset, 0.0);
+    reefAngles.put(11 + blueAllianceOffset, 60.0);
   }
 
   /***************************************************************************************
