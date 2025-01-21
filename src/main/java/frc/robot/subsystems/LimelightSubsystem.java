@@ -211,6 +211,17 @@ public class LimelightSubsystem extends SubsystemBase {
     return targetPoseRobotRelative;
   }
 
+  public static RawFiducial getPrimaryFiducial(RawFiducial[] fiducials) {
+    RawFiducial primaryFiducial = new RawFiducial(-1, 0, 0, 0, 0, 0, 0);
+    int primaryID = (int) table.getEntry("tid").getDouble(0.0);
+    if (primaryID != -1) {
+      for (RawFiducial fiducial : fiducials) {
+        if (fiducial.id == primaryID) primaryFiducial = fiducial;
+      }
+    }
+    return primaryFiducial;
+  }
+
   public double kPExpInterpolation(double ta) {
 
     double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);

@@ -412,6 +412,12 @@ public class Drive extends SubsystemBase {
     if (mt2.tagCount == 0) {
       doRejectUpdate = true;
     }
+    if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
+      if (LimelightSubsystem.getPrimaryFiducial(mt2.rawFiducials).ambiguity >= 0.7) {
+        doRejectUpdate = true;
+      }
+    }
+
     if (!doRejectUpdate) {
       addVisionMeasurement(mt2.pose, mt2.timestampSeconds, Constants.VISION_STDS);
     }
