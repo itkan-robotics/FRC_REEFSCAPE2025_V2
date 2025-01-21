@@ -21,6 +21,27 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
+
+  public static enum TagOffsets {
+    LEFT_BRANCH(1),
+    CENTER(2),
+    ALGAE(2),
+    RIGHT_BRANCH(3);
+
+    private final int pipeline;
+
+    TagOffsets(int pipeline) {
+      this.pipeline = pipeline;
+    }
+
+    public int getPipeline() {
+      return pipeline;
+    }
+  };
+
+  public static final double translationalAutoP = 3.4;
+  public static final double rotationalAutoP = 6.1;
+
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 

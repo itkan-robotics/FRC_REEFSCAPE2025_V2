@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LimelightConstants.*;
 
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,7 +23,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
+import java.util.List;
 
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
@@ -114,6 +121,59 @@ public class LimelightSubsystem extends SubsystemBase {
         .getTranslation();
   }
 
+  public PathPlannerPath reefAlignmentPath(Drive drive) {
+    drive.setPose(new Pose2d());
+    /* "3D transform of the robot in the coordinate system of the primary in-view AprilTag (array (6))
+    [tx, ty, tz, pitch, yaw, roll] (meters, degrees)"
+    https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api#apriltag-and-3d-data*/
+    double[] targetPosRobotRelative = LimelightHelpers.getTargetPose_RobotSpace("limelight");
+    double targetX = targetPosRobotRelative[0];
+    double targetY = targetPosRobotRelative[1];
+    double targetYaw = targetPosRobotRelative[4];
+    // Create a list of waypoints from poses. Each pose represents one waypoint.
+    // The rotation component of the pose should be the direction of travel. Do not use holonomic
+    // rotation.
+    List<Waypoint> waypoints =
+        PathPlannerPath.waypointsFromPoses(
+            new Pose2d(drive.getPose().getX(), drive.getPose().getY(), Rotation2d.fromDegrees(0)),
+            // new Pose2d(
+            //     drive.getPose().getX() + (targetX / 2),
+            //     drive.getPose().getY() + targetY / 2,
+            //     Rotation2d.fromDegrees(90)),
+            new Pose2d(
+                drive.getPose().getX() + targetX,
+                drive.getPose().getX() + targetY,
+                Rotation2d.fromDegrees(0)));
+
+    PathConstraints constraints =
+        new PathConstraints(
+            drive.getMaxLinearSpeedFeetPerSec(),
+            drive.getMaxLinearSpeedFeetPerSec() * 0.5,
+            drive.getMaxAngularSpeedRadPerSec(),
+            drive.getMaxAngularSpeedRadPerSec() * 2); // The constraints for this path.
+    // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use
+    // unlimited constraints, only limited by motor torque and nominal battery voltage
+
+    // Create the path using the waypoints created above
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            constraints,
+            null, // The ideal starting state, this is only relevant for pre-planned paths, so can
+            // be null for on-the-fly paths.
+            new GoalEndState(
+                0.0,
+                Rotation2d.fromDegrees(
+                    targetYaw)) // Goal end state. You can set a holonomic rotation here. If using a
+            // differential drivetrain, the rotation will have no effect.
+            );
+
+    // Prevent the path from being flipped if the coordinates are already correct
+    path.preventFlipping = true;
+
+    return path;
+  }
+
   // Helper Methods
 
   /***************************************************************************************
@@ -193,6 +253,10 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public boolean canSeeTarget() {
     return targetSeen;
+  }
+
+  public void setPipeline(int pipeline) {
+    LimelightHelpers.setPipelineIndex("limelight", pipeline);
   }
 
   public void dynamicCropping() {

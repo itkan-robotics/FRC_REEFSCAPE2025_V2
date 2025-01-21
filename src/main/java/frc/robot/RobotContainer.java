@@ -23,7 +23,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.TagOffsets;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.limelightReefAlignment;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.CoralOuttake;
@@ -166,8 +168,11 @@ public class RobotContainer {
     base.R2().whileTrue(intake.Intake(0.4));
     base.L2().whileTrue(outtake.Outtake(0.25));
 
-    base.povUp()
-        .whileTrue(DriveCommands.limelightDriveToReef(drive, base.povLeft(), base.povRight()));
+    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.CENTER));
+    base.povLeft()
+        .whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.LEFT_BRANCH));
+    base.povRight()
+        .whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.RIGHT_BRANCH));
   }
 
   /*********************************************************
