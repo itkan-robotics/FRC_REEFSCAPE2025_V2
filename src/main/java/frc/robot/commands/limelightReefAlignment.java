@@ -79,7 +79,7 @@ public class limelightReefAlignment extends SequentialCommandGroup {
           if (fiducial.id == m_limelight.getID()) m_primaryTarget = fiducial;
         }
         // this doesn't really do anything unless "always do single target estimation is
-        // checked -> by deafulat, returns -1"
+        // checked -> by default, returns -1"
         if (m_primaryTarget.ambiguity >= 0.2) {
           return new InstantCommand();
         }
@@ -95,7 +95,9 @@ public class limelightReefAlignment extends SequentialCommandGroup {
                 targetpose_robotspace[1],
                 targetpose_robotspace[2],
                 new Rotation3d(
-                    targetpose_robotspace[3], targetpose_robotspace[4], targetpose_robotspace[5]));
+                    Math.toRadians(targetpose_robotspace[5]),
+                    Math.toRadians(targetpose_robotspace[3]),
+                    Math.toRadians(targetpose_robotspace[4])));
 
         // Transform the robot's pose to find the tag's pose
         var targetPose = robotPose3d.transformBy(targetPoseRobotRelative);

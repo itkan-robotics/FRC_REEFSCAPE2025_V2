@@ -14,7 +14,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -24,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.subsystems.drive.Drive;
 import java.util.HashMap;
 import java.util.List;
@@ -183,6 +186,30 @@ public class LimelightSubsystem extends SubsystemBase {
    * @param ta The area of the limelight's FOV the target fills.
    * @return The interpolated value
    **************************************************************************************/
+
+  public Transform3d getTargetPoseRobotRelative3d() {
+    double[] targetpose_robotspace = LimelightHelpers.getTargetPose_RobotSpace("limelight");
+
+    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials("limelight");
+    double tagAmbiguity = Double.POSITIVE_INFINITY;
+    for (RawFiducial fiducial : fiducials) {
+      if (fiducial.id == getID()) tagAmbiguity = fiducial.ambiguity;
+    }
+    Transform3d targetPoseRobotRelative = new Transform3d();
+    if (tagAmbiguity < 0.2) {
+      targetPoseRobotRelative =
+          new Transform3d(
+              targetpose_robotspace[0],
+              targetpose_robotspace[1],
+              targetpose_robotspace[2],
+              new Rotation3d(
+                  Math.toRadians(targetpose_robotspace[5]),
+                  Math.toRadians(targetpose_robotspace[3]),
+                  Math.toRadians(targetpose_robotspace[4])));
+    }
+
+    return targetPoseRobotRelative;
+  }
 
   public double kPExpInterpolation(double ta) {
 

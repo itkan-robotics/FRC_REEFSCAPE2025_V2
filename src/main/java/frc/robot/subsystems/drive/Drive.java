@@ -17,12 +17,11 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -32,8 +31,12 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -42,18 +45,19 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.TagOffsets;
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.LocalADStarAK;
@@ -362,6 +366,19 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  public Pose3d getRobotPose3d() {
+    var robotPose2d = getPose();
+
+    @SuppressWarnings("unused")
+    var robotPose3d =
+        new Pose3d(
+            getPose().getX(),
+            robotPose2d.getY(),
+            0,
+            new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
+    return getRobotPose3d();
+  }
+
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
@@ -379,6 +396,25 @@ public class Drive extends SubsystemBase {
       Matrix<N3, N1> visionMeasurementStdDevs) {
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+  }
+
+  public void setPoseMegatag2() {
+    boolean doRejectUpdate = false;
+    LimelightHelpers.SetRobotOrientation("limelight", getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 =
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    if (Math.abs(gyroIO.getRate())
+        > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision
+    // updates
+    {
+      doRejectUpdate = true;
+    }
+    if (mt2.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+    if (!doRejectUpdate) {
+      addVisionMeasurement(mt2.pose, mt2.timestampSeconds, Constants.VISION_STDS);
+    }
   }
 
   public double getMaxLinearSpeedFeetPerSec() {
@@ -400,26 +436,27 @@ public class Drive extends SubsystemBase {
     };
   }
 
-  public Command limelightReefAlignment(LimelightSubsystem limelight, TagOffsets offset) {
+  public Command limelightReefAlignment(
+      LimelightSubsystem limelight, double frontOffsetInches, TagOffsets offset) {
 
     limelight.setPipeline(offset.getPipeline());
 
-    try {
-      PathPlannerPath path = limelight.reefAlignmentPath(this);
-      return new FollowPathCommand(
-          path,
-          this::getPose,
-          this::getChassisSpeeds,
-          this::runVelocityFeedforward,
-          new PPHolonomicDriveController(
-              new PIDConstants(Constants.translationalAutoP, 0.0, 0.0),
-              new PIDConstants(Constants.rotationalAutoP, 0.0, 0.0)),
-          PP_CONFIG,
-          () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-          this);
-    } catch (Exception e) {
-      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-      return Commands.none();
-    }
+    var TAG_TO_GOAL =
+        new Transform3d(
+            new Translation3d(Units.inchesToMeters(frontOffsetInches), 0, 0),
+            new Rotation3d(0, 0, Math.PI));
+
+    limelight.setPipeline(offset.getPipeline());
+
+    var goalPose =
+        getRobotPose3d()
+            .transformBy(limelight.getTargetPoseRobotRelative3d())
+            .transformBy(TAG_TO_GOAL)
+            .toPose2d();
+
+    return AutoBuilder.pathfindToPose(
+        goalPose,
+        new PathConstraints(3.0, 2, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+        0);
   }
 }

@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -41,6 +44,9 @@ public final class Constants {
 
   public static final double translationalAutoP = 3.4;
   public static final double rotationalAutoP = 6.1;
+
+  // values from Team Spectrum 3847’s X-Ray robot from last year
+  public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
 
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;

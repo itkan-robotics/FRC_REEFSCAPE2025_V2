@@ -151,7 +151,7 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // base.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when options button is pressed
     base.options()
         .onTrue(
             Commands.runOnce(
@@ -169,10 +169,8 @@ public class RobotContainer {
     base.L2().whileTrue(outtake.Outtake(0.25));
 
     base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.CENTER));
-    base.povLeft()
-        .whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.LEFT_BRANCH));
-    base.povRight()
-        .whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.RIGHT_BRANCH));
+
+    base.povDown().whileTrue(drive.limelightReefAlignment(limelight, 4, TagOffsets.CENTER));
   }
 
   /*********************************************************
