@@ -13,11 +13,12 @@ import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.subsystems.drive.Drive;
@@ -71,82 +73,44 @@ public class LimelightSubsystem extends SubsystemBase {
     }
   }
 
-  /*******************************************************
-   * Function to get angle of target AprilTag based on its ID.
-   *
-   * <p> Last Updated by Abdullah Khaled, 1/17/2025
-   * @return Angle of the target AprilTag in degrees
-   *******************************************************/
+  public PathPlannerPath reefAlignmentPath(
+      Drive drive, double frontOffsetInches, Constants.TagOffsets offset) {
 
-  public double getLLReefAngle() {
-    return reefAngles.get(getID());
-  }
+    setPipeline(offset.getPipeline());
+    // Get the current pose of the robot.
+    Pose3d robotPose = drive.getRobotPose3d();
 
-  /***************************************************************************************
-   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
-   * The method uses ta to calculate magnitude and tx to calculate direction, and an exponential
-   * interpolation equation to find the kP value the speed controller should use based on ta
-   * <p>Last Updated by Abdullah Khaled, 1/19/2025
-   *
-   * @param offset Offset for left and right branches
-   * @return The linear velocity of the robot as a Translation2d
-   **************************************************************************************/
+    // Get the current heading of the robot
+    Rotation2d robotHeading = drive.getRotation();
 
-  public Translation2d getAprilTagVelocity(double offset, boolean overTurned, double reefAngle) {
+    // Convert the target's robot relative pose into a "field-relative" pose
+    Pose2d targetPose = robotPose.toPose2d();
 
-    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
-    if (!overTurned) {
-      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
+    if (hasTarget())
+      targetPose =
+          robotPose
+              .transformBy(
+                  new Transform3d(
+                      new Pose3d(), LimelightHelpers.getTargetPose3d_RobotSpace("limelight")))
+              .transformBy(
+                  new Transform3d(
+                      new Translation3d(Units.inchesToMeters(frontOffsetInches), 0, 0),
+                      new Rotation3d(0, 0, Math.PI)))
+              .toPose2d();
 
-      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
-    }
+    // Get the desired direction of travel by subtracting the target's heading from the robot's
+    // heading. This way, the robot travels in a straight line to the apriltag.
+    Rotation2d directionOfTravel = targetPose.getRotation().minus(robotHeading);
 
-    // Apply deadband
-    double linearMagnitude =
-        MathUtil.applyDeadband(
-            // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
-
-    // Calculate direction based on tx
-    m_aTagDirController = new PIDController(CENTERING_KP, 0.0, CENTERING_KD);
-    Rotation2d linearDirection =
-        new Rotation2d(
-            MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX() + offset)),
-                    VELOCITY_DEADBAND)
-                + Math.toRadians(reefAngle));
-    // Square magnitude for more precise control
-    linearMagnitude = linearMagnitude * linearMagnitude;
-
-    // Return new linear velocity
-    return new Pose2d(new Translation2d(), linearDirection)
-        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-        .getTranslation();
-  }
-
-  public PathPlannerPath reefAlignmentPath(Drive drive) {
-    drive.setPose(new Pose2d());
-    /* "3D transform of the robot in the coordinate system of the primary in-view AprilTag (array (6))
-    [tx, ty, tz, pitch, yaw, roll] (meters, degrees)"
-    https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api#apriltag-and-3d-data*/
-    double[] targetPosRobotRelative = LimelightHelpers.getTargetPose_RobotSpace("limelight");
-    double targetX = targetPosRobotRelative[0];
-    double targetY = targetPosRobotRelative[1];
-    double targetYaw = targetPosRobotRelative[4];
     // Create a list of waypoints from poses. Each pose represents one waypoint.
     // The rotation component of the pose should be the direction of travel. Do not use holonomic
     // rotation.
     List<Waypoint> waypoints =
         PathPlannerPath.waypointsFromPoses(
-            new Pose2d(drive.getPose().getX(), drive.getPose().getY(), Rotation2d.fromDegrees(0)),
-            // new Pose2d(
-            //     drive.getPose().getX() + (targetX / 2),
-            //     drive.getPose().getY() + targetY / 2,
-            //     Rotation2d.fromDegrees(90)),
+            new Pose2d(targetPose.getTranslation(), directionOfTravel),
             new Pose2d(
-                drive.getPose().getX() + targetX,
-                drive.getPose().getX() + targetY,
-                Rotation2d.fromDegrees(0)));
+                targetPose.getTranslation(),
+                directionOfTravel.plus(Rotation2d.fromRadians(Math.PI))));
 
     PathConstraints constraints =
         new PathConstraints(
@@ -166,8 +130,9 @@ public class LimelightSubsystem extends SubsystemBase {
             // be null for on-the-fly paths.
             new GoalEndState(
                 0.0,
-                Rotation2d.fromDegrees(
-                    targetYaw)) // Goal end state. You can set a holonomic rotation here. If using a
+                targetPose
+                    .getRotation()) // Goal end state. You can set a holonomic rotation here. If
+            // using a
             // differential drivetrain, the rotation will have no effect.
             );
 
@@ -179,15 +144,10 @@ public class LimelightSubsystem extends SubsystemBase {
 
   // Helper Methods
 
-  /***************************************************************************************
-   * Finds the kP of the speed controller using a linear interpolation equation as created by
-   * ChatGPT
-   * <p> Last Updated by Abdullah Khaled, 1/19/2025
-   * @param ta The area of the limelight's FOV the target fills.
-   * @return The interpolated value
-   **************************************************************************************/
-
   public Transform3d getTargetPoseRobotRelative3d() {
+    /* "3D transform of the robot in the coordinate system of the primary in-view AprilTag (array (6))
+    [tx, ty, tz, pitch, yaw, roll] (meters, degrees)"
+    https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api#apriltag-and-3d-data*/
     double[] targetpose_robotspace = LimelightHelpers.getTargetPose_RobotSpace("limelight");
 
     RawFiducial[] fiducials = LimelightHelpers.getRawFiducials("limelight");
@@ -196,7 +156,7 @@ public class LimelightSubsystem extends SubsystemBase {
       if (fiducial.id == getID()) tagAmbiguity = fiducial.ambiguity;
     }
     Transform3d targetPoseRobotRelative = new Transform3d();
-    if (tagAmbiguity < 0.2) {
+    if (tagAmbiguity < 0.5) {
       targetPoseRobotRelative =
           new Transform3d(
               targetpose_robotspace[0],
@@ -222,6 +182,13 @@ public class LimelightSubsystem extends SubsystemBase {
     return primaryFiducial;
   }
 
+  /***************************************************************************************
+   * Finds the kP of the speed controller using a linear interpolation equation as created by
+   * ChatGPT
+   * <p> Last Updated by Abdullah Khaled, 1/19/2025
+   * @param ta The area of the limelight's FOV the target fills.
+   * @return The interpolated value
+   **************************************************************************************/
   public double kPExpInterpolation(double ta) {
 
     double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);

@@ -21,7 +21,7 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -34,9 +34,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -45,18 +43,17 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.Constants.TagOffsets;
 import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -413,7 +410,7 @@ public class Drive extends SubsystemBase {
       doRejectUpdate = true;
     }
     if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
-      if (LimelightSubsystem.getPrimaryFiducial(mt2.rawFiducials).ambiguity >= 0.7) {
+      if (LimelightSubsystem.getPrimaryFiducial(mt2.rawFiducials).ambiguity >= 0.2) {
         doRejectUpdate = true;
       }
     }
@@ -443,26 +440,16 @@ public class Drive extends SubsystemBase {
   }
 
   public Command limelightReefAlignment(
-      LimelightSubsystem limelight, double frontOffsetInches, TagOffsets offset) {
+      LimelightSubsystem limelight, double frontOffsetInches, Constants.TagOffsets offset) {
+    try {
+      // Load the path you want to follow using its name in the GUI
+      PathPlannerPath path = limelight.reefAlignmentPath(this, frontOffsetInches, offset);
 
-    limelight.setPipeline(offset.getPipeline());
-
-    var TAG_TO_GOAL =
-        new Transform3d(
-            new Translation3d(Units.inchesToMeters(frontOffsetInches), 0, 0),
-            new Rotation3d(0, 0, Math.PI));
-
-    limelight.setPipeline(offset.getPipeline());
-
-    var goalPose =
-        getRobotPose3d()
-            .transformBy(limelight.getTargetPoseRobotRelative3d())
-            .transformBy(TAG_TO_GOAL)
-            .toPose2d();
-
-    return AutoBuilder.pathfindToPose(
-        goalPose,
-        new PathConstraints(3.0, 2, Units.degreesToRadians(540), Units.degreesToRadians(720)),
-        0);
+      // Create a path following command using AutoBuilder. This will also trigger event markers.
+      return AutoBuilder.followPath(path);
+    } catch (Exception e) {
+      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+      return Commands.none();
+    }
   }
 }

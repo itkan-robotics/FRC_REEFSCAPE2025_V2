@@ -87,17 +87,20 @@ public class limelightReefAlignment extends SequentialCommandGroup {
         // System.out.println("ID: " + targetToUse.getFiducialId() + " ambig = "
         // + targetToUse.getPoseAmbiguity());
         // Get the transformation from the camera to the tag
-        double[] targetpose_robotspace = LimelightHelpers.getTargetPose_RobotSpace("limelight");
+        // double[] targetpose_robotspace = LimelightHelpers.getTargetPose_RobotSpace("limelight");
+
+        // var targetPoseRobotRelative =
+        //     new Transform3d(
+        //         targetpose_robotspace[0],
+        //         targetpose_robotspace[1],
+        //         targetpose_robotspace[2],
+        //         new Rotation3d(
+        //             Math.toRadians(targetpose_robotspace[5]),
+        //             Math.toRadians(targetpose_robotspace[3]),
+        //             Math.toRadians(targetpose_robotspace[4])));
 
         var targetPoseRobotRelative =
-            new Transform3d(
-                targetpose_robotspace[0],
-                targetpose_robotspace[1],
-                targetpose_robotspace[2],
-                new Rotation3d(
-                    Math.toRadians(targetpose_robotspace[5]),
-                    Math.toRadians(targetpose_robotspace[3]),
-                    Math.toRadians(targetpose_robotspace[4])));
+            new Transform3d(new Pose3d(), LimelightHelpers.getTargetPose3d_RobotSpace("limelight"));
 
         // Transform the robot's pose to find the tag's pose
         var targetPose = robotPose3d.transformBy(targetPoseRobotRelative);

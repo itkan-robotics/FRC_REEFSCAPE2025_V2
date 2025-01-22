@@ -168,9 +168,9 @@ public class RobotContainer {
     base.R2().whileTrue(intake.Intake(0.4));
     base.L2().whileTrue(outtake.Outtake(0.25));
 
-    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, 4, TagOffsets.CENTER));
+    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, 24, TagOffsets.CENTER));
 
-    base.povDown().whileTrue(drive.limelightReefAlignment(limelight, 4, TagOffsets.CENTER));
+    base.povDown().whileTrue(drive.limelightReefAlignment(limelight, 24, TagOffsets.CENTER));
   }
 
   /*********************************************************

@@ -66,4 +66,9 @@ public class GyroIOPigeon2 implements GyroIO {
   public double getRate() {
     return pigeon.getAngularVelocityZWorld().getValueAsDouble();
   }
+
+  @Override
+  public double getYaw() {
+    return pigeon.getYaw().getValueAsDouble();
+  }
 }
