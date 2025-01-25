@@ -41,8 +41,9 @@ public final class Constants {
     public static final int LEFT_ELEVATOR_MOTOR_PORT = 11;
     public static final int LEFT_CORAL_INATKE_MOTOR_PORT = 13; // 1 is a place holder
     public static final int RIGHT_CORAL_INATKE_MOTOR_PORT = 12; // 1 is a place holder
-    public static final int CORAL_OUTTAKE_MOTOR_PORT = 9;
-    // public static final int RIGHT_ELEVATOR_MOTOR_PORT = 11;
+    public static final int CORAL_OUTTAKE_MOTOR_PORT = 15;
+    public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
+    public static final int LEFT_PIVOT_MOTOR_PORT = 9;
     public static final double kElevatorGearRatio = 1.0;
     public static final double kRotationsToInchesRatio = 1.0;
     public static final double elevator_kP = 0.0;

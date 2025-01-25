@@ -29,6 +29,7 @@ import frc.robot.subsystems.CoralIntake;
 import frc.robot.subsystems.CoralOuttake;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -50,8 +51,10 @@ public class RobotContainer {
   private final LimelightSubsystem limelight;
   private final CoralIntake intake = new CoralIntake();
   private final CoralOuttake outtake = new CoralOuttake();
+  private final PivotSubsystem pivot = new PivotSubsystem();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
+  private final CommandPS5Controller operator = new CommandPS5Controller(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -159,12 +162,13 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    base.square().onTrue(elevator.setGoal(5.0));
-    base.triangle().onTrue(elevator.setGoal(15.0));
-    base.circle().onTrue(elevator.setGoal(10.0));
-    base.cross().onTrue(elevator.setGoal(0.0));
+    base.square().onTrue(pivot.setGoal(5.0));
+    base.triangle().onTrue(pivot.setGoal(15.0));
+    base.circle().onTrue(pivot.setGoal(25.0));
+    base.cross().onTrue(pivot.setGoal(35.0));
     base.R2().whileTrue(intake.Intake(0.25));
     base.L2().whileTrue(outtake.Outtake(0.25));
+    // operator.cross().onTrue(pivot.setGoal(10.0));
 
     // base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
   }
@@ -204,6 +208,8 @@ public class RobotContainer {
 
     intake.setDefaultCommand(intake.DefaultCommand());
     outtake.setDefaultCommand(outtake.DefaultCommand());
+    pivot.setDefaultCommand(pivot.resetPivot());
+    elevator.setDefaultCommand(elevator.resetElevators());
   }
 
   /**
