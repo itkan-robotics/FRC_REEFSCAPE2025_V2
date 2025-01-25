@@ -25,7 +25,7 @@ public class CoralIntake extends SubsystemBase {
     var motorConfigs = new MotorOutputConfigs();
 
     // set invert to CW+ and apply config change
-    motorConfigs.Inverted = InvertedValue.Clockwise_Positive;
+    motorConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
     talonFXConfigurator.apply(motorConfigs);
   }
 
