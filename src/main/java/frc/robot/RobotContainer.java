@@ -168,9 +168,11 @@ public class RobotContainer {
     base.R2().whileTrue(intake.Intake(0.4));
     base.L2().whileTrue(outtake.Outtake(0.25));
 
-    base.povUp().onTrue(new limelightReefAlignment(drive, limelight, -20.0, TagOffsets.CENTER));
+    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, -20.0, TagOffsets.CENTER));
 
-    base.povDown().onTrue(drive.setPoseCommand(new Pose2d()));
+    //Sets the robot's believed position to (0, 0)
+    //PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
+      base.povDown().onTrue(drive.setPoseCommand(new Pose2d()));
   }
 
   /*********************************************************

@@ -35,7 +35,20 @@ public class limelightReefAlignment extends SequentialCommandGroup {
 
   Transform3d TAG_TO_GOAL;
 
-  /** Creates a new SequentialChaseTagCmd. */
+  /***************************************************************************************************************************************************************
+   * SequentialCommandGroup that uses Pathplanner AutoBuilder to create a path from the robot's
+   * current position to the primary AprilTag's estimated position.
+   * <p>(Base code obtained from 
+   * <a href=https://www.chiefdelphi.com/t/need-help-with-integrating-pose-estimation-with-apriltags-and-pathplanner-trajectories-in-auto-teleop/455287>HERE</a>.
+   * Modifications include making it use LimelightHelpers methods instead of PhotonVision)
+   * <p> Last Updated by Abdullah Khaled, 1/25/2025 
+   * @param drive Swerve subsystem
+   * @param limelight Limelight subsystem
+   * @param frontOffsetInches Offset in inches; a negative value results in an offset AWAY from the 
+   * AprilTag. If for some reason you want the robot to go behind the AprilTag, make the value positive.
+   * @param offset Where we want to align (i.e. Left, Center, Right). Each enum has a value 
+   * associated with it that corresponds to the Limelight pipeline the camera should use.
+   ***************************************************************************************************************************************************************/
   public limelightReefAlignment(
       Drive drive,
       LimelightSubsystem limelight,
@@ -72,9 +85,8 @@ public class limelightReefAlignment extends SequentialCommandGroup {
       return new InstantCommand();
     } else {
       // Transform the tag's pose to set our goal
-      System.out.println("test");
 
-      var targetPoseEst = new Pose3d(m_limelight.maReefAlignment(m_drive));
+      var targetPoseEst = new Pose3d(m_limelight.getTagEstimatedPosition());
       var goalPose =
           targetPoseEst.getX() <= 0
               ? robotPose3d.toPose2d()
@@ -82,18 +94,6 @@ public class limelightReefAlignment extends SequentialCommandGroup {
                   .transformBy(new Transform3d(new Pose3d(), targetPoseEst))
                   .transformBy(TAG_TO_GOAL)
                   .toPose2d();
-
-      double[] robotposearr = {
-        robotPose2d.getX(), robotPose2d.getY(), robotPose2d.getRotation().getDegrees()
-      };
-      double[] goalposearr = {
-        goalPose.getX(), goalPose.getY(), goalPose.getRotation().getDegrees()
-      };
-
-      m_drive.poseFromArr(goalposearr);
-
-      SmartDashboard.putNumberArray("Robot Pose 2d", robotposearr);
-      SmartDashboard.putNumberArray("Goal Pose 2d", goalposearr);
 
       return AutoBuilder.pathfindToPose(
           goalPose,

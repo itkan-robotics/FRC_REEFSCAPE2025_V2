@@ -21,9 +21,7 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -31,9 +29,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -49,13 +45,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -65,7 +59,6 @@ import org.littletonrobotics.junction.Logger;
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
 
-  public double[] tagPose = {0, 0, 0, 0};
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
@@ -258,26 +251,6 @@ public class Drive extends SubsystemBase {
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
-  public void runVelocityFeedforward(ChassisSpeeds speeds, DriveFeedforwards feedforwards) {
-    // Calculate module setpoints
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(
-        setpointStates, TunerConstants.kSpeedAt12Volts.in(FeetPerSecond));
-
-    // Log unoptimized setpoints and setpoint speeds
-    Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
-
-    // Send setpoints to modules
-    for (int i = 0; i < 4; i++) {
-      modules[i].runSetpoint(setpointStates[i]);
-    }
-
-    // Log optimized setpoints (runSetpoint mutates each state)
-    Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
-  }
-
   /** Runs the drive in a straight line with the specified drive output. */
   public void runCharacterization(double output) {
     for (int i = 0; i < 4; i++) {
@@ -364,32 +337,11 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
-  @AutoLogOutput(key = "Odometry/TagPose")
-  public Pose2d setTagPose() {
-    return new Pose2d(tagPose[0], tagPose[1], Rotation2d.fromDegrees(tagPose[2]));
-  }
-
-  public void poseFromArr(double[] arr) {
-    tagPose = arr;
-  }
-
   public Command setPoseCommand(Pose2d pose) {
     return run(
         () -> {
           setPose(pose);
         });
-  }
-
-  public Pose3d getRobotPose3d() {
-    var robotPose2d = getPose();
-
-    var robotPose3d =
-        new Pose3d(
-            getPose().getX(),
-            robotPose2d.getY(),
-            0,
-            new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
-    return robotPose3d;
   }
 
   /** Returns the current odometry rotation. */
@@ -428,19 +380,5 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
-  }
-
-  public Command limelightReefAlignment(
-      LimelightSubsystem limelight, double frontOffsetInches, Constants.TagOffsets offset) {
-    try {
-      // Load the path you want to follow using its name in the GUI
-      PathPlannerPath path = limelight.reefAlignmentPath(this, frontOffsetInches, offset);
-
-      // Create a path following command using AutoBuilder. This will also trigger event markers.
-      return AutoBuilder.followPath(path);
-    } catch (Exception e) {
-      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-      return Commands.none();
-    }
   }
 }
