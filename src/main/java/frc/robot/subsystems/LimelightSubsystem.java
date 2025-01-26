@@ -4,7 +4,10 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.LimelightConstants.*;
+import static frc.robot.Constants.LimelightConstants.MAX_AREA;
+import static frc.robot.Constants.LimelightConstants.MAX_KP;
+import static frc.robot.Constants.LimelightConstants.MIN_AREA;
+import static frc.robot.Constants.LimelightConstants.MIN_KP;
 
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
@@ -71,6 +74,37 @@ public class LimelightSubsystem extends SubsystemBase {
     if (lastTargetTime.get() > .1) {
       targetSeen = false;
     }
+    maReefAlignment(null);
+  }
+
+  // Mechanical Advantage reef alignment
+  // Get the tag's position relative to the robot (distToRobot)
+  //
+  public Pose2d maReefAlignment(Drive drive) {
+    double[] targetPose =
+        NetworkTableInstance.getDefault()
+            .getTable("limelight")
+            .getEntry("targetpose_robotspace")
+            .getDoubleArray(new double[6]);
+    ;
+    double targetTX = targetPose[0];
+    double targetTY = targetPose[1];
+    double targetTZ = targetPose[2];
+    Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
+    // System.out.println("targetRotation: " + tAngleToRobot.getDegrees());
+    double distanceToTarget =
+        getPrimaryFiducial(LimelightHelpers.getRawFiducials("limelight")).distToRobot;
+    double absRotation =
+        -1.0
+                * NetworkTableInstance.getDefault()
+                    .getTable("SmartDashboard")
+                    .getEntry("Heading")
+                    .getDouble(0.0)
+            - getReefAngle();
+
+    // System.out.println("absRotation: " + absRotation);
+    Pose2d targetPose2d = new Pose2d(targetTZ, -targetTX, Rotation2d.fromDegrees(absRotation));
+    return targetPose2d == null ? new Pose2d(-1, -1, Rotation2d.fromDegrees(0)) : targetPose2d;
   }
 
   public PathPlannerPath reefAlignmentPath(
@@ -210,12 +244,18 @@ public class LimelightSubsystem extends SubsystemBase {
   public void createReefHashMap() {
     int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
     reefAngles.put(-1, -1.0);
-    reefAngles.put(6 + blueAllianceOffset, 120.0);
-    reefAngles.put(7 + blueAllianceOffset, 180.0);
-    reefAngles.put(8 + blueAllianceOffset, -120.0);
-    reefAngles.put(9 + blueAllianceOffset, -60.0);
-    reefAngles.put(10 + blueAllianceOffset, 0.0);
-    reefAngles.put(11 + blueAllianceOffset, 60.0);
+    reefAngles.put(6 + blueAllianceOffset, -60.0); // 17
+    reefAngles.put(7 + blueAllianceOffset, 0.0); // 18
+    reefAngles.put(8 + blueAllianceOffset, 60.0); // 19
+    reefAngles.put(9 + blueAllianceOffset, 120.0); // 20
+    reefAngles.put(10 + blueAllianceOffset, 180.0); // 21
+    reefAngles.put(11 + blueAllianceOffset, -120.0); // 22
+  }
+
+  public double getReefAngle() {
+    double angle = (reefAngles.get(getID()) == null) ? -1.0 : reefAngles.get(getID());
+    System.out.println("id: " + getID());
+    return angle;
   }
 
   /***************************************************************************************

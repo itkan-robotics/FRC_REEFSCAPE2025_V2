@@ -54,7 +54,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.LocalADStarAK;
@@ -65,6 +64,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
+
+  public double[] tagPose = {0, 0, 0, 0};
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
@@ -363,17 +364,32 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  @AutoLogOutput(key = "Odometry/TagPose")
+  public Pose2d setTagPose() {
+    return new Pose2d(tagPose[0], tagPose[1], Rotation2d.fromDegrees(tagPose[2]));
+  }
+
+  public void poseFromArr(double[] arr) {
+    tagPose = arr;
+  }
+
+  public Command setPoseCommand(Pose2d pose) {
+    return run(
+        () -> {
+          setPose(pose);
+        });
+  }
+
   public Pose3d getRobotPose3d() {
     var robotPose2d = getPose();
 
-    @SuppressWarnings("unused")
     var robotPose3d =
         new Pose3d(
             getPose().getX(),
             robotPose2d.getY(),
             0,
             new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
-    return getRobotPose3d();
+    return robotPose3d;
   }
 
   /** Returns the current odometry rotation. */
@@ -393,31 +409,6 @@ public class Drive extends SubsystemBase {
       Matrix<N3, N1> visionMeasurementStdDevs) {
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-  }
-
-  public void setPoseMegatag2() {
-    boolean doRejectUpdate = false;
-    LimelightHelpers.SetRobotOrientation("limelight", getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 =
-        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    if (Math.abs(gyroIO.getRate())
-        > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision
-    // updates
-    {
-      doRejectUpdate = true;
-    }
-    if (mt2.tagCount == 0) {
-      doRejectUpdate = true;
-    }
-    if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
-      if (LimelightSubsystem.getPrimaryFiducial(mt2.rawFiducials).ambiguity >= 0.2) {
-        doRejectUpdate = true;
-      }
-    }
-
-    if (!doRejectUpdate) {
-      addVisionMeasurement(mt2.pose, mt2.timestampSeconds, Constants.VISION_STDS);
-    }
   }
 
   public double getMaxLinearSpeedFeetPerSec() {

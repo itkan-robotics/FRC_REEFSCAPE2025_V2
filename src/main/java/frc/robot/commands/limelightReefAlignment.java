@@ -11,13 +11,13 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import java.util.Set;
@@ -49,7 +49,7 @@ public class limelightReefAlignment extends SequentialCommandGroup {
     this.TAG_TO_GOAL =
         new Transform3d(
             new Translation3d(Units.inchesToMeters(frontOffsetInches), 0, 0),
-            new Rotation3d(0, 0, Math.PI));
+            new Rotation3d(0, 0, 0.0));
 
     addRequirements(drive);
     addCommands(
@@ -68,55 +68,41 @@ public class limelightReefAlignment extends SequentialCommandGroup {
             0,
             new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
 
-    if (m_limelight.hasTarget() == false) {
+    if (m_limelight.canSeeTarget() == false) {
       return new InstantCommand();
     } else {
-      try {
-        RawFiducial[] fiducials = LimelightHelpers.getRawFiducials("limelight");
-        m_primaryTarget = fiducials[0];
-        for (RawFiducial fiducial : fiducials) {
-          // .ta, .distToCamera, .distToRobot, .ambiguity
-          if (fiducial.id == m_limelight.getID()) m_primaryTarget = fiducial;
-        }
-        // this doesn't really do anything unless "always do single target estimation is
-        // checked -> by default, returns -1"
-        if (m_primaryTarget.ambiguity >= 0.2) {
-          return new InstantCommand();
-        }
+      // Transform the tag's pose to set our goal
+      System.out.println("test");
 
-        // System.out.println("ID: " + targetToUse.getFiducialId() + " ambig = "
-        // + targetToUse.getPoseAmbiguity());
-        // Get the transformation from the camera to the tag
-        // double[] targetpose_robotspace = LimelightHelpers.getTargetPose_RobotSpace("limelight");
+      var targetPoseEst = new Pose3d(m_limelight.maReefAlignment(m_drive));
+      var goalPose =
+          targetPoseEst.getX() <= 0
+              ? robotPose3d.toPose2d()
+              : robotPose3d
+                  .transformBy(new Transform3d(new Pose3d(), targetPoseEst))
+                  .transformBy(TAG_TO_GOAL)
+                  .toPose2d();
 
-        // var targetPoseRobotRelative =
-        //     new Transform3d(
-        //         targetpose_robotspace[0],
-        //         targetpose_robotspace[1],
-        //         targetpose_robotspace[2],
-        //         new Rotation3d(
-        //             Math.toRadians(targetpose_robotspace[5]),
-        //             Math.toRadians(targetpose_robotspace[3]),
-        //             Math.toRadians(targetpose_robotspace[4])));
+      double[] robotposearr = {
+        robotPose2d.getX(), robotPose2d.getY(), robotPose2d.getRotation().getDegrees()
+      };
+      double[] goalposearr = {
+        goalPose.getX(), goalPose.getY(), goalPose.getRotation().getDegrees()
+      };
 
-        var targetPoseRobotRelative =
-            new Transform3d(new Pose3d(), LimelightHelpers.getTargetPose3d_RobotSpace("limelight"));
+      m_drive.poseFromArr(goalposearr);
 
-        // Transform the robot's pose to find the tag's pose
-        var targetPose = robotPose3d.transformBy(targetPoseRobotRelative);
+      SmartDashboard.putNumberArray("Robot Pose 2d", robotposearr);
+      SmartDashboard.putNumberArray("Goal Pose 2d", goalposearr);
 
-        // Transform the tag's pose to set our goal
-        var goalPose = targetPose.transformBy(TAG_TO_GOAL).toPose2d();
-
-        return AutoBuilder.pathfindToPose(
-            goalPose,
-            new PathConstraints(3.0, 2, Units.degreesToRadians(540), Units.degreesToRadians(720)),
-            0);
-
-      } catch (NullPointerException ex) {
-        ex.printStackTrace();
-        return new InstantCommand();
-      }
+      return AutoBuilder.pathfindToPose(
+          goalPose,
+          new PathConstraints(
+              m_drive.getMaxLinearSpeedFeetPerSec(),
+              30,
+              Units.degreesToRadians(720),
+              Units.degreesToRadians(1440)),
+          0);
     }
   }
 }

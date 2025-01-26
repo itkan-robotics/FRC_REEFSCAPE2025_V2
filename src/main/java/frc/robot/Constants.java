@@ -27,8 +27,8 @@ public final class Constants {
 
   public static enum TagOffsets {
     LEFT_BRANCH(1),
-    CENTER(2),
-    ALGAE(2),
+    CENTER(0),
+    ALGAE(0),
     RIGHT_BRANCH(3);
 
     private final int pipeline;
@@ -42,8 +42,8 @@ public final class Constants {
     }
   };
 
-  public static final double translationalAutoP = 3.4;
-  public static final double rotationalAutoP = 6.1;
+  public static final double translationalAutoP = 20.0;
+  public static final double rotationalAutoP = 10.0;
 
   // values from Team Spectrum 3847’s X-Ray robot from last year
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
