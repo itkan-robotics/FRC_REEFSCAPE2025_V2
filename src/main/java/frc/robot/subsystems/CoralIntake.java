@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ElevatorConstants.LEFT_CORAL_INATKE_MOTOR_PORT;
 import static frc.robot.Constants.ElevatorConstants.RIGHT_CORAL_INATKE_MOTOR_PORT;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -15,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralIntake extends SubsystemBase {
   /** Creates a new CoralItake. */
-  private final TalonFX left_coral = new TalonFX(LEFT_CORAL_INATKE_MOTOR_PORT);
+  private final TalonFX left_coral = new TalonFX(4);
 
   private final TalonFX right_coral = new TalonFX(RIGHT_CORAL_INATKE_MOTOR_PORT);
 

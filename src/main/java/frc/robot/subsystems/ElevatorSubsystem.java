@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private final TalonFX leftMotor = new TalonFX(LEFT_ELEVATOR_MOTOR_PORT);
+  private final TalonFX elevator = new TalonFX(LEFT_ELEVATOR_MOTOR_PORT);
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
 
@@ -64,7 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     motionMagicConfigs.MotionMagicJerk = 750; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
     // in init function
-    tryUntilOk(5, () -> leftMotor.getConfigurator().apply(leftConfig, 0.25));
+    tryUntilOk(5, () -> elevator.getConfigurator().apply(leftConfig, 0.25));
 
     // rightMotor.setControl(rightMotorFollower);
 
@@ -90,15 +90,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
-    leftMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    elevator.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getLeftPosition() {
-    return leftMotor.getPosition().getValueAsDouble();
+    return elevator.getPosition().getValueAsDouble();
   }
 
   public void resetPosition() {
-    leftMotor.setPosition(0.0, 0.25);
-    // rightMotor.setPosition(0.0, 0.25);
+    setSetpoint(0); // rightMotor.setPosition(0.0, 0.25);
   }
 }

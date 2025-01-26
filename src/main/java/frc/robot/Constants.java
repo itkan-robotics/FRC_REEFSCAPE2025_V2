@@ -38,8 +38,8 @@ public final class Constants {
 
   public static class ElevatorConstants {
     // Only Left motor being used
-    public static final int LEFT_ELEVATOR_MOTOR_PORT = 11;
-    public static final int LEFT_CORAL_INATKE_MOTOR_PORT = 13; // 1 is a place holder
+    public static final int LEFT_ELEVATOR_MOTOR_PORT = 13;
+    public static final int LEFT_CORAL_INATKE_MOTOR_PORT = 1; // 1 is a place holder
     public static final int RIGHT_CORAL_INATKE_MOTOR_PORT = 12; // 1 is a place holder
     public static final int CORAL_OUTTAKE_MOTOR_PORT = 15;
     public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
@@ -48,7 +48,7 @@ public final class Constants {
     public static final double kRotationsToInchesRatio = 1.0;
     public static final double elevator_kP = 0.0;
     public static final double elevator_kD = 0.0;
-    public static final boolean LEFT_ELEVATOR_IS_INVERTED = false;
+    public static final boolean LEFT_ELEVATOR_IS_INVERTED = true;
     public static final boolean RIGHT_ELEVATOR_IS_INVERTED = false;
   }
 

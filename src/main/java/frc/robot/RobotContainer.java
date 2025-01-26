@@ -165,9 +165,11 @@ public class RobotContainer {
     base.square().onTrue(pivot.setGoal(5.0));
     base.triangle().onTrue(pivot.setGoal(15.0));
     base.circle().onTrue(pivot.setGoal(25.0));
-    base.cross().onTrue(pivot.setGoal(35.0));
+    base.cross().onTrue(pivot.setGoal(50.0));
     base.R2().whileTrue(intake.Intake(0.25));
     base.L2().whileTrue(outtake.Outtake(0.25));
+    base.R1().onTrue(elevator.setGoal(10));
+    base.L1().onTrue(elevator.setGoal(0.5));
     // operator.cross().onTrue(pivot.setGoal(10.0));
 
     // base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));

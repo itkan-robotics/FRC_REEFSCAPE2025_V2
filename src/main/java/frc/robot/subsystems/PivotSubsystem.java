@@ -34,7 +34,7 @@ public class PivotSubsystem extends SubsystemBase {
     leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 35;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 50;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
     leftConfig.CurrentLimits.SupplyCurrentLimit = 75;
     leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -44,7 +44,7 @@ public class PivotSubsystem extends SubsystemBase {
     rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 35;
+    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 50;
     rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
     rightConfig.CurrentLimits.SupplyCurrentLimit = 75;
     rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -104,7 +104,7 @@ public class PivotSubsystem extends SubsystemBase {
   }
 
   public void resetPosition() {
-    rightPivotMotor.setPosition(5, 0.25);
+    setSetpoint(5);
     // rightMotor.setPosition(0.0, 0.25);
   }
 }

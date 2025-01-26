@@ -258,7 +258,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         });
   }
 
-  // Returns the encoder value in rotations with a specified offset
+  // Returns the  value in rotations with a specified offset
   public double encoderToOffset() {
     return customEncoder.get() + constants.EncoderOffset;
   }
