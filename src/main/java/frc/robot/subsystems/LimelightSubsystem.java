@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.TagOffsets;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 import java.util.HashMap;
@@ -115,6 +116,10 @@ public class LimelightSubsystem extends SubsystemBase {
     reefAngles.put(9 + blueAllianceOffset, 120.0); // 20
     reefAngles.put(10 + blueAllianceOffset, 180.0); // 21
     reefAngles.put(11 + blueAllianceOffset, -120.0); // 22
+  }
+
+  public void setAprilTagOffset(TagOffsets offset) {
+    LimelightHelpers.setFiducial3DOffset("limelight", offset.getHorizontalOffsetInches(), 0.0, 0.0);
   }
 
   public double getReefAngle() {

@@ -26,26 +26,26 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
 
   public static enum TagOffsets {
-    LEFT_BRANCH(1),
-    CENTER(0),
-    ALGAE(0),
-    RIGHT_BRANCH(3);
+    LEFT_BRANCH(-13.0),
+    CENTER(0.0),
+    ALGAE(0.0),
+    RIGHT_BRANCH(13.0);
 
-    private final int pipeline;
+    private final double horizontalOffsetInches;
 
-    TagOffsets(int pipeline) {
-      this.pipeline = pipeline;
+    TagOffsets(double offsetInches) {
+      this.horizontalOffsetInches = offsetInches;
     }
 
-    public int getPipeline() {
-      return pipeline;
+    public double getHorizontalOffsetInches() {
+      return horizontalOffsetInches;
     }
   };
 
-  public static final double translationalAutoP = 20.0;
+  public static final double translationalAutoP = 30.0;
   public static final double rotationalAutoP = 10.0;
 
-  // values from Team Spectrum 3847’s X-Ray robot from last year
+  // values from Team Spectrum 3847’s X-Ray robot from 2023
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
 
   public static final Mode simMode = Mode.SIM;
@@ -79,19 +79,6 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double VELOCITY_DEADBAND = 0.025;
-
-    public static final double MAX_AREA = 8.0; // Must be tuned once field is built
-    public static final double MIN_AREA = 0.01;
-    public static final double MAX_KP = 0.12; // Must be tuned once field is built
-    public static final double MIN_KP = 0.015; // Must be tuned once field is built
-    public static final double ALIGN_KS = 0.05;
-
-    public static final double TURN_KP = 0.23;
-    public static final double TURN_KD = 0.05;
-
-    public static final double CENTERING_KP = 1.695;
-    public static final double CENTERING_KD = 0.001;
-    public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
+    public static final double kReefOffset = -20.0;
   }
 }

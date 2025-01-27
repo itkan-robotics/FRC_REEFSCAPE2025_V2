@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -38,15 +37,15 @@ public class limelightReefAlignment extends SequentialCommandGroup {
   /***************************************************************************************************************************************************************
    * SequentialCommandGroup that uses Pathplanner AutoBuilder to create a path from the robot's
    * current position to the primary AprilTag's estimated position.
-   * <p>(Base code obtained from 
+   * <p>(Base code obtained from
    * <a href=https://www.chiefdelphi.com/t/need-help-with-integrating-pose-estimation-with-apriltags-and-pathplanner-trajectories-in-auto-teleop/455287>HERE</a>.
    * Modifications include making it use LimelightHelpers methods instead of PhotonVision)
-   * <p> Last Updated by Abdullah Khaled, 1/25/2025 
+   * <p> Last Updated by Abdullah Khaled, 1/25/2025
    * @param drive Swerve subsystem
    * @param limelight Limelight subsystem
-   * @param frontOffsetInches Offset in inches; a negative value results in an offset AWAY from the 
+   * @param frontOffsetInches Offset in inches; a negative value results in an offset AWAY from the
    * AprilTag. If for some reason you want the robot to go behind the AprilTag, make the value positive.
-   * @param offset Where we want to align (i.e. Left, Center, Right). Each enum has a value 
+   * @param offset Where we want to align (i.e. Left, Center, Right). Each enum has a value
    * associated with it that corresponds to the Limelight pipeline the camera should use.
    ***************************************************************************************************************************************************************/
   public limelightReefAlignment(
@@ -55,9 +54,8 @@ public class limelightReefAlignment extends SequentialCommandGroup {
       double frontOffsetInches,
       Constants.TagOffsets offset) {
 
-    limelight.setPipeline(offset.getPipeline());
-
     this.m_limelight = limelight;
+    m_limelight.setAprilTagOffset(offset);
     this.m_drive = drive;
     this.TAG_TO_GOAL =
         new Transform3d(

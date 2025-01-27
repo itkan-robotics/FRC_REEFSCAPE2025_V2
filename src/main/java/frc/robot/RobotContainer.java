@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.LimelightConstants.kReefOffset;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -168,11 +170,16 @@ public class RobotContainer {
     base.R2().whileTrue(intake.Intake(0.4));
     base.L2().whileTrue(outtake.Outtake(0.25));
 
-    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, -20.0, TagOffsets.CENTER));
+    base.povUp()
+        .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.CENTER));
+    base.povLeft()
+        .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.LEFT_BRANCH));
+    base.povRight()
+        .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.RIGHT_BRANCH));
 
-    //Sets the robot's believed position to (0, 0)
-    //PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-      base.povDown().onTrue(drive.setPoseCommand(new Pose2d()));
+    // Sets the robot's believed position to (0, 0)
+    // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
+    base.povDown().onTrue(drive.setPoseCommand(new Pose2d()));
   }
 
   /*********************************************************
