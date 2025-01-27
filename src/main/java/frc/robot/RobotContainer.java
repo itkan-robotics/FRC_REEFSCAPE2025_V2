@@ -173,9 +173,11 @@ public class RobotContainer {
     base.povUp()
         .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.CENTER));
     base.povLeft()
-        .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.LEFT_BRANCH));
+        .whileTrue(
+            new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.LEFT_BRANCH));
     base.povRight()
-        .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.RIGHT_BRANCH));
+        .whileTrue(
+            new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.RIGHT_BRANCH));
 
     // Sets the robot's believed position to (0, 0)
     // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
