@@ -70,7 +70,7 @@ public class limelightReefAlignment extends SequentialCommandGroup {
 
   public Command getCommand() {
 
-    var robotPose2d = m_drive.getPose();
+    var robotPose2d = m_drive.getPoseLatencyCompensation(m_limelight.getLatency());
 
     var robotPose3d =
         new Pose3d(

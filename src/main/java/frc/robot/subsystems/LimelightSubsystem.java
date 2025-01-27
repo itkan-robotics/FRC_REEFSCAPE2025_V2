@@ -150,6 +150,10 @@ public class LimelightSubsystem extends SubsystemBase {
     return table.getEntry("tx").getDouble(0.0);
   }
 
+  public double getLatency() {
+    return table.getEntry("tl").getDouble(0.0) + table.getEntry("cl").getDouble(0.0);
+  }
+
   public double getY() {
     return table.getEntry("ty").getDouble(0.0);
   }

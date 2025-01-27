@@ -70,18 +70,14 @@ public class Drive extends SubsystemBase {
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
-  // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 74.088;
-  private static final double ROBOT_MOI = 6.883;
-  private static final double WHEEL_COF = 1.2;
   public static final RobotConfig PP_CONFIG =
       new RobotConfig(
-          ROBOT_MASS_KG,
-          ROBOT_MOI,
+          Constants.ROBOT_MASS_KG,
+          Constants.ROBOT_MOI,
           new ModuleConfig(
               TunerConstants.FrontLeft.WheelRadius,
               TunerConstants.kSpeedAt12Volts.in(FeetPerSecond),
-              WHEEL_COF,
+              Constants.WHEEL_COF,
               DCMotor.getKrakenX60Foc(1)
                   .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
               TunerConstants.FrontLeft.SlipCurrent,
@@ -335,6 +331,20 @@ public class Drive extends SubsystemBase {
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
+  }
+
+  @AutoLogOutput(key = "Odometry/LatencyCompensationPose")
+  public Pose2d getPoseLatencyCompensation(double dt) {
+    dt /= 1000.0; // Convert from ms to s
+    ChassisSpeeds currentSpeed = getChassisSpeeds();
+    Pose2d predictedPose =
+        getPose()
+            .exp(
+                new Twist2d(
+                    currentSpeed.vxMetersPerSecond * dt,
+                    currentSpeed.vyMetersPerSecond * dt,
+                    currentSpeed.omegaRadiansPerSecond * dt));
+    return predictedPose;
   }
 
   public Command setPoseCommand(Pose2d pose) {

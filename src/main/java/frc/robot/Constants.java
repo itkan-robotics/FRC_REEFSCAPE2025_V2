@@ -25,6 +25,11 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
 
+  // PathPlanner config constants
+  public static final double ROBOT_MASS_KG = 74.088;
+  public static final double ROBOT_MOI = 6.883;
+  public static final double WHEEL_COF = 1.2;
+
   public static enum TagOffsets {
     LEFT_BRANCH(-13.0),
     CENTER(0.0),
