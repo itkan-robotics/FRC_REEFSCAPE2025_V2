@@ -179,9 +179,9 @@ public class RobotContainer {
         .whileTrue(
             new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.RIGHT_BRANCH));
 
-    // Sets the robot's believed position to (0, 0)
+    // Sets the robot's believed position to (Right against the reef)
     // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-    base.povDown().onTrue(drive.setPoseCommand(new Pose2d()));
+    base.povDown().onTrue(drive.setPoseCommand(new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180))));
   }
 
   /*********************************************************
