@@ -18,19 +18,34 @@ import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private final TalonFX leftMotor = new TalonFX(LEFT_ELEVATOR_MOTOR_PORT);
+  private final TalonFX elevator = new TalonFX(LEFT_ELEVATOR_MOTOR_PORT);
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
 
   final MotionMagicVoltage m_lRequest;
+
+  public static enum ElevatorPos {
+    BARGE(0.0),
+    LEVELTWO(0.0),
+    LEVELTHREE(0.0),
+    LEVERLFOUR(0.0);
+
+    private final double elevatorSetpoint;
+
+    ElevatorPos(double elevatorSetpoint) {
+      this.elevatorSetpoint = elevatorSetpoint;
+    }
+
+    public double getElevatorSetpoint() {
+      return elevatorSetpoint;
+    }
+  }
 
   public ElevatorSubsystem() {
     // in init function
@@ -40,14 +55,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 19;
+    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
     leftConfig.CurrentLimits.SupplyCurrentLimit = 25;
     leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leftConfig.MotorOutput.Inverted =
-        LEFT_ELEVATOR_IS_INVERTED
-            ? InvertedValue.Clockwise_Positive
-            : InvertedValue.CounterClockwise_Positive;
+    /*leftConfig.MotorOutput.Inverted =
+    LEFT_ELEVATOR_IS_INVERTED
+        ? InvertedValue.Clockwise_Positive
+        : InvertedValue.CounterClockwise_Positive;*/
 
     // set slot 0 gains
     var leftSlot0Configs = leftConfig.Slot0;
@@ -65,7 +80,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     motionMagicConfigs.MotionMagicJerk = 750; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
     // in init function
-    tryUntilOk(5, () -> leftMotor.getConfigurator().apply(leftConfig, 0.25));
+    tryUntilOk(5, () -> elevator.getConfigurator().apply(leftConfig, 0.25));
 
     // rightMotor.setControl(rightMotorFollower);
 
@@ -90,20 +105,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         });
   }
 
-  public void setLeftVoltage(double volts) {
-    leftMotor.setControl(new VoltageOut(volts));
-  }
-
   public void setSetpoint(double setpoint) {
-    leftMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    elevator.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getLeftPosition() {
-    return leftMotor.getPosition().getValueAsDouble();
+    return elevator.getPosition().getValueAsDouble();
   }
 
   public void resetPosition() {
-    leftMotor.setPosition(0.0, 0.25);
-    // rightMotor.setPosition(0.0, 0.25);
+    setSetpoint(0); // rightMotor.setPosition(0.0, 0.25);
   }
 }

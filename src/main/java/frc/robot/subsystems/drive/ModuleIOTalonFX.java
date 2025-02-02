@@ -121,7 +121,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
-    turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     turnConfig.Slot0 = constants.SteerMotorGains;
     turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
     turnConfig.Feedback.SensorToMechanismRatio = constants.SteerMotorGearRatio;
@@ -258,7 +258,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         });
   }
 
-  // Returns the encoder value in rotations with a specified offset
+  // Returns the  value in rotations with a specified offset
   public double encoderToOffset() {
     return customEncoder.get() + constants.EncoderOffset;
   }
