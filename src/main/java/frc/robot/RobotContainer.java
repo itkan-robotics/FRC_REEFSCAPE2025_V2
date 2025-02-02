@@ -166,7 +166,7 @@ public class RobotContainer {
 
     // Sets the robot's believed position to (Right against the reef, ID = 19)
     // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-    if (base.options().getAsBoolean()) {
+    if (base.create().getAsBoolean()) {
       base.povDown()
           .onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4, Rotation2d.fromDegrees(-60))));
       // ID = 21: new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180)
@@ -201,10 +201,12 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickMDrive(
             drive,
+            limelight,
             () -> -base.getLeftY(),
             () -> -base.getLeftX(),
             () -> -base.getRightY(),
-            () -> base.getRightX()));
+            () -> base.getRightX(),
+            base.options()));
 
     intake.setDefaultCommand(intake.DefaultCommand());
     outtake.setDefaultCommand(outtake.DefaultCommand());

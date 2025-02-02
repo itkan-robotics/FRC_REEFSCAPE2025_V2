@@ -37,6 +37,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -105,23 +106,37 @@ public class DriveCommands {
     return MathUtil.inputModulus(drive.getRotation().getDegrees(), -180, 180);
   }
 
+
+  
+
   /**********************************************************************************************
    * Field centric drive command using joystick for linear control and PID for angular control.
    * This specific drive based on Matthew's swerve drive from
    * 2024 CRESCENDO season, where the right joystick controls the heading of robot.
-   * <p> Last Updated by Abdullah Khaled, 1/12/2025
+   * <p> Last Updated by Abdullah Khaled, 2/2/2025
+   * @param drive Drive subsystem object
+   * @param limelight LimelightSubsystem object
+   * @param xSupplier Left joystick y-axis
+   * @param ySupplier Left joystick x-axis
+   * @param jwxSupplier Right joystick y-axis
+   * @param jwySupplier Right joystick x-axis
+   * @param snapToReef When this button is pressed, the robot should turn parallel to the AprilTag it sees
    **********************************************************************************************/
 
   public static Command joystickMDrive(
       Drive drive,
+      LimelightSubsystem limelight,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier jwxSupplier,
-      DoubleSupplier jwySupplier) {
+      DoubleSupplier jwySupplier,
+      BooleanSupplier snapToReef) {
 
     // Create PID controller w/ +-180 degree range
     fieldPIDController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
     fieldPIDController.enableContinuousInput(-180, 180);
+
+    boolean notStickDrift = Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1;
 
     // Construct command
     return Commands.run(
@@ -132,12 +147,18 @@ public class DriveCommands {
 
           // Calculate angular speed
           double omega = 0.0;
-
-          if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
-            omega =
-                fieldPIDController.calculate(
-                    getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
+          double angleSetpoint = getDriveHeading(drive);
+          if (notStickDrift) {
+            angleSetpoint = getRightStickAngle(jwxSupplier, jwySupplier);
           }
+          if (snapToReef.getAsBoolean() && limelight.canSeeTarget()) {
+            double reefAngle = limelight.getReefAngle();
+            if (angleSetpoint < 0) return;
+            angleSetpoint = reefAngle;
+          }
+          omega =
+                fieldPIDController.calculate(
+                    getDriveHeading(drive), angleSetpoint);
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
