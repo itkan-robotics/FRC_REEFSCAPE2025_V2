@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -17,7 +18,6 @@ import frc.robot.Constants.TagOffsets;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 import java.util.HashMap;
-import org.littletonrobotics.junction.AutoLogOutput;
 
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
@@ -56,12 +56,14 @@ public class LimelightSubsystem extends SubsystemBase {
     if (lastTargetTime.get() > .1) {
       targetSeen = false;
     }
-    getTagEstimatedPosition();
   }
 
-  // Mechanical Advantage reef alignment
-  // Get the tag's position relative to the robot (distToRobot)
-  //
+  /***************************************************************************************
+   * Function that gets the target's position relative to the robot
+   * (Based on 6328 Mechanical Advantage's idea in <a href=https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2025-build-thread/477314/85>this</a> CD post)
+   *  <p> Last Updated by Abdullah Khaled, 2/1/2025
+   * @return
+   *************************************************************************************/
   @SuppressWarnings("unused")
   public Pose2d getTagEstimatedPosition() {
     double[] targetPose =
@@ -70,6 +72,7 @@ public class LimelightSubsystem extends SubsystemBase {
             .getEntry("targetpose_robotspace")
             .getDoubleArray(new double[6]);
     ;
+
     double targetTX = targetPose[0];
     double targetTY = targetPose[1];
     double targetTZ = targetPose[2];
@@ -92,15 +95,6 @@ public class LimelightSubsystem extends SubsystemBase {
 
   // Helper Methods
 
-  @AutoLogOutput(key = "Odometry/TagPose")
-  public Pose2d setTagPose() {
-    return new Pose2d(tagPose[0], tagPose[1], Rotation2d.fromDegrees(tagPose[2]));
-  }
-
-  public void poseFromArr(double[] arr) {
-    tagPose = arr;
-  }
-
   /***************************************************************************************
    * Creates the hashMap for the reef AprilTags based on alliance;
    * if blue alliance, adds 11 to the AprilTag keys to account for different IDs
@@ -108,23 +102,24 @@ public class LimelightSubsystem extends SubsystemBase {
    **************************************************************************************/
 
   public void createReefHashMap() {
-    int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
+    int blueAllianceTags = !isRedAlliance() ? 11 : 0;
     reefAngles.put(-1, -1.0);
-    reefAngles.put(6 + blueAllianceOffset, -60.0); // 17
-    reefAngles.put(7 + blueAllianceOffset, 0.0); // 18
-    reefAngles.put(8 + blueAllianceOffset, 60.0); // 19
-    reefAngles.put(9 + blueAllianceOffset, 120.0); // 20
-    reefAngles.put(10 + blueAllianceOffset, 180.0); // 21
-    reefAngles.put(11 + blueAllianceOffset, -120.0); // 22
+    reefAngles.put(6 + blueAllianceTags, -60.0); // 17
+    reefAngles.put(7 + blueAllianceTags, 0.0); // 18
+    reefAngles.put(8 + blueAllianceTags, 60.0); // 19
+    reefAngles.put(9 + blueAllianceTags, 120.0); // 20
+    reefAngles.put(10 + blueAllianceTags, 180.0); // 21
+    reefAngles.put(11 + blueAllianceTags, -120.0); // 22
   }
 
   public void setAprilTagOffset(TagOffsets offset) {
-    LimelightHelpers.setFiducial3DOffset("limelight", offset.getHorizontalOffsetInches(), 0.0, 0.0);
+    LimelightHelpers.setFiducial3DOffset(
+        "limelight", 0.0, Units.inchesToMeters(offset.getHorizontalOffsetInches()), 0.0);
   }
 
   public double getReefAngle() {
     double angle = (reefAngles.get(getID()) == null) ? -1.0 : reefAngles.get(getID());
-    System.out.println("id: " + getID());
+    // System.out.println("id: " + getID());
     return angle;
   }
 
@@ -183,10 +178,6 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public boolean canSeeTarget() {
     return targetSeen;
-  }
-
-  public void setPipeline(int pipeline) {
-    LimelightHelpers.setPipelineIndex("limelight", pipeline);
   }
 
   public void dynamicCropping() {

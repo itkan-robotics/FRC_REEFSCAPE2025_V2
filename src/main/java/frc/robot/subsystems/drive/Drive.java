@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -159,6 +160,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
+    setVisionPoseMaybe();
     SmartDashboard.putNumber("Heading", getRotation().getDegrees());
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
@@ -220,6 +222,43 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+  }
+
+  public void setVisionPoseMaybe() {
+    boolean doRejectUpdate = false;
+    LimelightHelpers.SetRobotOrientation(
+        "limelight",
+        poseEstimator.getEstimatedPosition().getRotation().getDegrees(),
+        0,
+        0,
+        0,
+        0,
+        0);
+    LimelightHelpers.PoseEstimate mt2 =
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
+    if (mt2 == null) return;
+    if (Math.abs(gyroIO.getRate())
+        > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision
+    // updates
+    {
+      doRejectUpdate = true;
+    }
+    if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
+      if (mt2.rawFiducials[0].ambiguity > .7) {
+        doRejectUpdate = true;
+      }
+      if (mt2.rawFiducials[0].distToCamera > 2) {
+        doRejectUpdate = true;
+      }
+    }
+    if (mt2.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+    if (!doRejectUpdate) {
+      poseEstimator.setVisionMeasurementStdDevs(Constants.VISION_STDS);
+      poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
   }
 
   /**

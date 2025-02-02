@@ -101,30 +101,17 @@ public class RobotContainer {
     }
     limelight = new LimelightSubsystem();
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Set default commands for all subsystems
     setDefaultCommands();
 
     // Register named commands for Pathplanner autonomous routines
     registerNamedCommands();
+
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    // Set up SysId Routines
+    setUpSysIdRoutines(autoChooser);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -137,8 +124,6 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-
-    limelight.setDefaultCommand(limelight.setLimelight());
 
     // Lock to 0° when A button is held
     // controller
@@ -179,9 +164,13 @@ public class RobotContainer {
         .whileTrue(
             new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.RIGHT_BRANCH));
 
-    // Sets the robot's believed position to (Right against the reef)
+    // Sets the robot's believed position to (Right against the reef, ID = 19)
     // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-    base.povDown().onTrue(drive.setPoseCommand(new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180))));
+    if (base.options().getAsBoolean()) {
+      base.povDown()
+          .onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4, Rotation2d.fromDegrees(-60))));
+      // ID = 21: new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180)
+    }
   }
 
   /*********************************************************
@@ -219,6 +208,7 @@ public class RobotContainer {
 
     intake.setDefaultCommand(intake.DefaultCommand());
     outtake.setDefaultCommand(outtake.DefaultCommand());
+    limelight.setDefaultCommand(limelight.setLimelight());
   }
 
   /**
@@ -228,5 +218,27 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  /*********************************************************
+   * Used to set up 6328's SysId routines
+   * <p> Last Updated by Abdullah Khaled, 2/1/2025
+   *********************************************************/
+  public void setUpSysIdRoutines(LoggedDashboardChooser<Command> m_autoChooser) {
+    // Set up SysId routines
+    m_autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    m_autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    m_autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 }
