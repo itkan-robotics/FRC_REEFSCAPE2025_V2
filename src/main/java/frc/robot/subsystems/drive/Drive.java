@@ -160,7 +160,7 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    setVisionPoseMaybe();
+    setVisionPoseMT2();
     SmartDashboard.putNumber("Heading", getRotation().getDegrees());
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
@@ -224,7 +224,13 @@ public class Drive extends SubsystemBase {
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
 
-  public void setVisionPoseMaybe() {
+  /**********************************************************************************************
+   * Sets the pose of the robot using Limelight's MegaTag2
+   * (Robot's position must not be 0,0 and heading must be correct for method to work correctly)
+   * <p>Last Updated by Abdullah Khaled, 2/2/2025
+   **********************************************************************************************/
+
+  public void setVisionPoseMT2() {
     boolean doRejectUpdate = false;
     LimelightHelpers.SetRobotOrientation(
         "limelight",
@@ -396,6 +402,10 @@ public class Drive extends SubsystemBase {
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
+  }
+
+  public double getHeadingDegrees() {
+    return getRotation().getDegrees();
   }
 
   /** Resets the current odometry pose. */

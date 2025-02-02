@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TagOffsets;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
+import frc.robot.subsystems.drive.Drive;
+
 import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
@@ -65,7 +67,7 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return
    *************************************************************************************/
   @SuppressWarnings("unused")
-  public Pose2d getTagEstimatedPosition() {
+  public Pose2d getTagEstimatedPosition(Drive drive) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
             .getTable("limelight")
@@ -82,10 +84,7 @@ public class LimelightSubsystem extends SubsystemBase {
         getPrimaryFiducial(LimelightHelpers.getRawFiducials("limelight")).distToRobot;
     double absRotation =
         -1.0
-                * NetworkTableInstance.getDefault()
-                    .getTable("SmartDashboard")
-                    .getEntry("Heading")
-                    .getDouble(0.0)
+                * drive.getHeadingDegrees()
             - getReefAngle();
 
     // System.out.println("absRotation: " + absRotation);
