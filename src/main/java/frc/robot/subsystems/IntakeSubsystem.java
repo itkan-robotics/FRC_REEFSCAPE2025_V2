@@ -6,37 +6,27 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.*;
 
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class CoralOuttake extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new CoralOuttake. */
-  private final TalonFX coral_outtake = new TalonFX(CORAL_OUTTAKE_MOTOR_PORT);
+  private final TalonFX coralIntakeMotor = new TalonFX(INTAKE_MOTOR_PORT);
 
-  public CoralOuttake() {
-
-    var talonFXConfigurator = coral_outtake.getConfigurator();
-    var motorConfigs = new MotorOutputConfigs();
-
-    // set invert to CW+ and apply config change
-    motorConfigs.Inverted = InvertedValue.Clockwise_Positive;
-    talonFXConfigurator.apply(motorConfigs);
-  }
+  public IntakeSubsystem() {}
 
   public Command DefaultCommand() {
     return run(
         () -> {
-          coral_outtake.stopMotor();
+          coralIntakeMotor.stopMotor();
         });
   }
 
-  public Command Outtake(double speed) {
+  public Command setSpeed(double speed) {
     return run(
         () -> {
-          coral_outtake.set(speed);
+          coralIntakeMotor.set(speed);
         });
   }
 
@@ -45,4 +35,3 @@ public class CoralOuttake extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 }
-

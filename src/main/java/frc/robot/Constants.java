@@ -35,22 +35,29 @@ public final class Constants {
     REPLAY
   }
 
-  public static final int LEFT_CORAL_INATKE_MOTOR_PORT = 13; // 1 is a place holder
-  public static final int RIGHT_CORAL_INATKE_MOTOR_PORT = 12; // 1 is a place holder
-  public static final int CORAL_OUTTAKE_MOTOR_PORT = 9;
+  public static final int SCORE_MOTOR_PORT = 12; // 1 is a place holder
+  public static final int INTAKE_MOTOR_PORT = 0;
+
+  public static class PivotConstants {
+    public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
+    public static final int LEFT_PIVOT_MOTOR_PORT = 9;
+    public static final double PIVOT_KP = 17.0;
+    public static final double PIVOT_KS = 4.0;
+    public static final double PIVOT_CRUISE_VELOCITY = 65.0;
+    public static final double PIVOT_ACCELERATION = 80.0;
+  }
 
   public static class ElevatorConstants {
     // Only Left motor being used
     public static final int LEFT_ELEVATOR_MOTOR_PORT = 13;
-    public static final int LEFT_CORAL_INATKE_MOTOR_PORT = 1; // 1 is a place holder
-    public static final int RIGHT_CORAL_INATKE_MOTOR_PORT = 12; // 1 is a place holder
-    public static final int CORAL_OUTTAKE_MOTOR_PORT = 15;
-    public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
-    public static final int LEFT_PIVOT_MOTOR_PORT = 9;
+
     public static final double kElevatorGearRatio = 1.0;
     public static final double kRotationsToInchesRatio = 1.0;
-    public static final double elevator_kP = 0.0;
-    public static final double elevator_kD = 0.0;
+    public static final double ELEVATOR_KP = 50.0;
+    public static final double ELEVATOR_KS = 7.5;
+    public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
+    public static final double ELEVATOR_ACCELERATION = 250.0;
+    public static final double ELEVATOR_JERK = 750.0;
     public static final boolean LEFT_ELEVATOR_IS_INVERTED = true;
     public static final boolean RIGHT_ELEVATOR_IS_INVERTED = false;
   }
@@ -59,10 +66,11 @@ public final class Constants {
     BARGE(0.0, 0.0),
     ALGAEINTAKE(0.0, 0.0),
     CORALINTAKE(0.0, 0.0),
-    LEVELONE(20, 10.0),
+    LEVELONE(20.0, 10.0),
     LEVELTWO(20.0, 15.0),
     LEVELTHREE(15.0, 23.0),
-    LEVERLFOUR(9.0, 39.0);
+    LEVERLFOUR(9.0, 39.0),
+    HOME(5.0, 0.5);
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;

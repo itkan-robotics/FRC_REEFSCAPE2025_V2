@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.CoralPos.*;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,10 +26,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.CoralPos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ScoringSubsystem;
@@ -52,6 +54,7 @@ public class RobotContainer {
   private final ScoringSubsystem score = new ScoringSubsystem();
   private final PivotSubsystem pivot = new PivotSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
@@ -159,35 +162,44 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    base.square().onTrue(pivot.setGoal(5.0));
-    base.triangle().onTrue(pivot.setGoal(15.0));
-    base.circle().onTrue(pivot.setGoal(25.0));
-    base.cross().onTrue(pivot.setGoal(50.0));
-    base.R2().whileTrue(score.Intaking(0.5));
-    base.L2().whileTrue(score.Scoring(0.25));
-    base.R1().onTrue(elevator.setGoal(39));
-    base.L1().onTrue(elevator.setGoal(0.5));
+    // base.square().onTrue(pivot.setGoal(5.0));
+    // base.triangle().onTrue(pivot.setGoal(15.0));
+    // base.circle().onTrue(pivot.setGoal(25.0));
+    // base.cross().onTrue(pivot.setGoal(50.0));
+    base.R2().whileTrue(score.setSpeed(0.5));
+    base.L2().whileTrue(score.setSpeed(-0.25));
+
+    base.R1().whileTrue(new ParallelCommandGroup(intake.setSpeed(0.5), score.setSpeed(-0.1)));
+    base.L1().whileTrue(intake.setSpeed(-0.5));
+    
+    // base.R1().onTrue(elevator.setGoal(39));
+    // base.L1().onTrue(elevator.setGoal(0.5));
     // operator.cross().onTrue(pivot.setGoal(10.0));
+    base.touchpad()
+        .onTrue(
+            new ParallelCommandGroup(
+                elevator.setGoal(HOME.getElevatorSetpoint()),
+                pivot.setGoal(HOME.getPivotSetpoint())));
     base.povUp()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVERLFOUR.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVERLFOUR.getPivotSetpoint())));
+                elevator.setGoal(LEVERLFOUR.getElevatorSetpoint()),
+                pivot.setGoal(LEVERLFOUR.getPivotSetpoint())));
     base.povDown()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVELTWO.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVELTWO.getPivotSetpoint())));
+                elevator.setGoal(LEVELTWO.getElevatorSetpoint()),
+                pivot.setGoal(LEVELTWO.getPivotSetpoint())));
     base.povLeft()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVELONE.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVELONE.getPivotSetpoint())));
+                elevator.setGoal(LEVELONE.getElevatorSetpoint()),
+                pivot.setGoal(LEVELONE.getPivotSetpoint())));
     base.povRight()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVELTHREE.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVELTHREE.getPivotSetpoint())));
+                elevator.setGoal(LEVELTHREE.getElevatorSetpoint()),
+                pivot.setGoal(LEVELTHREE.getPivotSetpoint())));
 
     // base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
   }
@@ -228,6 +240,7 @@ public class RobotContainer {
     score.setDefaultCommand(score.DefaultCommand());
     pivot.setDefaultCommand(pivot.resetPivot());
     elevator.setDefaultCommand(elevator.resetElevators());
+    intake.setDefaultCommand(intake.DefaultCommand());
   }
 
   /**

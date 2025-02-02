@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.PivotConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -22,28 +22,6 @@ public class PivotSubsystem extends SubsystemBase {
   private final TalonFX rightPivotMotor = new TalonFX(RIGHT_PIVOT_MOTOR_PORT);
   final MotionMagicVoltage m_lRequest;
 
-  public static enum PivotPos {
-    BARGE(0.0),
-    ALGAEINTAKE(0.0),
-    CORALINTAKE(0.0),
-    LEVELONE(0.0),
-    LEVELTWO(0.0),
-    LEVELTHREE(0.0),
-    LEVERLFOUR(0.0),
-    CLIMBSTART(0.0),
-    CLIMBEND(0.0);
-
-    private final double pivotSetpoint;
-
-    PivotPos(double pivotSetpoint) {
-      this.pivotSetpoint = pivotSetpoint;
-    }
-
-    public double getPivotSetpoint() {
-      return pivotSetpoint;
-    }
-  }
-
   public PivotSubsystem() {
 
     // in init function
@@ -59,32 +37,22 @@ public class PivotSubsystem extends SubsystemBase {
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
     leftConfig.CurrentLimits.SupplyCurrentLimit = 75;
     leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    leftConfig.MotorOutput.Inverted =
-        true ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-
-    rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    rightConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 50;
-    rightConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
-    rightConfig.CurrentLimits.SupplyCurrentLimit = 75;
-    rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    rightConfig.MotorOutput.Inverted =
-        true ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    leftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // set slot 0 gains
     var leftSlot0Configs = leftConfig.Slot0;
-    leftSlot0Configs.kS = 4; // Add 0.25 V output to overcome static friction
-    leftSlot0Configs.kP = 17; // A position error of 2.5 rotations results in 12 V output
+    leftSlot0Configs.kS = PIVOT_KS; // Add 0.25 V output to overcome static friction
+    leftSlot0Configs.kP = PIVOT_KP; // A position error of 2.5 rotations results in 12 V output
 
     leftSlot0Configs.kI = 0.0; // no output for integrated error
     leftSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
 
     // set Motion Magic settings
     var motionMagicConfigs = leftConfig.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity = 65; // Target cruise velocity of 80 rps
+    motionMagicConfigs.MotionMagicCruiseVelocity =
+        PIVOT_CRUISE_VELOCITY; // Target cruise velocity of 80 rps
     motionMagicConfigs.MotionMagicAcceleration =
-        80; // Target acceleration of 160 rps/s (0.5 seconds)
+        PIVOT_ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
     motionMagicConfigs.MotionMagicJerk = 0; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
     // in init function
@@ -120,7 +88,7 @@ public class PivotSubsystem extends SubsystemBase {
     rightPivotMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
-  public double getLeftPosition() {
+  public double getRightPosition() {
     return rightPivotMotor.getPosition().getValueAsDouble();
   }
 

@@ -30,23 +30,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   final MotionMagicVoltage m_lRequest;
 
-  public static enum ElevatorPos {
-    BARGE(0.0),
-    LEVELTWO(0.0),
-    LEVELTHREE(0.0),
-    LEVERLFOUR(0.0);
-
-    private final double elevatorSetpoint;
-
-    ElevatorPos(double elevatorSetpoint) {
-      this.elevatorSetpoint = elevatorSetpoint;
-    }
-
-    public double getElevatorSetpoint() {
-      return elevatorSetpoint;
-    }
-  }
-
   public ElevatorSubsystem() {
     // in init function
     // Target jerk of 4000 rps/s/s (0.1 seconds)
@@ -66,18 +49,19 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // set slot 0 gains
     var leftSlot0Configs = leftConfig.Slot0;
-    leftSlot0Configs.kS = 7.5; // Add 0.25 V output to overcome static friction
-    leftSlot0Configs.kP = 50; // A position error of 2.5 rotations results in 12 V output
+    leftSlot0Configs.kS = ELEVATOR_KS; // Add 0.25 V output to overcome static friction
+    leftSlot0Configs.kP = ELEVATOR_KP; // A position error of 2.5 rotations results in 12 V output
 
     leftSlot0Configs.kI = 0.0; // no output for integrated error
     leftSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
 
     // set Motion Magic settings
     var motionMagicConfigs = leftConfig.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity = 60; // Target cruise velocity of 80 rps
+    motionMagicConfigs.MotionMagicCruiseVelocity =
+        ELEVATOR_CRUISE_VELOCITY; // Target cruise velocity of 80 rps
     motionMagicConfigs.MotionMagicAcceleration =
-        250; // Target acceleration of 160 rps/s (0.5 seconds)
-    motionMagicConfigs.MotionMagicJerk = 750; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        ELEVATOR_ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
+    motionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
     // in init function
     tryUntilOk(5, () -> elevator.getConfigurator().apply(leftConfig, 0.25));
