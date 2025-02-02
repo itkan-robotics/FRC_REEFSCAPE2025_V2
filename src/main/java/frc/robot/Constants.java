@@ -52,6 +52,32 @@ public final class Constants {
     public static final boolean RIGHT_ELEVATOR_IS_INVERTED = false;
   }
 
+  public static enum CoralPos {
+    BARGE(0.0, 0.0),
+    ALGAEINTAKE(0.0, 0.0),
+    CORALINTAKE(0.0, 0.0),
+    LEVELONE(20, 10.0),
+    LEVELTWO(20.0, 15.0),
+    LEVELTHREE(15.0, 23.0),
+    LEVERLFOUR(9.0, 39.0);
+
+    private final double pivotSetpoint;
+    private final double elevatorSetpoint;
+
+    CoralPos(double pivotSetpoint, double elevatorSetpoint) {
+      this.pivotSetpoint = pivotSetpoint;
+      this.elevatorSetpoint = elevatorSetpoint;
+    }
+
+    public double getPivotSetpoint() {
+      return pivotSetpoint;
+    }
+
+    public double getElevatorSetpoint() {
+      return elevatorSetpoint;
+    }
+  }
+
   public static class LimelightConstants {
     public static final double MAX_AREA = 18.5;
     public static final double SPEED_KP = 0.0;

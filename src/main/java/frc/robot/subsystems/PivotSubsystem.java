@@ -20,9 +20,30 @@ public class PivotSubsystem extends SubsystemBase {
 
   private final TalonFX leftPivotMotor = new TalonFX(LEFT_PIVOT_MOTOR_PORT);
   private final TalonFX rightPivotMotor = new TalonFX(RIGHT_PIVOT_MOTOR_PORT);
-
   final MotionMagicVoltage m_lRequest;
-  /** Creates a new PivotSubsystem. */
+
+  public static enum PivotPos {
+    BARGE(0.0),
+    ALGAEINTAKE(0.0),
+    CORALINTAKE(0.0),
+    LEVELONE(0.0),
+    LEVELTWO(0.0),
+    LEVELTHREE(0.0),
+    LEVERLFOUR(0.0),
+    CLIMBSTART(0.0),
+    CLIMBEND(0.0);
+
+    private final double pivotSetpoint;
+
+    PivotPos(double pivotSetpoint) {
+      this.pivotSetpoint = pivotSetpoint;
+    }
+
+    public double getPivotSetpoint() {
+      return pivotSetpoint;
+    }
+  }
+
   public PivotSubsystem() {
 
     // in init function
