@@ -82,20 +82,21 @@ public class limelightReefAlignment extends SequentialCommandGroup {
 
   public Command macroPath() {
 
-    var robotPose2d = m_drive.getPoseLatencyCompensation(m_limelight.getLatency());
-
-    var robotPose3d =
-        new Pose3d(
-            robotPose2d.getX(),
-            robotPose2d.getY(),
-            0,
-            new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
-
     if (m_limelight.canSeeTarget() == false) {
       return new InstantCommand();
     } else {
       // Transform the tag's pose to set our goal
       targetPoseEst = new Pose3d(m_limelight.getTagEstimatedPosition(m_drive));
+      
+      var robotPose2d = m_drive.getPoseLatencyCompensation(m_limelight.getLatency());
+
+      var robotPose3d =
+          new Pose3d(
+              robotPose2d.getX(),
+              robotPose2d.getY(),
+              0,
+              new Rotation3d(0, 0, robotPose2d.getRotation().getRadians()));
+
       goalPose =
           targetPoseEst.getX() <= 0
               ? robotPose3d.toPose2d()
