@@ -29,8 +29,10 @@ public final class Constants {
   public static final double ROBOT_MASS_KG = 74.088;
   public static final double ROBOT_MOI = 6.883;
   public static final double WHEEL_COF = 1.2;
-  public static final double translationalAutoP = 52.5;
-  public static final double rotationalAutoP = 8.0;
+  public static final double translationalAutoP = 60.0;
+  public static final double translationalAutoD = 5.0;
+  public static final double rotationalAutoP = 10.0;
+  public static final double rotationalAutoD = 1.0;
 
   public static enum TagOffsets {
     LEFT_BRANCH(-13.0),
@@ -83,6 +85,6 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    public static final double kReefOffset = -20.0;
+    public static final double kReefOffset = -30.0;
   }
 }

@@ -106,9 +106,6 @@ public class DriveCommands {
     return MathUtil.inputModulus(drive.getRotation().getDegrees(), -180, 180);
   }
 
-
-  
-
   /**********************************************************************************************
    * Field centric drive command using joystick for linear control and PID for angular control.
    * This specific drive based on Matthew's swerve drive from
@@ -156,9 +153,7 @@ public class DriveCommands {
             if (angleSetpoint < 0) return;
             angleSetpoint = reefAngle;
           }
-          omega =
-                fieldPIDController.calculate(
-                    getDriveHeading(drive), angleSetpoint);
+          omega = fieldPIDController.calculate(getDriveHeading(drive), angleSetpoint);
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =

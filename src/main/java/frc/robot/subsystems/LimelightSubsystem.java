@@ -18,7 +18,6 @@ import frc.robot.Constants.TagOffsets;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.RawFiducial;
 import frc.robot.subsystems.drive.Drive;
-
 import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
@@ -82,10 +81,7 @@ public class LimelightSubsystem extends SubsystemBase {
     // System.out.println("targetRotation: " + tAngleToRobot.getDegrees());
     double distanceToTarget =
         getPrimaryFiducial(LimelightHelpers.getRawFiducials("limelight")).distToRobot;
-    double absRotation =
-        -1.0
-                * drive.getHeadingDegrees()
-            - getReefAngle();
+    double absRotation = -1.0 * drive.getHeadingDegrees() - getReefAngle();
 
     // System.out.println("absRotation: " + absRotation);
     Pose2d targetPose2d = new Pose2d(targetTZ, -targetTX, Rotation2d.fromDegrees(absRotation));
