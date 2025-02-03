@@ -50,8 +50,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.util.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -158,6 +158,7 @@ public class Drive extends SubsystemBase {
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
   }
+
   Field2d robotPose = new Field2d();
 
   @Override
@@ -167,7 +168,7 @@ public class Drive extends SubsystemBase {
 
     robotPose.setRobotPose(getPose());
     SmartDashboard.putData("Robot Pose", robotPose);
-    
+
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
