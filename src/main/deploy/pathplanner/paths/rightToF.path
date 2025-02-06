@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 8.125,
-        "y": 4.0
+        "y": 1.876
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.121563718185568,
-        "y": 4.109167546294384
+        "x": 7.098116725649308,
+        "y": 1.9848578123858824
       },
       "isLocked": false,
-      "linkedName": "bargeCenter"
+      "linkedName": "bargeRight"
     },
     {
       "anchor": {
-        "x": 6.2,
-        "y": 4.15
+        "x": 5.474403409090908,
+        "y": 2.6239914772727264
       },
       "prevControl": {
-        "x": 6.879002599039163,
-        "y": 4.0711839260688985
+        "x": 6.175963966748121,
+        "y": 2.422221477712579
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "21R"
+      "linkedName": "F"
     }
   ],
   "rotationTargets": [],
@@ -41,8 +41,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": 119.99999999999999
   },
   "reversed": false,
   "folder": "Leave Paths",

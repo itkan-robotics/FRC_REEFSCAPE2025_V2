@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.512840909090909,
-        "y": 0.8789630681818177
+        "x": 2.2474598085688555,
+        "y": 1.1803292092781277
       },
       "isLocked": false,
       "linkedName": "sourceRight"
     },
     {
       "anchor": {
-        "x": 5.175255681818181,
-        "y": 2.4544744318181815
+        "x": 3.819119318181818,
+        "y": 2.5043323863636364
       },
       "prevControl": {
-        "x": 4.53898113547973,
-        "y": 2.0478622830470194
+        "x": 3.218539736702965,
+        "y": 2.040492996262521
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "22L"
+      "linkedName": "D"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": "Right Source Paths",

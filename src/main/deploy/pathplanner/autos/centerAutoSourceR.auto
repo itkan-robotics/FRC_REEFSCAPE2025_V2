@@ -13,61 +13,61 @@
         {
           "type": "path",
           "data": {
-            "pathName": "centerTo21L"
+            "pathName": "centerToG"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "21LToSourceR"
+            "pathName": "GToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceRTo17R"
+            "pathName": "sourceRToD"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "17RToSourceR"
+            "pathName": "DToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceRTo17L"
+            "pathName": "sourceRToC"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "17LToSourceR"
+            "pathName": "CToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceRTo18R"
+            "pathName": "sourceRToB"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "18RToSourceR"
+            "pathName": "BToSourceR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "sourceRTo18L"
+            "pathName": "sourceRToA"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "18LToSourceR"
+            "pathName": "AToSourceR"
           }
         }
       ]
