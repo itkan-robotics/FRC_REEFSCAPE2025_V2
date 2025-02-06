@@ -8,6 +8,6 @@
 <br> 3. Since we have the location of the robot relative to the target AprilTag, we can utilize PID control to drive to the AprilTag, using tz for the range and tx/ty to calculate the angle, as well as align with the AprilTag, using the yaw of the AprilTag relative to the robot.
 <br> 4. Finally, we can set up multiple pipelines; one for the left branch, one for centering, and one for the right branch; this would allow us to offset the robot from the AprilTag without having to manually adjust values.
 
-<h1>Reef auto zones, leave paths, and branch names; taken from the <a href="https://firstfrc.blob.core.windows.net/frc2025/Manual/2025GameManual.pdf">FRC Reefscape Game Manual</a>a, for which I have code written for both </h1>
+<h1>Reef auto zones, leave paths, and branch names; taken from the <a href="https://firstfrc.blob.core.windows.net/frc2025/Manual/2025GameManual.pdf">FRC Reefscape Game Manual</a>, for which I have code written for both </h1>
 
 ![Reef auto zones, leave paths, and AprilTag IDs](https://github.com/user-attachments/assets/c427416e-bca1-4d0c-bb95-92e83e9d4707)
