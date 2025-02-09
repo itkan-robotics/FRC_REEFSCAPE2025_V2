@@ -43,8 +43,8 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_FIELDKP = 0.43;
-  private static final double ANGLE_FIELDKD = 0.01;
+  private static final double ANGLE_FIELDKP = 0.1;
+  private static final double ANGLE_FIELDKD = 0.0;
   private static final double ANGLE_KP = 1.0;
   private static final double ANGLE_KD = 1.0;
   private static final double ANGLE_MAX_VELOCITY = 9.86220055226554;
@@ -133,8 +133,6 @@ public class DriveCommands {
     fieldPIDController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
     fieldPIDController.enableContinuousInput(-180, 180);
 
-    boolean notStickDrift = Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1;
-
     // Construct command
     return Commands.run(
         () -> {
@@ -144,16 +142,12 @@ public class DriveCommands {
 
           // Calculate angular speed
           double omega = 0.0;
-          double angleSetpoint = getDriveHeading(drive);
-          if (notStickDrift) {
-            angleSetpoint = getRightStickAngle(jwxSupplier, jwySupplier);
+
+          if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
+            omega =
+                fieldPIDController.calculate(
+                    getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
           }
-          if (snapToReef.getAsBoolean() && limelight.canSeeTarget()) {
-            double reefAngle = limelight.getReefAngle();
-            if (angleSetpoint < 0) return;
-            angleSetpoint = reefAngle;
-          }
-          omega = fieldPIDController.calculate(getDriveHeading(drive), angleSetpoint);
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =

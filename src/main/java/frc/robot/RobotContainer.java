@@ -25,13 +25,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.TagOffsets;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.limelightReefAlignment;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CoralIntake;
-import frc.robot.subsystems.CoralOuttake;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -50,10 +48,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final ElevatorSubsystem elevator;
   private final LimelightSubsystem limelight;
-  private final CoralIntake intake = new CoralIntake();
-  private final CoralOuttake outtake = new CoralOuttake();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
 
@@ -72,7 +67,6 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        elevator = new ElevatorSubsystem();
         break;
 
       case SIM:
@@ -84,7 +78,6 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        elevator = new ElevatorSubsystem();
         break;
 
       default:
@@ -96,7 +89,6 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        elevator = new ElevatorSubsystem();
         break;
     }
     limelight = new LimelightSubsystem();
@@ -148,29 +140,31 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    base.square().onTrue(elevator.setGoal(5.0));
-    base.triangle().onTrue(elevator.setGoal(15.0));
-    base.circle().onTrue(elevator.setGoal(10.0));
-    base.cross().onTrue(elevator.setGoal(0.0));
-    base.R2().whileTrue(intake.Intake(0.4));
-    base.L2().whileTrue(outtake.Outtake(0.25));
+    // base.square().onTrue(elevator.setGoal(5.0));
+    // base.triangle().onTrue(elevator.setGoal(15.0));
+    // base.circle().onTrue(elevator.setGoal(10.0));
+    // base.cross().onTrue(elevator.setGoal(0.0));
+    // base.R2().whileTrue(intake.Intake(0.4));
+    // base.L2().whileTrue(outtake.Outtake(0.25));
+
+    base.triangle().onTrue(drive.sysIdQuasistatic(Direction.kForward));
+    base.cross().onTrue(drive.sysIdQuasistatic(Direction.kReverse));
+    base.square().onTrue(drive.sysIdDynamic(Direction.kForward));
+    base.circle().onTrue(drive.sysIdDynamic(Direction.kReverse));
 
     base.povUp()
-        .whileTrue(new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.CENTER));
+        .whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.CENTER));
     base.povLeft()
         .whileTrue(
-            new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.LEFT_BRANCH));
+            new limelightReefAlignment(drive, limelight, TagOffsets.LEFT_BRANCH));
     base.povRight()
         .whileTrue(
-            new limelightReefAlignment(drive, limelight, kReefOffset, TagOffsets.RIGHT_BRANCH));
+            new limelightReefAlignment(drive, limelight, TagOffsets.RIGHT_BRANCH));
 
     // Sets the robot's believed position to (Right against the reef, ID = 19)
     // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-    if (base.create().getAsBoolean()) {
-      base.povDown()
-          .onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4, Rotation2d.fromDegrees(-60))));
-      // ID = 21: new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180)
-    }
+    base.create().onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4, Rotation2d.fromDegrees(-60))));
+    // ID = 21: new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180)
   }
 
   /*********************************************************
@@ -207,9 +201,6 @@ public class RobotContainer {
             () -> -base.getRightY(),
             () -> base.getRightX(),
             base.options()));
-
-    intake.setDefaultCommand(intake.DefaultCommand());
-    outtake.setDefaultCommand(outtake.DefaultCommand());
     limelight.setDefaultCommand(limelight.setLimelight());
   }
 

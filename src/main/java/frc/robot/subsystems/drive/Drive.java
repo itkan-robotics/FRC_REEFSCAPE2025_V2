@@ -39,6 +39,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.VelocityUnit;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -131,8 +135,8 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(Constants.translationalAutoP, 0.0, Constants.translationalAutoD),
-            new PIDConstants(Constants.rotationalAutoP, 0.0, Constants.rotationalAutoD)),
+            new PIDConstants(Constants.translationalAutoP, 0.0, 0.0),
+            new PIDConstants(Constants.rotationalAutoP, 0.0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -151,10 +155,10 @@ public class Drive extends SubsystemBase {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+                Velocity.ofBaseUnits(1.0, VelocityUnit.combine(Volts, Second)),
+                Voltage.ofBaseUnits(7.0, Volt),
+                Time.ofBaseUnits(5, Second),
+                (state) -> Logger.recordOutput("SysIdTestState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
   }
@@ -430,7 +434,7 @@ public class Drive extends SubsystemBase {
   }
 
   public double getMaxLinearSpeedFeetPerSec() {
-    return TunerConstants.kSpeedAt12Volts.in(FeetPerSecond);
+    return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   }
 
   /** Returns the maximum angular speed in radians per sec. */

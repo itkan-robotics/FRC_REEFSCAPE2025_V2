@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.TagOffsets;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
@@ -66,7 +67,7 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return
    *************************************************************************************/
   @SuppressWarnings("unused")
-  public Pose2d getTagEstimatedPosition(Drive drive) {
+  public Pose2d getTagEstimatedPosition(Drive drive, Constants.TagOffsets offset) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
             .getTable("limelight")
@@ -74,7 +75,7 @@ public class LimelightSubsystem extends SubsystemBase {
             .getDoubleArray(new double[6]);
     ;
 
-    double targetTX = targetPose[0];
+    double targetTX = targetPose[0] + Units.inchesToMeters(offset.getHorizontalOffsetInches());
     double targetTY = targetPose[1];
     double targetTZ = targetPose[2];
     Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
