@@ -238,7 +238,7 @@ public class Drive extends SubsystemBase {
   /**********************************************************************************************
    * Sets the pose of the robot using Limelight's MegaTag2
    * (Robot's position must not be 0,0 and heading must be correct for method to work correctly)
-   * <p>Last Updated by Abdullah Khaled, 2/2/2025
+   * <p> Last Updated by Abdullah Khaled, 2/2/2025
    **********************************************************************************************/
 
   public void setVisionPoseMT2() {

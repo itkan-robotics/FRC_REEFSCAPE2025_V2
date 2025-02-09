@@ -4,9 +4,10 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.LimelightConstants.*;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,8 +15,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.TagOffsets;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -63,11 +62,13 @@ public class LimelightSubsystem extends SubsystemBase {
   /***************************************************************************************
    * Function that gets the target's position relative to the robot
    * (Based on 6328 Mechanical Advantage's idea in <a href=https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2025-build-thread/477314/85>this</a> CD post)
-   *  <p> Last Updated by Abdullah Khaled, 2/1/2025
+   * <p> Last Updated by Abdullah Khaled, 2/9/2025
+   * <p> Update (2/9): Added compatibility with TagOffsets so the tag's pose is automatically offset
+   * when requested
    * @return
    *************************************************************************************/
   @SuppressWarnings("unused")
-  public Pose2d getTagEstimatedPosition(Drive drive, Constants.TagOffsets offset) {
+  public Pose2d getTagEstimatedPosition(Drive drive, TagOffsets offset) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
             .getTable("limelight")
@@ -75,7 +76,7 @@ public class LimelightSubsystem extends SubsystemBase {
             .getDoubleArray(new double[6]);
     ;
 
-    double targetTX = targetPose[0] + Units.inchesToMeters(offset.getHorizontalOffsetInches());
+    double targetTX = targetPose[0] + offset.getHorizontalOffsetMeters();
     double targetTY = targetPose[1];
     double targetTZ = targetPose[2];
     Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
@@ -100,17 +101,13 @@ public class LimelightSubsystem extends SubsystemBase {
   public void createReefHashMap() {
     int blueAllianceTags = !isRedAlliance() ? 11 : 0;
     reefAngles.put(-1, -1.0);
+    reefAngles.put(0, -1.0);
     reefAngles.put(6 + blueAllianceTags, -60.0); // 17
     reefAngles.put(7 + blueAllianceTags, 0.0); // 18
     reefAngles.put(8 + blueAllianceTags, 60.0); // 19
     reefAngles.put(9 + blueAllianceTags, 120.0); // 20
     reefAngles.put(10 + blueAllianceTags, 180.0); // 21
     reefAngles.put(11 + blueAllianceTags, -120.0); // 22
-  }
-
-  public void setAprilTagOffset(TagOffsets offset) {
-    LimelightHelpers.setFiducial3DOffset(
-        "limelight", 0.0, Units.inchesToMeters(offset.getHorizontalOffsetInches()), 0.0);
   }
 
   public double getReefAngle() {

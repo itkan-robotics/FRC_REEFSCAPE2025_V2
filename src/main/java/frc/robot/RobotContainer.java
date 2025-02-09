@@ -13,8 +13,6 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.LimelightConstants.kReefOffset;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,8 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Constants.TagOffsets;
+import frc.robot.Constants.LimelightConstants.TagOffsets;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.limelightReefAlignment;
 import frc.robot.generated.TunerConstants;
@@ -140,37 +137,22 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // base.square().onTrue(elevator.setGoal(5.0));
-    // base.triangle().onTrue(elevator.setGoal(15.0));
-    // base.circle().onTrue(elevator.setGoal(10.0));
-    // base.cross().onTrue(elevator.setGoal(0.0));
-    // base.R2().whileTrue(intake.Intake(0.4));
-    // base.L2().whileTrue(outtake.Outtake(0.25));
-
-    base.triangle().onTrue(drive.sysIdQuasistatic(Direction.kForward));
-    base.cross().onTrue(drive.sysIdQuasistatic(Direction.kReverse));
-    base.square().onTrue(drive.sysIdDynamic(Direction.kForward));
-    base.circle().onTrue(drive.sysIdDynamic(Direction.kReverse));
-
-    base.povUp()
-        .whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.CENTER));
-    base.povLeft()
-        .whileTrue(
-            new limelightReefAlignment(drive, limelight, TagOffsets.LEFT_BRANCH));
+    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.CENTER));
+    base.povLeft().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.LEFT_BRANCH));
     base.povRight()
-        .whileTrue(
-            new limelightReefAlignment(drive, limelight, TagOffsets.RIGHT_BRANCH));
+        .whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.RIGHT_BRANCH));
 
     // Sets the robot's believed position to (Right against the reef, ID = 19)
     // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-    base.create().onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4, Rotation2d.fromDegrees(-60))));
+    // base.create().onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4,
+    // Rotation2d.fromDegrees(-60))));
     // ID = 21: new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180)
   }
 
   /*********************************************************
    * Use this to set up PathplannerLib Named Commands
    * for autonomous routines.
-   * <p> Last Updated by Abdullah Khaled, 1/18/2025
+   * <p> Last Updated by Abdullah Khaled, 2/9/2025
    *********************************************************/
 
   public void registerNamedCommands() {
@@ -187,7 +169,7 @@ public class RobotContainer {
 
   /*********************************************************
    * Use this to set up default commands for subsystems.
-   * <p> Last Updated by Abdullah Khaled, 1/18/2025
+   * <p> Last Updated by Abdullah Khaled, 2/9/2025
    *********************************************************/
 
   public void setDefaultCommands() {
@@ -201,6 +183,7 @@ public class RobotContainer {
             () -> -base.getRightY(),
             () -> base.getRightX(),
             base.options()));
+
     limelight.setDefaultCommand(limelight.setLimelight());
   }
 

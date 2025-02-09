@@ -13,8 +13,6 @@
 
 package frc.robot.commands;
 
-import static frc.robot.Constants.LimelightConstants.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -55,10 +53,7 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
   private static PIDController fieldPIDController;
-  private static PIDController angleController;
-
-  private static LimelightSubsystem limelight = new LimelightSubsystem();
-
+  
   private DriveCommands() {}
 
   /*************************************************************************************
@@ -147,6 +142,12 @@ public class DriveCommands {
             omega =
                 fieldPIDController.calculate(
                     getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
+          }
+
+          if (snapToReef.getAsBoolean() && limelight.hasTarget() && limelight.getReefAngle()!=-1.0) {
+            omega =
+                fieldPIDController.calculate(
+                    getDriveHeading(drive), limelight.getReefAngle());
           }
 
           // Convert to field relative speeds & send command

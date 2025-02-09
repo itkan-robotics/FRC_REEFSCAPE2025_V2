@@ -16,6 +16,7 @@ package frc.robot;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -25,31 +26,12 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
 
-  // PathPlanner config constants
-  public static final double ROBOT_MASS_KG = 74.088;
+  // PathPlanner config constants (wrong values)
+  public static final double ROBOT_MASS_KG = Units.lbsToKilograms(40.0);
   public static final double ROBOT_MOI = 6.883;
   public static final double WHEEL_COF = 1.2;
   public static final double translationalAutoP = 5.75;
-  public static final double translationalAutoD = 0.0;
-  public static final double rotationalAutoP = 20.0;
-  public static final double rotationalAutoD = 0.0;
-
-  public static enum TagOffsets {
-    LEFT_BRANCH(-8.0),
-    CENTER(0.0),
-    ALGAE(0.0),
-    RIGHT_BRANCH(8.0);
-
-    private final double horizontalOffsetInches;
-
-    TagOffsets(double offsetInches) {
-      this.horizontalOffsetInches = offsetInches;
-    }
-
-    public double getHorizontalOffsetInches() {
-      return horizontalOffsetInches;
-    }
-  };
+  public static final double rotationalAutoP = 15.0;
 
   // values from Team Spectrum 3847’s X-Ray robot from 2023
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
@@ -85,6 +67,49 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
+    /**
+     * The desired offset from the limelight to the reef in meters (negative since we want to be
+     * farther away, not closer up)
+     *
+     * <p>Last Updated by Abdullah Khaled, 2/9/2025
+     */
     public static final double kReefOffset = -0.4;
+
+    /**
+     * Enum to store the offsets for the left and right branches on the reef. Includes value of the
+     * offset in inches with methods to get the offset in various units.
+     *
+     * <p>Last Updated by Abdullah Khaled, 2/9/2025
+     */
+    public static enum TagOffsets {
+      LEFT_BRANCH(-8.0),
+      CENTER(0.0),
+      ALGAE(0.0),
+      RIGHT_BRANCH(8.0);
+
+      private final double horizontalOffsetInches;
+
+      TagOffsets(double offsetInches) {
+        this.horizontalOffsetInches = offsetInches;
+      }
+
+      /**
+       * Returns the limelight offset in inches
+       *
+       * <p>Last Updated by Abdullah Khaled, 2/9/2025
+       */
+      public double getHorizontalOffsetInches() {
+        return horizontalOffsetInches;
+      }
+
+      /**
+       * Returns the limelight offset in meters
+       *
+       * <p>Last Updated by Abdullah Khaled, 2/9/2025
+       */
+      public double getHorizontalOffsetMeters() {
+        return Units.inchesToMeters(horizontalOffsetInches);
+      }
+    };
   }
 }
