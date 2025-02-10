@@ -27,8 +27,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
 
   // PathPlanner config constants (wrong values)
-  public static final double ROBOT_MASS_KG = Units.lbsToKilograms(40.0);
-  public static final double ROBOT_MOI = 6.883;
+  public static final double ROBOT_MASS_KG = 18.143;
+  public static final double ROBOT_MOI = 1.965;
   public static final double WHEEL_COF = 1.2;
   public static final double translationalAutoP = 5.75;
   public static final double rotationalAutoP = 15.0;

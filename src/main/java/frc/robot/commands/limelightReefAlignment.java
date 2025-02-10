@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import java.util.Set;
@@ -63,8 +62,8 @@ public class limelightReefAlignment extends SequentialCommandGroup {
 
     // Stop first because latency compensation is iffy at best
     addCommands(
-        new InstantCommand(() -> drive.stop()),
-        new WaitCommand(0.5),
+        // new InstantCommand(() -> drive.stop()),
+        // new WaitCommand(0.01),
         new DeferredCommand(() -> getCommand(), Set.of(drive)),
         new InstantCommand(() -> drive.stop()));
   }
@@ -106,7 +105,7 @@ public class limelightReefAlignment extends SequentialCommandGroup {
       // Configured to work above 12.0V; 11.8V steady is lower bounds
       return AutoBuilder.pathfindToPose(
           goalPose,
-          new PathConstraints(5.0, 6.0, Units.degreesToRadians(180), Units.degreesToRadians(75)),
+          new PathConstraints(5.0, 5.0, Units.degreesToRadians(180), Units.degreesToRadians(75)),
           0);
     }
   }
