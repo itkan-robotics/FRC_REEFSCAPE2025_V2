@@ -121,7 +121,7 @@ public class Robot extends LoggedRobot {
 
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
-
+    // System.out.println(RobotController.getSerialNumber());
     if (RobotController.getSerialNumber() != null) {
       SmartDashboard.putString("Serial Number", RobotController.getSerialNumber());
       SmartDashboard.putBoolean(
