@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.CoralPos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -163,15 +165,20 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // base.square().onTrue(pivot.setGoal(5.0));
-    // base.triangle().onTrue(pivot.setGoal(15.0));
+    base.R1()
+        .onTrue(
+            new ParallelRaceGroup(
+                elevator.setGoal(CoralPos.TEST.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.TEST.getPivotSetpoint())));
     // base.circle().onTrue(pivot.setGoal(25.0));
     // base.cross().onTrue(pivot.setGoal(50.0));
-    base.R2().whileTrue(score.setSpeed(0.5));
-    base.L2().whileTrue(score.setSpeed(-0.25));
 
-    base.R1().whileTrue(new ParallelCommandGroup(intake.setSpeed(0.5), score.setSpeed(-0.1)));
-    base.L1().whileTrue(intake.setSpeed(-0.5));
-    
+    base.R2().whileTrue(score.setSpeed(-0.8)); // intaking
+    base.R2().onFalse(score.setSpeed(-0.4)); // intaking
+
+    base.L2().whileTrue(score.setSpeed(0.5)); // scores coral
+    //  base.L2().onFalse(score.setSpeed(.05)); // scores coral
+
     // base.R1().onTrue(elevator.setGoal(39));
     // base.L1().onTrue(elevator.setGoal(0.5));
     // operator.cross().onTrue(pivot.setGoal(10.0));
@@ -183,24 +190,50 @@ public class RobotContainer {
     base.povUp()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(LEVERLFOUR.getElevatorSetpoint()),
-                pivot.setGoal(LEVERLFOUR.getPivotSetpoint())));
+                elevator.setGoal(CoralPos.LEVERLFOUR.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.LEVERLFOUR.getPivotSetpoint())));
     base.povDown()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(LEVELTWO.getElevatorSetpoint()),
-                pivot.setGoal(LEVELTWO.getPivotSetpoint())));
+                elevator.setGoal(CoralPos.LEVELTWO.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.LEVELTWO.getPivotSetpoint())));
     base.povLeft()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(LEVELONE.getElevatorSetpoint()),
-                pivot.setGoal(LEVELONE.getPivotSetpoint())));
+                elevator.setGoal(CoralPos.LEVELONE.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.LEVELONE.getPivotSetpoint())));
     base.povRight()
         .onTrue(
             new ParallelCommandGroup(
-                elevator.setGoal(LEVELTHREE.getElevatorSetpoint()),
-                pivot.setGoal(LEVELTHREE.getPivotSetpoint())));
+                elevator.setGoal(CoralPos.LEVELTHREE.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.LEVELTHREE.getPivotSetpoint())));
 
+    base.triangle()
+        .onTrue(
+            new ParallelRaceGroup(
+                elevator.setGoal(CoralPos.ALGAEINTAKEONE.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.ALGAEINTAKEONE.getPivotSetpoint())));
+
+    base.circle()
+        .onTrue(
+            new ParallelRaceGroup(
+                elevator.setGoal(CoralPos.ALGAEINTAKETWO.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.ALGAEINTAKETWO.getPivotSetpoint())));
+    base.cross()
+        .onTrue(
+            new ParallelRaceGroup(
+                elevator.setGoal(CoralPos.ALGAELOLLIPOP.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.ALGAELOLLIPOP.getPivotSetpoint())));
+    base.square()
+        .onTrue(
+            new ParallelRaceGroup(
+                elevator.setGoal(CoralPos.ALGAEGROUND.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.ALGAEGROUND.getPivotSetpoint())));
+    base.L1()
+        .onTrue(
+            new ParallelRaceGroup(
+                elevator.setGoal(CoralPos.CLIMB.getElevatorSetpoint()),
+                pivot.setGoal(CoralPos.CLIMB.getPivotSetpoint())));
     // base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
   }
 

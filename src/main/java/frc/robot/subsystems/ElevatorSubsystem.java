@@ -39,7 +39,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
-    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.5;
+    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
     leftConfig.CurrentLimits.SupplyCurrentLimit = 25;
     leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     /*leftConfig.MotorOutput.Inverted =
