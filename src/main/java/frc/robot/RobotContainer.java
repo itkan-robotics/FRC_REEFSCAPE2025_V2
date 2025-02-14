@@ -164,21 +164,20 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // base.square().onTrue(pivot.setGoal(5.0));
-    base.R1()
-        .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.TEST.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.TEST.getPivotSetpoint())));
-    // base.circle().onTrue(pivot.setGoal(25.0));
-    // base.cross().onTrue(pivot.setGoal(50.0));
-
+    // // base.square().onTrue(pivot.setGoal(5.0));
+    // base.R1()
+    //     .onTrue(
+    //         new ParallelRaceGroup(
+    //             elevator.setGoal(CoralPos.TEST.getElevatorSetpoint()),
+    //             pivot.setGoal(CoralPos.TEST.getPivotSetpoint())));
+    base.circle().onTrue(pivot.setGoal(25.0));
+    base.cross().onTrue(new ParallelCommandGroup(elevator.setGoal(5), pivot.setGoal(47.5)));
     base.R2().whileTrue(score.setSpeed(-0.8)); // intaking
     base.R2().onFalse(score.setSpeed(-0.4)); // intaking
 
     base.L2().whileTrue(score.setSpeed(0.5)); // scores coral
     //  base.L2().onFalse(score.setSpeed(.05)); // scores coral
-
+    base.R1().whileTrue(intake.setSpeed(0.5));
     // base.R1().onTrue(elevator.setGoal(39));
     // base.L1().onTrue(elevator.setGoal(0.5));
     // operator.cross().onTrue(pivot.setGoal(10.0));
@@ -219,11 +218,11 @@ public class RobotContainer {
             new ParallelRaceGroup(
                 elevator.setGoal(CoralPos.ALGAEINTAKETWO.getElevatorSetpoint()),
                 pivot.setGoal(CoralPos.ALGAEINTAKETWO.getPivotSetpoint())));
-    base.cross()
-        .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.ALGAELOLLIPOP.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.ALGAELOLLIPOP.getPivotSetpoint())));
+    // base.cross()
+    //     .onTrue(
+    //         new ParallelRaceGroup(
+    //             elevator.setGoal(CoralPos.ALGAELOLLIPOP.getElevatorSetpoint()),
+    //             pivot.setGoal(CoralPos.ALGAELOLLIPOP.getPivotSetpoint())));
     base.square()
         .onTrue(
             new ParallelRaceGroup(

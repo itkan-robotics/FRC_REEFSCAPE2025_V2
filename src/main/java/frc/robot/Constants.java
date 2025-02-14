@@ -36,7 +36,7 @@ public final class Constants {
   }
 
   public static final int SCORE_MOTOR_PORT = 12; // 1 is a place holder
-  public static final int INTAKE_MOTOR_PORT = 0;
+  public static final int INTAKE_MOTOR_PORT = 17;
 
   public static class PivotConstants {
     public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
