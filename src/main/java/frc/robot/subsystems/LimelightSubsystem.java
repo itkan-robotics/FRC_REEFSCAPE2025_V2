@@ -6,12 +6,8 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LimelightConstants.*;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,6 +15,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LimelightHelpers.RawFiducial;
 import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
@@ -33,9 +32,8 @@ public class LimelightSubsystem extends SubsystemBase {
   private final double fovVerticalDegrees = 49.7;
   private final double areaMultiplier = 1.5;
   public boolean limelightHeadingGood = true;
-  private PIDController m_aTagSpeedContoller;
-  private PIDController m_aTagDirController;
   private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
+  public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem() {
     createReefHashMap();
@@ -61,80 +59,38 @@ public class LimelightSubsystem extends SubsystemBase {
     }
   }
 
-  /*******************************************************
-   * Function to get angle of target AprilTag based on its ID.
-   *
-   * <p> Last Updated by Abdullah Khaled, 1/17/2025
-   * @return Angle of the target AprilTag in degrees
-   *******************************************************/
-
-  public double getLLReefAngle() {
-    return reefAngles.get(getID());
-  }
-
   /***************************************************************************************
-   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
-   * The method uses ta to calculate magnitude and tx to calculate direction, and an exponential
-   * interpolation equation to find the kP value the speed controller should use based on ta
-   * <p>Last Updated by Abdullah Khaled, 1/19/2025
-   *
-   * @param offset Offset for left and right branches
-   * @return The linear velocity of the robot as a Translation2d
-   **************************************************************************************/
+   * Function that gets the target's position relative to the robot
+   * (Based on 6328 Mechanical Advantage's idea in <a href=https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2025-build-thread/477314/85>this</a> CD post)
+   * <p> Last Updated by Abdullah Khaled, 2/9/2025
+   * <p> Update (2/9): Added compatibility with TagOffsets so the tag's pose is automatically offset
+   * when requested
+   * @return
+   *************************************************************************************/
+  @SuppressWarnings("unused")
+  public Pose2d getTagEstimatedPosition(Drive drive, TagOffsets offset) {
+    double[] targetPose =
+        NetworkTableInstance.getDefault()
+            .getTable("limelight")
+            .getEntry("targetpose_robotspace")
+            .getDoubleArray(new double[6]);
+    ;
 
-  public Translation2d getAprilTagVelocity(double offset, boolean overTurned, double reefAngle) {
+    double targetTX = targetPose[0] + offset.getHorizontalOffsetMeters();
+    double targetTY = targetPose[1];
+    double targetTZ = targetPose[2];
+    Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
+    // System.out.println("targetRotation: " + tAngleToRobot.getDegrees());
+    double distanceToTarget =
+        getPrimaryFiducial(LimelightHelpers.getRawFiducials("limelight")).distToRobot;
+    double absRotation = -1.0 * drive.getHeadingDegrees() - getReefAngle();
 
-    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
-    if (!overTurned) {
-      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
-
-      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
-    }
-
-    // Apply deadband
-    double linearMagnitude =
-        MathUtil.applyDeadband(
-            // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
-
-    // Calculate direction based on tx
-    m_aTagDirController = new PIDController(CENTERING_KP, 0.0, CENTERING_KD);
-    Rotation2d linearDirection =
-        new Rotation2d(
-            MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX() + offset)),
-                    VELOCITY_DEADBAND)
-                + Math.toRadians(reefAngle));
-    // Square magnitude for more precise control
-    linearMagnitude = linearMagnitude * linearMagnitude;
-
-    // Return new linear velocity
-    return new Pose2d(new Translation2d(), linearDirection)
-        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-        .getTranslation();
+    // System.out.println("absRotation: " + absRotation);
+    Pose2d targetPose2d = new Pose2d(targetTZ, -targetTX, Rotation2d.fromDegrees(absRotation));
+    return targetPose2d == null ? new Pose2d(-1, -1, Rotation2d.fromDegrees(0)) : targetPose2d;
   }
 
   // Helper Methods
-
-  /***************************************************************************************
-   * Finds the kP of the speed controller using a linear interpolation equation as created by
-   * ChatGPT
-   * <p> Last Updated by Abdullah Khaled, 1/19/2025
-   * @param ta The area of the limelight's FOV the target fills.
-   * @return The interpolated value
-   **************************************************************************************/
-
-  public double kPExpInterpolation(double ta) {
-
-    double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
-    double[] pair0 = {MIN_AREA, MAX_KP};
-    double[] pair1 = {MAX_AREA, MIN_KP};
-
-    double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
-    double A = pair0[1] * Math.exp(k * pair0[0]);
-    double interpolatedVal = A * Math.exp(-k * area);
-    return interpolatedVal;
-  }
 
   /***************************************************************************************
    * Creates the hashMap for the reef AprilTags based on alliance;
@@ -143,14 +99,21 @@ public class LimelightSubsystem extends SubsystemBase {
    **************************************************************************************/
 
   public void createReefHashMap() {
-    int blueAllianceOffset = !isRedAlliance() ? 11 : 0;
+    int blueAllianceTags = !isRedAlliance() ? 11 : 0;
     reefAngles.put(-1, -1.0);
-    reefAngles.put(6 + blueAllianceOffset, 120.0);
-    reefAngles.put(7 + blueAllianceOffset, 180.0);
-    reefAngles.put(8 + blueAllianceOffset, -120.0);
-    reefAngles.put(9 + blueAllianceOffset, -60.0);
-    reefAngles.put(10 + blueAllianceOffset, 0.0);
-    reefAngles.put(11 + blueAllianceOffset, 60.0);
+    reefAngles.put(0, -1.0);
+    reefAngles.put(6 + blueAllianceTags, -60.0); // 17
+    reefAngles.put(7 + blueAllianceTags, 0.0); // 18
+    reefAngles.put(8 + blueAllianceTags, 60.0); // 19
+    reefAngles.put(9 + blueAllianceTags, 120.0); // 20
+    reefAngles.put(10 + blueAllianceTags, 180.0); // 21
+    reefAngles.put(11 + blueAllianceTags, -120.0); // 22
+  }
+
+  public double getReefAngle() {
+    double angle = (reefAngles.get(getID()) == null) ? -1.0 : reefAngles.get(getID());
+    // System.out.println("id: " + getID());
+    return angle;
   }
 
   /***************************************************************************************
@@ -175,6 +138,10 @@ public class LimelightSubsystem extends SubsystemBase {
     return table.getEntry("tx").getDouble(0.0);
   }
 
+  public double getLatency() {
+    return table.getEntry("tl").getDouble(0.0) + table.getEntry("cl").getDouble(0.0);
+  }
+
   public double getY() {
     return table.getEntry("ty").getDouble(0.0);
   }
@@ -189,6 +156,17 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public int getID() {
     return (int) table.getEntry("tid").getDouble(0.0);
+  }
+
+  public static RawFiducial getPrimaryFiducial(RawFiducial[] fiducials) {
+    RawFiducial primaryFiducial = new RawFiducial(-1, 0, 0, 0, 0, 0, 0);
+    int primaryID = (int) table.getEntry("tid").getDouble(0.0);
+    if (primaryID != -1) {
+      for (RawFiducial fiducial : fiducials) {
+        if (fiducial.id == primaryID) primaryFiducial = fiducial;
+      }
+    }
+    return primaryFiducial;
   }
 
   public boolean canSeeTarget() {

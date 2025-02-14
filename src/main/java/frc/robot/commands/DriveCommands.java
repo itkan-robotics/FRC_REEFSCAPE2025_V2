@@ -37,14 +37,13 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_FIELDKP = 0.43;
-  private static final double ANGLE_FIELDKD = 0.01;
+  private static final double ANGLE_FIELDKP = 0.1;
+  private static final double ANGLE_FIELDKD = 0.0;
   private static final double ANGLE_KP = 1.0;
   private static final double ANGLE_KD = 1.0;
   private static final double ANGLE_MAX_VELOCITY = 9.86220055226554;
@@ -163,72 +162,6 @@ public class DriveCommands {
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
 
-          drive.runVelocity(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds,
-                  isFlipped
-                      ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                      : drive.getRotation()));
-        },
-        drive);
-  }
-
-  /*************************************************************************************
-   * Field centric drive command using limelight target data to
-   * calculate the desired angle of the robot to align parallel to the target AprilTag
-   * and move to the AprilTag based on the target's ta and tx values using Profiled PID.
-   * <p> Last Updated by Abdullah Khaled, 1/18/2025
-   *************************************************************************************/
-
-  public static Command limelightDriveToReef(
-      Drive drive, BooleanSupplier alignLeft, BooleanSupplier alignRight) {
-
-    // Create PID controller
-    angleController = new PIDController(TURN_KP, 0.0, TURN_KD);
-    angleController.enableContinuousInput(-180, 180);
-
-    // Construct command
-    return Commands.run(
-        () -> {
-          // Default values in the case an AprilTag is not seen
-          Translation2d linearVelocity = new Translation2d();
-          double omega = 0.0;
-          double offset =
-              alignLeft.getAsBoolean()
-                  ? BRANCH_OFFSET
-                  : alignRight.getAsBoolean() ? -BRANCH_OFFSET : 0.0;
-
-          if (limelight.canSeeTarget()) {
-
-            // Get the target angle for the robot based on the AprilTag ID
-            double reefAngle = limelight.getLLReefAngle();
-
-            /* To-Do List
-             * Test for offset degree #
-             *    Add constants to limelightConstants file
-             */
-            if (reefAngle != -1.0) {
-              // Calculate angular speed
-              omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
-
-              // If within certain *arbitrary* turn range drive normally; else, drive slowly
-              if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 20) {
-                linearVelocity = limelight.getAprilTagVelocity(offset, false, reefAngle);
-              } else {
-                linearVelocity = limelight.getAprilTagVelocity(offset, true, reefAngle);
-              }
-            }
-          }
-
-          // Convert to field relative speeds & send command
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
-                  omega);
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,

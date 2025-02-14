@@ -39,10 +39,15 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.VelocityUnit;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -50,6 +55,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -58,6 +64,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
+
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
@@ -69,18 +76,14 @@ public class Drive extends SubsystemBase {
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
-  // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 74.088;
-  private static final double ROBOT_MOI = 6.883;
-  private static final double WHEEL_COF = 1.2;
-  private static final RobotConfig PP_CONFIG =
+  public static final RobotConfig PP_CONFIG =
       new RobotConfig(
-          ROBOT_MASS_KG,
-          ROBOT_MOI,
+          Constants.ROBOT_MASS_KG,
+          Constants.ROBOT_MOI,
           new ModuleConfig(
               TunerConstants.FrontLeft.WheelRadius,
               TunerConstants.kSpeedAt12Volts.in(FeetPerSecond),
-              WHEEL_COF,
+              Constants.WHEEL_COF,
               DCMotor.getKrakenX60Foc(1)
                   .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
               TunerConstants.FrontLeft.SlipCurrent,
@@ -132,7 +135,8 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new PIDConstants(Constants.translationalAutoP, 0.0, 0.0),
+            new PIDConstants(Constants.rotationalAutoP, 0.0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -151,17 +155,24 @@ public class Drive extends SubsystemBase {
     sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null,
-                null,
-                null,
-                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+                Velocity.ofBaseUnits(1.0, VelocityUnit.combine(Volts, Second)),
+                Voltage.ofBaseUnits(7.0, Volt),
+                Time.ofBaseUnits(5, Second),
+                (state) -> Logger.recordOutput("SysIdTestState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
   }
 
+  Field2d robotPose = new Field2d();
+
   @Override
   public void periodic() {
+    setVisionPoseMT2();
     SmartDashboard.putNumber("Heading", getRotation().getDegrees());
+
+    robotPose.setRobotPose(getPose());
+    SmartDashboard.putData("Robot Pose", robotPose);
+
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -222,6 +233,49 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+  }
+
+  /**********************************************************************************************
+   * Sets the pose of the robot using Limelight's MegaTag2
+   * (Robot's position must not be 0,0 and heading must be correct for method to work correctly)
+   * <p> Last Updated by Abdullah Khaled, 2/2/2025
+   **********************************************************************************************/
+
+  public void setVisionPoseMT2() {
+    boolean doRejectUpdate = false;
+    LimelightHelpers.SetRobotOrientation(
+        "limelight",
+        poseEstimator.getEstimatedPosition().getRotation().getDegrees(),
+        0,
+        0,
+        0,
+        0,
+        0);
+    LimelightHelpers.PoseEstimate mt2 =
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
+    if (mt2 == null) return;
+    if (Math.abs(gyroIO.getRate())
+        > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision
+    // updates
+    {
+      doRejectUpdate = true;
+    }
+    if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
+      if (mt2.rawFiducials[0].ambiguity > .7) {
+        doRejectUpdate = true;
+      }
+      if (mt2.rawFiducials[0].distToCamera > 2) {
+        doRejectUpdate = true;
+      }
+    }
+    if (mt2.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+    if (!doRejectUpdate) {
+      poseEstimator.setVisionMeasurementStdDevs(Constants.VISION_STDS);
+      poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
   }
 
   /**
@@ -335,9 +389,34 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  @AutoLogOutput(key = "Odometry/LatencyCompensationPose")
+  public Pose2d getPoseLatencyCompensation(double dt) {
+    dt /= 1000.0; // Convert from ms to s
+    ChassisSpeeds currentSpeed = getChassisSpeeds();
+    Pose2d predictedPose =
+        getPose()
+            .exp(
+                new Twist2d(
+                    currentSpeed.vxMetersPerSecond * dt,
+                    currentSpeed.vyMetersPerSecond * dt,
+                    currentSpeed.omegaRadiansPerSecond * dt));
+    return predictedPose;
+  }
+
+  public Command setPoseCommand(Pose2d pose) {
+    return run(
+        () -> {
+          setPose(pose);
+        });
+  }
+
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
+  }
+
+  public double getHeadingDegrees() {
+    return getRotation().getDegrees();
   }
 
   /** Resets the current odometry pose. */
@@ -355,7 +434,7 @@ public class Drive extends SubsystemBase {
   }
 
   public double getMaxLinearSpeedFeetPerSec() {
-    return TunerConstants.kSpeedAt12Volts.in(FeetPerSecond);
+    return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   }
 
   /** Returns the maximum angular speed in radians per sec. */
