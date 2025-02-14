@@ -36,7 +36,7 @@ public final class Constants {
   }
 
   public static final int SCORE_MOTOR_PORT = 12; // 1 is a place holder
-  public static final int INTAKE_MOTOR_PORT = 0;
+  public static final int INTAKE_MOTOR_PORT = 17;
 
   public static class PivotConstants {
     public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
@@ -64,13 +64,18 @@ public final class Constants {
 
   public static enum CoralPos {
     BARGE(0.0, 0.0),
-    ALGAEINTAKE(0.0, 0.0),
+    ALGAEINTAKEONE(23, 10),
+    ALGAEINTAKETWO(18.5, 20),
+    ALGAELOLLIPOP(36, 5),
+    ALGAEGROUND(44, 6),
     CORALINTAKE(0.0, 0.0),
     LEVELONE(20.0, 10.0),
     LEVELTWO(20.0, 15.0),
     LEVELTHREE(15.0, 23.0),
     LEVERLFOUR(9.0, 39.0),
-    HOME(5.0, 0.5);
+    HOME(5.0, 0),
+    TEST(13.0, 0),
+    CLIMB(49, 8);
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;

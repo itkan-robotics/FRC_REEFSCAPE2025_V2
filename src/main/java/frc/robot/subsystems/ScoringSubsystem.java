@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ScoringSubsystem extends SubsystemBase {
   /** Creates a new CoralItake. */
   // private final TalonFX left_coral = new TalonFX(4);
+  private boolean intakingAlgae = false;
 
   private final TalonFX scoreMotor = new TalonFX(SCORE_MOTOR_PORT);
 
@@ -31,6 +32,24 @@ public class ScoringSubsystem extends SubsystemBase {
         () -> {
           // left_coral.set(speed);
           scoreMotor.set(speed);
+        });
+  }
+
+  public Command algae(double speed) {
+    return run(
+        () -> {
+          // left_coral.set(speed);
+          scoreMotor.set(speed);
+          intakingAlgae = true;
+        });
+  }
+
+  public Command coral(double speed) {
+    return run(
+        () -> {
+          // left_coral.set(speed);
+          scoreMotor.set(speed);
+          intakingAlgae = true;
         });
   }
 

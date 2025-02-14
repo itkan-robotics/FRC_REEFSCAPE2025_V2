@@ -12,21 +12,21 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new CoralOuttake. */
-  private final TalonFX coralIntakeMotor = new TalonFX(INTAKE_MOTOR_PORT);
+  private final TalonFX Coral_Intake = new TalonFX(INTAKE_MOTOR_PORT);
 
   public IntakeSubsystem() {}
 
   public Command DefaultCommand() {
     return run(
         () -> {
-          coralIntakeMotor.stopMotor();
+          Coral_Intake.stopMotor();
         });
   }
 
   public Command setSpeed(double speed) {
     return run(
         () -> {
-          coralIntakeMotor.set(speed);
+          Coral_Intake.set(speed);
         });
   }
 
