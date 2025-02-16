@@ -13,7 +13,7 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.CoralPos.*;
+import static frc.robot.Constants.BotState.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -23,19 +23,15 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.CoralPos;
-import frc.robot.Constants.LimelightConstants.TagOffsets;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.limelightReefAlignment;
+import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.PivotSubsystem;
 import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -54,11 +50,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final LimelightSubsystem limelight;
+  private final LimelightSubsystem limelight = new LimelightSubsystem();
   private final ScoringSubsystem score = new ScoringSubsystem();
-  private final PivotSubsystem pivot = new PivotSubsystem();
+  private final ActuatorSubsystem actuators = new ActuatorSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final StateMachine currState = new StateMachine();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
@@ -102,8 +99,6 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-    limelight = new LimelightSubsystem();
-
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -141,22 +136,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    limelight.setDefaultCommand(limelight.setLimelight());
-
-    // Lock to 0° when A button is held
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -base.getLeftY(),
-    //             () -> -base.getLeftX(),
-    //             () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    // base.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when options button is pressed
     base.options()
         .onTrue(
             Commands.runOnce(
@@ -166,88 +146,59 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // // base.square().onTrue(pivot.setGoal(5.0));
-    // base.R1()
-    //     .onTrue(
-    //         new ParallelRaceGroup(
-    //             elevator.setGoal(CoralPos.TEST.getElevatorSetpoint()),
-    //             pivot.setGoal(CoralPos.TEST.getPivotSetpoint())));
+    // Command for when we are testing different positions
+    // base.PS().onTrue(new PivElevStateCommand(elevator, pivot, TEST));
 
-    // base.R2().whileTrue(score.setSpeed(-0.8)); // intaking
-    // base.R2().onFalse(score.setSpeed(-0.4)); // intaking
+    // Intaking coral
+    base.R2()
+        .whileTrue(
+            score
+                .setSpeed(0.05)
+                .alongWith(intake.setSpeed(0.5))
+                .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)));
+    // Scoring Coral
+    // base.L2().whileTrue(score.setSpeed(0.5)).whileFalse(score.setSpeed(.05));
 
-    base.PS().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.CENTER));
-    base.L2().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.LEFT_BRANCH));
-    base.create().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.RIGHT_BRANCH));
+    // Intaking algae
+    base.R1().whileTrue(score.intakeAlgae(-0.5));
 
-    // base.L2().whileTrue(score.setSpeed(0.5)); // scores coral
-    //  base.L2().onFalse(score.setSpeed(.05)); // scores coral
-    // base.R1().whileTrue(intake.setSpeed(0.5));
-    // base.R1().onTrue(elevator.setGoal(39));
-    // base.L1().onTrue(elevator.setGoal(0.5));
-    // operator.cross().onTrue(pivot.setGoal(10.0));
-    base.touchpad()
-        .onTrue(
-            new ParallelCommandGroup(
-                elevator.setGoal(HOME.getElevatorSetpoint()),
-                pivot.setGoal(HOME.getPivotSetpoint())));
-    base.povUp()
-        .onTrue(
-            new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVERLFOUR.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVERLFOUR.getPivotSetpoint())));
-    base.povDown()
-        .onTrue(
-            new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVELTWO.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVELTWO.getPivotSetpoint())));
-    base.povLeft()
-        .onTrue(
-            new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVELONE.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVELONE.getPivotSetpoint())));
-    base.povRight()
-        .onTrue(
-            new ParallelCommandGroup(
-                elevator.setGoal(CoralPos.LEVELTHREE.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.LEVELTHREE.getPivotSetpoint())));
+    base.touchpad().onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
 
-    base.triangle()
-        .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.ALGAEINTAKEONE.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.ALGAEINTAKEONE.getPivotSetpoint())));
-
-    base.circle()
-        .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.ALGAEINTAKETWO.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.ALGAEINTAKETWO.getPivotSetpoint())));
+    // Coral Positioning Commands
+    base.triangle().onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
     base.cross()
         .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.ALGAELOLLIPOP.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.ALGAELOLLIPOP.getPivotSetpoint())));
-    base.square()
-        .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.ALGAEGROUND.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.ALGAEGROUND.getPivotSetpoint())));
-    base.L1()
-        .onTrue(
-            new ParallelRaceGroup(
-                elevator.setGoal(CoralPos.CLIMB.getElevatorSetpoint()),
-                pivot.setGoal(CoralPos.CLIMB.getPivotSetpoint())));
-    // base.L3().whileTrue(DriveCommands.limelightDriveToReef(drive));
+            new StateMachineCommand(elevator, actuators, currState, L1)
+                .alongWith(score.setSpeed(0.8)));
+    base.square().onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
+    base.circle().onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
+
+    base.create().onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+
+    // Algae Positioning Commands
+    // base.triangle().onTrue(new PivElevStateCommand(elevator, pivot, LOWALGAE));
+    // base.circle().onTrue(new PivElevStateCommand(elevator, pivot, HIGHALGAE));
+    // base.cross().onTrue(new PivElevStateCommand(elevator, pivot, LOLLIPOPALGAE));
+    // base.square().onTrue(new PivElevStateCommand(elevator, pivot, GROUNDALGAE));
+    // base.triangle()
+    //     .and(base.square())
+    //     .and(base.circle())
+    //     .and(base.cross())
+    //     .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
+
+    // Reef Alignment Commands
+    // base.PS().whileTrue(new ReefAlignmentCommand(drive, limelight, ReefSide.RIGHT));
+    // base.L2().whileTrue(new ReefAlignmentCommand(drive, limelight, null));
+    // base.create().whileTrue(new ReefAlignmentCommand(drive, limelight, ReefSide.LEFT));
   }
 
   /*********************************************************
    * Use this to set up PathplannerLib Named Commands
    * for autonomous routines.
-   * <p> Last Updated by Abdullah Khaled, 1/18/2025
    *********************************************************/
 
   public void registerNamedCommands() {
+
     NamedCommands.registerCommand(
         "setGyroTo180",
         Commands.runOnce(
@@ -257,11 +208,20 @@ public class RobotContainer {
                             drive.getPose().getTranslation(), new Rotation2d(Math.toRadians(180)))),
                 drive)
             .ignoringDisable(true));
+
+    NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
+
+    NamedCommands.registerCommand("stopIntake", intake.DefaultCommand());
+
+    NamedCommands.registerCommand(
+        "pivElevL4", new StateMachineCommand(elevator, actuators, currState, L4));
+
+    NamedCommands.registerCommand(
+        "pivElevHome", new StateMachineCommand(elevator, actuators, currState, HOME));
   }
 
   /*********************************************************
    * Use this to set up default commands for subsystems.
-   * <p> Last Updated by Abdullah Khaled, 1/18/2025
    *********************************************************/
 
   public void setDefaultCommands() {
@@ -269,15 +229,19 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickMDrive(
             drive,
-            () -> -base.getLeftY(),
-            () -> -base.getLeftX(),
-            () -> -base.getRightY(),
-            () -> base.getRightX()));
+            () -> -base.getLeftY() * elevator.getSlowDownMult(),
+            () -> -base.getLeftX() * elevator.getSlowDownMult(),
+            () -> -base.getRightY() * elevator.getSlowDownMult(),
+            () -> base.getRightX() * elevator.getSlowDownMult()));
+
+    // Set the robot to the RESET position
+    currState.setState(RESET);
+    actuators.setGoal(currState.getState().getPivotSetpoint());
+    elevator.setGoal(currState.getState().getElevatorSetpoint());
 
     score.setDefaultCommand(score.DefaultCommand());
-    pivot.setDefaultCommand(pivot.resetPivot());
-    elevator.setDefaultCommand(elevator.resetElevators());
     intake.setDefaultCommand(intake.DefaultCommand());
+    limelight.setDefaultCommand(limelight.setLimelight());
   }
 
   /**

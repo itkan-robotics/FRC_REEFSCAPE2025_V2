@@ -25,66 +25,62 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final boolean tuningMode = true;
+  // PathPlanner config constants (wrong values)
+  public static final double ROBOT_MASS_KG = 18.143;
+  public static final double ROBOT_MOI = 1.965;
+  public static final double WHEEL_COF = 1.2;
+  public static final double translationalAutoP = 6.0;
+  public static final double rotationalAutoP = 15.0;
 
-  public static enum Mode {
-    /** Running on a real robot. */
-    REAL,
+  // Values from Team Spectrum 3847’s X-Ray robot from 2023
+  public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
 
-    /** Running a physics simulator. */
-    SIM,
-
-    /** Replaying from a log file. */
-    REPLAY
-  }
-
-  public static final int SCORE_MOTOR_PORT = 12; // 1 is a place holder
+  public static final int SCORE_MOTOR_PORT = 12;
   public static final int INTAKE_MOTOR_PORT = 17;
 
   public static class PivotConstants {
-    public static final int RIGHT_PIVOT_MOTOR_PORT = 10;
-    public static final int LEFT_PIVOT_MOTOR_PORT = 9;
-    public static final double PIVOT_KP = 17.0;
-    public static final double PIVOT_KS = 4.0;
-    public static final double PIVOT_CRUISE_VELOCITY = 65.0;
-    public static final double PIVOT_ACCELERATION = 80.0;
+    public static final int RIGHT_ACTUATOR_MOTOR_PORT = 10;
+    public static final int LEFT_ACTUATOR_MOTOR_PORT = 9;
+    public static final double ACTUATOR_KP = 28.0;
+    public static final double ACTUATOR_KS = 4.0;
+    public static final double ACTUATOR_CRUISE_VELOCITY = 65.0;
+    public static final double ACTUATOR_ACCELERATION = 80.0;
   }
 
   public static class ElevatorConstants {
     // Only Left motor being used
-    public static final int LEFT_ELEVATOR_MOTOR_PORT = 13;
+    public static final int ELEVATOR_MOTOR_PORT = 13;
 
-    public static final double kElevatorGearRatio = 1.0;
-    public static final double kRotationsToInchesRatio = 1.0;
     public static final double ELEVATOR_KP = 50.0;
     public static final double ELEVATOR_KS = 7.5;
+    public static final double ELEVATOR_KG = 0.0;
     public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
     public static final double ELEVATOR_ACCELERATION = 250.0;
     public static final double ELEVATOR_JERK = 750.0;
-    public static final boolean LEFT_ELEVATOR_IS_INVERTED = true;
-    public static final boolean RIGHT_ELEVATOR_IS_INVERTED = false;
   }
 
-  public static enum CoralPos {
-    BARGE(0.0, 0.0),
-    ALGAEINTAKEONE(23, 10),
-    ALGAEINTAKETWO(18.5, 20),
-    ALGAELOLLIPOP(35.5, 5),
-    ALGAEGROUND(44, 6),
+  /** The different elevator and pivot states our robot can do, all in one enum! */
+  public static enum BotState {
+    // BARGE(0.0, 0.0),
+    // LOWALGAE(23.0, 10.0),
+    // HIGHALGAE(18.5, 20.0),
+    // LOLLIPOPALGAE(35.5, 5.0),
+    // GROUNDALGAE(44, 6.0),
+    // TEST(13.0, 0),
+    RESET(5.0, 0.0),
     CORALINTAKE(0.0, 0.0),
-    LEVELONE(20.0, 10.0),
-    LEVELTWO(20.0, 15.0),
-    LEVELTHREE(15.0, 23.0),
-    LEVERLFOUR(9.0, 39.0),
-    HOME(17.5, 0),
-    TEST(13.0, 0),
-    CLIMB(49, 8);
+    L1(20.0, 10.0),
+    L2(20.0, 15.0),
+    L3(15.0, 23.0),
+    L4(13.5, 39.9),
+    HOME(20.0, 0),
+    CLIMB(49.0, 8.0);
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;
 
-    CoralPos(double pivotSetpoint, double elevatorSetpoint) {
+    BotState(double pivotSetpoint, double elevatorSetpoint) {
       this.pivotSetpoint = pivotSetpoint;
       this.elevatorSetpoint = elevatorSetpoint;
     }
@@ -102,16 +98,12 @@ public final class Constants {
     /**
      * The desired offset from the limelight to the reef in meters (negative since we want to be
      * farther away, not closer up)
-     *
-     * <p>Last Updated by Abdullah Khaled, 2/9/2025
      */
-    public static final double kReefOffset = -0.38;
+    public static final double kReefOffset = -0.35;
 
     /**
      * Enum to store the offsets for the left and right branches on the reef. Includes value of the
      * offset in inches with methods to get the offset in various units.
-     *
-     * <p>Last Updated by Abdullah Khaled, 2/9/2025
      */
     public static enum TagOffsets {
       LEFT_BRANCH(-8.0),
@@ -125,33 +117,30 @@ public final class Constants {
         this.horizontalOffsetInches = offsetInches;
       }
 
-      /**
-       * Returns the limelight offset in inches
-       *
-       * <p>Last Updated by Abdullah Khaled, 2/9/2025
-       */
+      /** Returns the limelight offset in inches */
       public double getHorizontalOffsetInches() {
         return horizontalOffsetInches;
       }
 
-      /**
-       * Returns the limelight offset in meters
-       *
-       * <p>Last Updated by Abdullah Khaled, 2/9/2025
-       */
+      /** Returns the limelight offset in meters */
       public double getHorizontalOffsetMeters() {
         return Units.inchesToMeters(horizontalOffsetInches);
       }
     };
   }
 
-  // PathPlanner config constants (wrong values)
-  public static final double ROBOT_MASS_KG = 18.143;
-  public static final double ROBOT_MOI = 1.965;
-  public static final double WHEEL_COF = 1.2;
-  public static final double translationalAutoP = 6.0;
-  public static final double rotationalAutoP = 15.0;
+  // Simulation stuff we aren't using this season
+  public static final Mode simMode = Mode.SIM;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  // values from Team Spectrum 3847’s X-Ray robot from 2023
-  public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
+  public static enum Mode {
+    /** Running on a real robot. */
+    REAL,
+
+    /** Running a physics simulator. */
+    SIM,
+
+    /** Replaying from a log file. */
+    REPLAY
+  }
 }

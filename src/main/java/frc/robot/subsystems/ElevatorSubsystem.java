@@ -19,52 +19,52 @@ import static frc.robot.util.PhoenixUtil.*;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private final TalonFX elevator = new TalonFX(LEFT_ELEVATOR_MOTOR_PORT);
+  private final TalonFX elevator = new TalonFX(ELEVATOR_MOTOR_PORT);
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
 
   final MotionMagicVoltage m_lRequest;
 
   public ElevatorSubsystem() {
+
     // in init function
-    // Target jerk of 4000 rps/s/s (0.1 seconds)
-    // in init function
-    var leftConfig = new TalonFXConfiguration();
-    leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    leftConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
-    leftConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    leftConfig.CurrentLimits.SupplyCurrentLimit = 25;
-    leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    /*leftConfig.MotorOutput.Inverted =
-    LEFT_ELEVATOR_IS_INVERTED
-        ? InvertedValue.Clockwise_Positive
-        : InvertedValue.CounterClockwise_Positive;*/
+    var elevatorConfig = new TalonFXConfiguration();
+    elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
+    elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 25;
+    elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    var elevatorSlot0Configs = elevatorConfig.Slot0;
 
     // set slot 0 gains
-    var leftSlot0Configs = leftConfig.Slot0;
-    leftSlot0Configs.kS = ELEVATOR_KS; // Add 0.25 V output to overcome static friction
-    leftSlot0Configs.kP = ELEVATOR_KP; // A position error of 2.5 rotations results in 12 V output
+    elevatorSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+    elevatorSlot0Configs.kS = ELEVATOR_KS; // Add ELEVATOR_KS V output to overcome static friction
+    elevatorSlot0Configs.kG = ELEVATOR_KG;
+    elevatorSlot0Configs.kP =
+        ELEVATOR_KP; // A position error of ELEVATOR_KP rotations results in 12 V output
 
-    leftSlot0Configs.kI = 0.0; // no output for integrated error
-    leftSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
+    elevatorSlot0Configs.kI = 0.0; // no output for integrated error
+    elevatorSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
 
     // set Motion Magic settings
-    var motionMagicConfigs = leftConfig.MotionMagic;
+    var motionMagicConfigs = elevatorConfig.MotionMagic;
     motionMagicConfigs.MotionMagicCruiseVelocity =
-        ELEVATOR_CRUISE_VELOCITY; // Target cruise velocity of 80 rps
+        ELEVATOR_CRUISE_VELOCITY; // Target cruise velocity of ELEVATOR_CRUISE_VELOCITY rps
     motionMagicConfigs.MotionMagicAcceleration =
-        ELEVATOR_ACCELERATION; // Target acceleration of 160 rps/s (0.5 seconds)
-    motionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of 1600 rps/s/s (0.1 seconds)
+        ELEVATOR_ACCELERATION; // Target acceleration of ELEVATOR_ACCELERATION rps/s
+    motionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of ELEVATOR_JERK rps/s/s
 
     // in init function
-    tryUntilOk(5, () -> elevator.getConfigurator().apply(leftConfig, 0.25));
+    tryUntilOk(5, () -> elevator.getConfigurator().apply(elevatorConfig, 0.25));
 
     // rightMotor.setControl(rightMotorFollower);
 
@@ -93,8 +93,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevator.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
-  public double getLeftPosition() {
+  public double getPosition() {
     return elevator.getPosition().getValueAsDouble();
+  }
+
+  public double getSlowDownMult() {
+    if (getPosition() > 10) {
+      return 0.5;
+    } else {
+      return 1.0;
+    }
   }
 
   public void resetPosition() {

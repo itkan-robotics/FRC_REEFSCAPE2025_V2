@@ -23,33 +23,41 @@ public class ScoringSubsystem extends SubsystemBase {
     return run(
         () -> {
           // left_coral.stopMotor();
-          scoreMotor.stopMotor();
+          if (intakingAlgae) {
+            scoreMotor.set(0.05);
+          } else {
+            scoreMotor.stopMotor();
+          }
         });
   }
 
+  /**
+   * Sets the speed of the outtake. A positive value means the coral outtakes/algae intakes, while a
+   * negative value means the coral doesn't outtake / algae outtakes
+   *
+   * @param speed values explained in description
+   */
   public Command setSpeed(double speed) {
     return run(
         () -> {
-          // left_coral.set(speed);
           scoreMotor.set(speed);
         });
   }
 
-  public Command algae(double speed) {
+  public Command intakeAlgae(double speed) {
     return run(
         () -> {
-          // left_coral.set(speed);
-          scoreMotor.set(speed);
+          scoreMotor.set(getCurrentSpike() ? 0.05 : speed);
           intakingAlgae = true;
         });
   }
 
-  public Command coral(double speed) {
+  public Command intakeCoral(double speed) {
     return run(
         () -> {
           // left_coral.set(speed);
           scoreMotor.set(speed);
-          intakingAlgae = true;
+          intakingAlgae = false;
         });
   }
 
