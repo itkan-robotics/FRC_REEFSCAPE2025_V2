@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 2.029403409090909,
-        "y": 1.7159659090909098
+        "y": 1.71596590909091
       },
       "isLocked": false,
       "linkedName": "sourceRight"
@@ -48,7 +48,7 @@
   "folder": "Right Source Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 55.0
+    "rotation": 54.01
   },
   "useDefaultConstraints": true
 }

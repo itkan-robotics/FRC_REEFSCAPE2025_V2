@@ -49,25 +49,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "sourceRToB"
+            "pathName": "sourceRToE"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BToSourceR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sourceRToA"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "AToSourceR"
+            "pathName": "EToSourceR"
           }
         }
       ]

@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.BotState.*;
+import static frc.robot.FieldConstants.*;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,11 +26,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.LimelightConstants.TagOffsets;
+import frc.robot.FieldConstants.ReefSide;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.limelightReefAlignment;
+import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ActuatorSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -45,9 +52,15 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final LimelightSubsystem limelight;
+  private final LimelightSubsystem limelight = new LimelightSubsystem();
+  private final ScoringSubsystem score = new ScoringSubsystem();
+  private final ActuatorSubsystem actuators = new ActuatorSubsystem();
+  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final StateMachine currState = new StateMachine();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
+  private final CommandPS5Controller operator = new CommandPS5Controller(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -88,19 +101,30 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-    limelight = new LimelightSubsystem();
+    // Set up auto routines
+    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    // Set up SysId routines
+    autoChooser.addOption(
+        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    autoChooser.addOption(
+        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Set default commands for all subsystems
     setDefaultCommands();
 
     // Register named commands for Pathplanner autonomous routines
     registerNamedCommands();
-
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId Routines
-    setUpSysIdRoutines(autoChooser);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -114,19 +138,6 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    // Lock to 0° when A button is held
-    // controller
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -base.getLeftY(),
-    //             () -> -base.getLeftX(),
-    //             () -> new Rotation2d()));
-
-    // Switch to X pattern when X button is pressed
-    // base.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
     // Reset gyro to 0° when options button is pressed
     base.options()
         .onTrue(
@@ -137,25 +148,92 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    base.povUp().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.CENTER));
-    base.povLeft().whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.LEFT_BRANCH));
-    base.povRight()
-        .whileTrue(new limelightReefAlignment(drive, limelight, TagOffsets.RIGHT_BRANCH));
+    // Command for when we are testing different positions
+    // base.PS().onTrue(new PivElevStateCommand(elevator, pivot, TEST));
 
-    // Sets the robot's believed position to (Right against the reef, ID = 19)
-    // PLEASE DISABLE/REMOVE BEFORE AND DURING MATCHES
-    // base.create().onTrue(drive.setPoseCommand(new Pose2d(3.65, 5.4,
-    // Rotation2d.fromDegrees(-60))));
-    // ID = 21: new Pose2d(6.162, 4.020, Rotation2d.fromDegrees(180)
+    // Intaking coral
+    base.R2()
+        .or(operator.R2())
+        .whileTrue(
+            score
+                .setSpeed(0)
+                .alongWith(intake.setSpeed(0.5))
+                .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)));
+    // Scoring Coral
+    base.L2().or(operator.L2()).whileTrue(score.setSpeed(-0.15));
+
+    // Intaking algae
+    // base.L2().whileTrue(score.intakeAlgae(-0.5)).onFalse(score.intakeAlgae(-0.2));
+    base.cross()
+        .or(operator.cross())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
+
+    base.create()
+        .onTrue(
+            new StateMachineCommand(elevator, actuators, currState, GROUNDALGAE)
+                .alongWith(score.intakeAlgae(-0.5)));
+    // base.create().onFalse(score.intakeAlgae(-0.2));
+
+    // Coral Positioning Commands
+    base.triangle()
+        .or(operator.triangle())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
+    base.touchpad()
+        .or(operator.touchpad())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
+    base.square()
+        .or(operator.square())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
+    base.circle()
+        .or(operator.circle())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
+
+    // Algae Positioning Commands
+    base.povDown()
+        .or(operator.povDown())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, LOWALGAE));
+    base.povUp()
+        .or(operator.povUp())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
+    base.povLeft()
+        .or(operator.povLeft())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+    base.povRight()
+        .or(operator.povRight())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
+
+    // Reef Alignment Commands
+    base.L1()
+        .or(operator.L1())
+        .whileTrue(
+            DriveCommands.joystickApproach(
+                drive,
+                () -> -base.getLeftY(),
+                () -> getNearestReefBranch(drive.getPose(), ReefSide.LEFT)));
+    base.R1()
+        .or(operator.R1())
+        .whileTrue(
+            DriveCommands.joystickApproach(
+                drive,
+                () -> -base.getLeftY(),
+                () -> getNearestReefBranch(drive.getPose(), ReefSide.RIGHT)));
+
+    // base.R1().and(base.L1())
+    //     .or(operator.R1().and(operator.R1()))
+    //     .whileTrue(
+    //         DriveCommands.joystickApproach(
+    //             drive,
+    //             () -> -base.getLeftY(),
+    //             () -> getNearestReefFace(drive.getPose())));
   }
 
   /*********************************************************
    * Use this to set up PathplannerLib Named Commands
    * for autonomous routines.
-   * <p> Last Updated by Abdullah Khaled, 2/9/2025
    *********************************************************/
 
   public void registerNamedCommands() {
+
     NamedCommands.registerCommand(
         "setGyroTo180",
         Commands.runOnce(
@@ -165,11 +243,20 @@ public class RobotContainer {
                             drive.getPose().getTranslation(), new Rotation2d(Math.toRadians(180)))),
                 drive)
             .ignoringDisable(true));
+
+    NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
+
+    NamedCommands.registerCommand("stopIntake", intake.DefaultCommand());
+
+    NamedCommands.registerCommand(
+        "pivElevL4", new StateMachineCommand(elevator, actuators, currState, L4));
+
+    NamedCommands.registerCommand(
+        "pivElevHome", new StateMachineCommand(elevator, actuators, currState, HOME));
   }
 
   /*********************************************************
    * Use this to set up default commands for subsystems.
-   * <p> Last Updated by Abdullah Khaled, 2/9/2025
    *********************************************************/
 
   public void setDefaultCommands() {
@@ -177,13 +264,18 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickMDrive(
             drive,
-            limelight,
-            () -> -base.getLeftY(),
-            () -> -base.getLeftX(),
-            () -> -base.getRightY(),
-            () -> base.getRightX(),
-            base.options()));
+            () -> -base.getLeftY() * elevator.getSlowDownMult(),
+            () -> -base.getLeftX() * elevator.getSlowDownMult(),
+            () -> -base.getRightY() * elevator.getSlowDownMult(),
+            () -> base.getRightX() * elevator.getSlowDownMult()));
 
+    // Set the robot to the RESET position
+    currState.setState(RESET);
+    actuators.setGoal(currState.getState().getPivotSetpoint());
+    elevator.setGoal(currState.getState().getElevatorSetpoint());
+
+    score.setDefaultCommand(score.DefaultCommand());
+    intake.setDefaultCommand(intake.DefaultCommand());
     limelight.setDefaultCommand(limelight.setLimelight());
   }
 
@@ -194,27 +286,5 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
-  }
-
-  /*********************************************************
-   * Used to set up 6328's SysId routines
-   * <p> Last Updated by Abdullah Khaled, 2/1/2025
-   *********************************************************/
-  public void setUpSysIdRoutines(LoggedDashboardChooser<Command> m_autoChooser) {
-    // Set up SysId routines
-    m_autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    m_autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    m_autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    m_autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 }

@@ -14,13 +14,15 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.FieldConstants;
+import frc.robot.FieldConstants.ReefSide;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
@@ -30,11 +32,11 @@ import org.littletonrobotics.junction.Logger;
 
 // Code obtained from
 // https://www.chiefdelphi.com/t/need-help-with-integrating-pose-estimation-with-apriltags-and-pathplanner-trajectories-in-auto-teleop/455287
-public class limelightReefAlignment extends SequentialCommandGroup {
+public class ReefAlignmentCommand extends SequentialCommandGroup {
   Drive m_drive;
   LimelightSubsystem m_limelight;
 
-  TagOffsets offset;
+  ReefSide reefSide;
   Transform3d TAG_TO_GOAL;
   Pose3d targetPoseEst;
   Pose2d goalPose;
@@ -51,8 +53,8 @@ public class limelightReefAlignment extends SequentialCommandGroup {
    * @param offset Where we want to align (i.e. Left, Center, Right). Each enum has a value
    * associated with it that corresponds to how far offset the POI is from the AprilTag
    ***************************************************************************************************************************************************************/
-  public limelightReefAlignment(Drive drive, LimelightSubsystem limelight, TagOffsets offset) {
-    this.offset = offset;
+  public ReefAlignmentCommand(Drive drive, LimelightSubsystem limelight, ReefSide side) {
+    this.reefSide = side;
     this.m_limelight = limelight;
     this.m_drive = drive;
     this.TAG_TO_GOAL =
@@ -69,17 +71,16 @@ public class limelightReefAlignment extends SequentialCommandGroup {
   }
 
   public Command getCommand() {
-    SmartDashboard.putString("Limelight Reef Alignment", "Macro Path");
     if (m_limelight.canSeeTarget() == false) {
       return new InstantCommand();
     } else {
 
       // Transform the tag's pose to set our goal
-      targetPoseEst = new Pose3d(m_limelight.getTagEstimatedPosition(m_drive, offset));
+      // targetPoseEst = new Pose3d(m_limelight.getTagEstimatedPosition(m_drive, offset));
 
       // Get the pose, making sure it's updated for latency; only works at low speeds though
       // Would like to look into more
-      var robotPose2d = m_drive.getPoseLatencyCompensation(m_limelight.getLatency());
+      var robotPose2d = AllianceFlipUtil.apply(m_drive.getPose());
 
       // Convert to Pose3d so we can do maths on the target pose
       var robotPose3d =
@@ -99,13 +100,22 @@ public class limelightReefAlignment extends SequentialCommandGroup {
                   .toPose2d()
               : robotPose3d.toPose2d();
 
+      goalPose =
+          (reefSide == null)
+              ? AllianceFlipUtil.apply(
+                  FieldConstants.transformAtAngle(
+                      FieldConstants.getNearestReefFace(robotPose2d), kReefOffset))
+              : AllianceFlipUtil.apply(
+                  FieldConstants.transformAtAngle(
+                      FieldConstants.getNearestReefBranch(robotPose2d, reefSide), kReefOffset));
+
       // Log the goal pose so we can compare with current pose in AdvantageScope
-      Logger.recordOutput("Odometry/Target", goalPose);
+      Logger.recordOutput("Odometry/GoalPose", goalPose);
 
       // Configured to work above 12.0V; 11.8V steady is lower bounds
       return AutoBuilder.pathfindToPose(
           goalPose,
-          new PathConstraints(5.0, 5.0, Units.degreesToRadians(180), Units.degreesToRadians(75)),
+          new PathConstraints(5.0, 3.5, Units.degreesToRadians(180), Units.degreesToRadians(75)),
           0);
     }
   }
