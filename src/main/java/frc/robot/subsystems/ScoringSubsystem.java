@@ -24,9 +24,9 @@ public class ScoringSubsystem extends SubsystemBase {
         () -> {
           // left_coral.stopMotor();
           if (intakingAlgae) {
-            scoreMotor.set(0.05);
+            scoreMotor.set(-0.2);
           } else {
-            scoreMotor.stopMotor();
+            scoreMotor.set(0.025);
           }
         });
   }

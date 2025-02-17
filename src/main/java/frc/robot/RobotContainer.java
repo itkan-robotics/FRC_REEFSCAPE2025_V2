@@ -151,29 +151,58 @@ public class RobotContainer {
 
     // Intaking coral
     base.R2()
+        .or(operator.R2())
         .whileTrue(
             score
-                .setSpeed(0.05)
+                .setSpeed(0)
                 .alongWith(intake.setSpeed(0.5))
                 .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)));
     // Scoring Coral
-    // base.L2().whileTrue(score.setSpeed(0.5)).whileFalse(score.setSpeed(.05));
+    base.L2().or(operator.L2()).whileTrue(score.setSpeed(-0.15));
 
     // Intaking algae
-    base.R1().whileTrue(score.intakeAlgae(-0.5));
-
-    base.touchpad().onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
-
-    // Coral Positioning Commands
-    base.triangle().onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
+    // base.L2().whileTrue(score.intakeAlgae(-0.5)).onFalse(score.intakeAlgae(-0.2));
     base.cross()
-        .onTrue(
-            new StateMachineCommand(elevator, actuators, currState, L1)
-                .alongWith(score.setSpeed(0.8)));
-    base.square().onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
-    base.circle().onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
+        .or(operator.cross())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
 
-    base.create().onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+    base.create()
+        .onTrue(
+            new StateMachineCommand(elevator, actuators, currState, GROUNDALGAE)
+                .alongWith(score.intakeAlgae(-0.5)));
+    // base.create().onFalse(score.intakeAlgae(-0.2));
+    // Coral Positioning Commands
+    base.triangle()
+        .or(operator.triangle())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
+    base.touchpad()
+        .or(operator.touchpad())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
+    base.square()
+        .or(operator.square())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
+    base.circle()
+        .or(operator.circle())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
+
+    base.povDown()
+        .or(operator.povDown())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, LOWALGAE));
+    base.povUp()
+        .or(operator.povUp())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
+    base.povLeft()
+        .or(operator.povLeft())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+    base.povRight()
+        .or(operator.povRight())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
+
+    //  Reef Alignment Commands
+    //     base.PS().whileTrue(new ReefAlignmentCommand(drive, limelight, ReefSide.RIGHT));
+    //     base.L2().whileTrue(new ReefAlignmentCommand(drive, limelight, null));
+    //     base.create().whileTrue(new ReefAlignmentCommand(drive, limelight, ReefSide.LEFT));
+    //    base.create().onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
 
     // Algae Positioning Commands
     // base.triangle().onTrue(new PivElevStateCommand(elevator, pivot, LOWALGAE));

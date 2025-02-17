@@ -70,12 +70,16 @@ public final class Constants {
     // TEST(13.0, 0),
     RESET(5.0, 0.0),
     CORALINTAKE(0.0, 0.0),
-    L1(20.0, 10.0),
-    L2(20.0, 15.0),
-    L3(15.0, 23.0),
+    L1(28.0, 3.0),
+    L2(27.0, 16),
+    L3(18.5, 24.75),
     L4(13.5, 39.9),
     HOME(20.0, 0),
-    CLIMB(49.0, 8.0);
+    CLIMB(49.0, 8.0),
+    LOWALGAE(27.0, 11.0),
+    HIGHALGAE(25.0, 15.0),
+    GROUNDALGAE(40.0, 7.50);
+    ;
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;
