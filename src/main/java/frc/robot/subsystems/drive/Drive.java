@@ -262,7 +262,7 @@ public class Drive extends SubsystemBase {
       doRejectUpdate = true;
     }
     if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
-      if (mt2.rawFiducials[0].ambiguity > .7) {
+      if (mt2.rawFiducials[0].ambiguity > 0.4) {
         doRejectUpdate = true;
       }
       if (mt2.rawFiducials[0].distToCamera > 2) {
@@ -433,13 +433,13 @@ public class Drive extends SubsystemBase {
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
-  public double getMaxLinearSpeedFeetPerSec() {
+  public double getMaxLinearSpeedMetersPerSec() {
     return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   }
 
   /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
-    return getMaxLinearSpeedFeetPerSec() / DRIVE_BASE_RADIUS;
+    return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
   }
 
   /** Returns an array of module translations. */

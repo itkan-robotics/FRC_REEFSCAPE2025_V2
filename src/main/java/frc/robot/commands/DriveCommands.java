@@ -150,8 +150,8 @@ public class DriveCommands {
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                   omega);
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
@@ -180,8 +180,13 @@ public class DriveCommands {
     angleController = new PIDController(ANGLE_KP, 0.0, ANGLE_KD);
     angleController.enableContinuousInput(-180, 180);
 
+    //TO-DO: Tune PID values and store them in constants file
     TuneableProfiledPID alignController =
-        new TuneableProfiledPID("alignController", 1, 0.0, 0, 5.0, 4.0);
+        new TuneableProfiledPID("alignController", 1.0,
+        0.0,
+        0,
+        20,
+        8);
     alignController.setGoal(0);
 
     // Construct command
@@ -232,8 +237,8 @@ public class DriveCommands {
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
-                      linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                      linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                       omega);
               drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
             },
@@ -266,8 +271,8 @@ public class DriveCommands {
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
               new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                   omega * drive.getMaxAngularSpeedRadPerSec());
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
@@ -317,8 +322,8 @@ public class DriveCommands {
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
-                      linearVelocity.getX() * drive.getMaxLinearSpeedFeetPerSec(),
-                      linearVelocity.getY() * drive.getMaxLinearSpeedFeetPerSec(),
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                       omega);
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
