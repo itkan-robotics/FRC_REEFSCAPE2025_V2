@@ -18,8 +18,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeSubsystem() {
     var intakeConfig = new TalonFXConfiguration();
-    intakeConfig.CurrentLimits.SupplyCurrentLimit = 10;
+    intakeConfig.CurrentLimits.SupplyCurrentLimit = 20;
     intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    intakeConfig.CurrentLimits.StatorCurrentLimit = 20;
+    intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     tryUntilOk(5, () -> Coral_Intake.getConfigurator().apply(intakeConfig, 0.25));
   }

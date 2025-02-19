@@ -42,7 +42,7 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_FIELDKP = 0.1;
+  private static final double ANGLE_FIELDKP = 0.075;
   private static final double ANGLE_FIELDKD = 0.0;
   private static final double ANGLE_KP = 1.0;
   private static final double ANGLE_KD = 1.0;

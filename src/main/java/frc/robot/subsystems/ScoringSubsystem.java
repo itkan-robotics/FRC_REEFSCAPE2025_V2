@@ -24,8 +24,10 @@ public class ScoringSubsystem extends SubsystemBase {
   public ScoringSubsystem() {
     // in init function
     var scoringConfig = new TalonFXConfiguration();
-    scoringConfig.CurrentLimits.SupplyCurrentLimit = 20;
+    scoringConfig.CurrentLimits.SupplyCurrentLimit = 40;
     scoringConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    scoringConfig.CurrentLimits.StatorCurrentLimit = 40;
+    scoringConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     tryUntilOk(5, () -> scoreMotor.getConfigurator().apply(scoringConfig, 0.25));
   }

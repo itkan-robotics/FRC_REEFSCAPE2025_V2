@@ -155,11 +155,15 @@ public class RobotContainer {
         .whileTrue(
             score
                 .setSpeed(0.002)
-                .alongWith(intake.setSpeed(0.5))
-                .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)));
+                .alongWith(intake.setSpeed(0.75))
+                .alongWith(new StateMachineCommand(elevator, actuators, currState, CORALINTAKE)));
+
+    base.R2()
+        .or(operator.R2())
+        .onFalse(new StateMachineCommand(elevator, actuators, currState, HOME));
 
     // Scoring Coral
-    base.R1().or(operator.L2()).whileTrue(score.setSpeed(-0.5));
+    base.R1().or(operator.L2()).whileTrue(score.setSpeed(-1));
     // base.L2().or(operator.L2()).or(base.R2()).or(operator.R2()).onFalse(score.setSpeed(0.02));
 
     // Intaking algae

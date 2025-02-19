@@ -32,8 +32,10 @@ public class ActuatorSubsystem extends SubsystemBase {
     actuatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     actuatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 53;
     actuatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 5;
-    actuatorConfig.CurrentLimits.SupplyCurrentLimit = 100;
+    actuatorConfig.CurrentLimits.SupplyCurrentLimit = 50;
     actuatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    actuatorConfig.CurrentLimits.StatorCurrentLimit = 50;
+    actuatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     actuatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // set slot 0 gains
@@ -70,7 +72,7 @@ public class ActuatorSubsystem extends SubsystemBase {
   public Command setGoal(double setpoint) {
     return run(
         () -> {
-          //setSetpoint(tunableAngle.get());
+          // setSetpoint(tunableAngle.get());
           setSetpoint(setpoint);
         });
   }

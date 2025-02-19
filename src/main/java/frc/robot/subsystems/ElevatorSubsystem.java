@@ -42,8 +42,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 80;
     elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    elevatorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     var elevatorSlot0Configs = elevatorConfig.Slot0;
 
@@ -77,13 +79,13 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    //System.out.println(tunableAngle.get());
+    // System.out.println(tunableAngle.get());
   }
 
   public Command setGoal(double setpoint) {
     return run(
         () -> {
-          //setSetpoint(tunableAngle.get());
+          // setSetpoint(tunableAngle.get());
           setSetpoint(setpoint);
         });
   }
@@ -105,9 +107,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public double getSlowDownMult() {
     if (getPosition() > 10) {
-      return 0.5;
+      return 0.6;
     } else {
-      return 1.0;
+      return 0.85;
     }
   }
 
