@@ -35,6 +35,6 @@ public class StateMachineCommand extends ParallelCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         this.elevator.setGoal(targetState.getElevatorSetpoint()),
-        this.pivot.setGoal(targetState.getPivotSetpoint()));
+        this.pivot.setGoal(targetState.getActuatorSetpoint()));
   }
 }

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new CoralOuttake. */
-  private final TalonFX Coral_Intake = new TalonFX(INTAKE_MOTOR_PORT);
+  private final TalonFX intakeMotor = new TalonFX(INTAKE_MOTOR_PORT);
 
   public IntakeSubsystem() {
     var intakeConfig = new TalonFXConfiguration();
@@ -23,20 +23,15 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig.CurrentLimits.StatorCurrentLimit = 20;
     intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    tryUntilOk(5, () -> Coral_Intake.getConfigurator().apply(intakeConfig, 0.25));
-  }
+    tryUntilOk(5, () -> intakeMotor.getConfigurator().apply(intakeConfig, 0.25));
 
-  public Command DefaultCommand() {
-    return run(
-        () -> {
-          Coral_Intake.stopMotor();
-        });
+    this.setDefaultCommand(setSpeed(0.0));
   }
 
   public Command setSpeed(double speed) {
     return run(
         () -> {
-          Coral_Intake.set(speed);
+          intakeMotor.set(speed);
         });
   }
 

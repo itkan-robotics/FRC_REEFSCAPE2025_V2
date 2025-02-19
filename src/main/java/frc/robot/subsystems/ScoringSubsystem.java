@@ -15,9 +15,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ScoringSubsystem extends SubsystemBase {
   /** Creates a new CoralItake. */
   // private final TalonFX left_coral = new TalonFX(4);
-  private boolean intakingAlgae = false;
+  private enum ScoreState {
+    INTAKEALGAE,
+    OUTTAKEALGAE,
+    OUTTAKECORAL,
+    STORECORAL,
+    NONE
+  }
 
-  private boolean outtake = false;
+  private ScoreState currentScoringState = ScoreState.NONE;
 
   private final TalonFX scoreMotor = new TalonFX(SCORE_MOTOR_PORT);
 
@@ -30,54 +36,81 @@ public class ScoringSubsystem extends SubsystemBase {
     scoringConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     tryUntilOk(5, () -> scoreMotor.getConfigurator().apply(scoringConfig, 0.25));
+
+    this.setDefaultCommand(setSpeedAndState(0.005, false));
   }
 
   public Command DefaultCommand() {
     return run(
         () -> {
           scoreMotor.set(0.005);
-          // left_coral.stopMotor();
-          // if (intakingAlgae) {
-          //   scoreMotor.set(0.15);
-          // } else if (outtake) {
-          //   scoreMotor.set(-0.05);
-          // }
         });
   }
 
   /**
-   * Sets the speed of the outtake. A positive value means the coral outtakes/algae intakes, while a
-   * negative value means the coral doesn't outtake / algae outtakes
+   * Sets the speed of the outtake. A negative value means the coral outtakes/algae intakes, while a
+   * positive value means the coral doesn't outtake / algae outtakes
    *
    * @param speed values explained in description
+   * @param isAlgae boolean that is used to determine what state the scoring subsystem is in (i.e.
+   *     intaking/outtaking coral/algae)
    */
-  public Command setSpeed(double speed) {
+  public Command setSpeedAndState(double speed, boolean isAlgae) {
     return run(
         () -> {
-          scoreMotor.set(speed);
-          outtake = true;
-        });
-  }
+          if (isAlgae && speed <= 0.0) {
+            currentScoringState = ScoreState.INTAKEALGAE;
 
-  public Command intakeAlgae(double speed) {
-    return run(
-        () -> {
+          } else if (isAlgae && speed > 0.0) {
+            currentScoringState = ScoreState.OUTTAKEALGAE;
+
+          } else if (speed >= 0.0) {
+            currentScoringState = ScoreState.STORECORAL;
+
+          } else {
+            currentScoringState = ScoreState.OUTTAKECORAL;
+          }
+
           scoreMotor.set(getCurrentSpike() ? 0.05 : speed);
-          intakingAlgae = true;
         });
   }
 
-  public Command intakeCoral(double speed) {
-    return run(
-        () -> {
-          // left_coral.set(speed);
-          scoreMotor.set(speed);
-          intakingAlgae = false;
-        });
-  }
+  // public Command intakeAlgae(double speed) {
+  //   return run(
+  //       () -> {
+  //         scoreMotor.set(getCurrentSpike() ? 0.05 : speed);
+  //         intakingAlgae = true;
+  //       });
+  // }
+
+  // public Command intakeCoral(double speed) {
+  //   return run(
+  //       () -> {
+  //         // left_coral.set(speed);
+  //         scoreMotor.set(speed);
+  //         intakingAlgae = false;
+  //       });
+  // }
 
   public boolean getCurrentSpike() {
     return scoreMotor.getStatorCurrent().getValueAsDouble() > 100;
+  }
+
+  public String getCurrentScoringState() {
+    switch (currentScoringState) {
+      case NONE:
+        return "NONE";
+      case INTAKEALGAE:
+        return "INTAKING ALGAE";
+      case OUTTAKEALGAE:
+        return "OUTTAKING ALGAE";
+      case OUTTAKECORAL:
+        return "OUTTAKING ALGAE";
+      case STORECORAL:
+        return "STORING CORAL";
+      default:
+        return "HOW DID WE GET HERE";
+    }
   }
 
   @Override

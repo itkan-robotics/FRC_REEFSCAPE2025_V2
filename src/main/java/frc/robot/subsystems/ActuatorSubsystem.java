@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.PivotConstants.*;
+import static frc.robot.Constants.ActuatorConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -18,8 +18,8 @@ import frc.robot.util.LoggedTunableNumber;
 
 public class ActuatorSubsystem extends SubsystemBase {
 
-  private final TalonFX leftPivotMotor = new TalonFX(LEFT_ACTUATOR_MOTOR_PORT, "static");
-  private final TalonFX rightPivotMotor = new TalonFX(RIGHT_ACTUATOR_MOTOR_PORT, "static");
+  private final TalonFX leftActuatorMotor = new TalonFX(LEFT_ACTUATOR_MOTOR_PORT, "static");
+  private final TalonFX rightActuatorMotor = new TalonFX(RIGHT_ACTUATOR_MOTOR_PORT, "static");
   final MotionMagicVoltage m_lRequest;
   private LoggedTunableNumber tunableAngle;
 
@@ -56,14 +56,14 @@ public class ActuatorSubsystem extends SubsystemBase {
     motionMagicConfigs.MotionMagicJerk = 0; // No target jerk
 
     // in init function
-    tryUntilOk(5, () -> rightPivotMotor.getConfigurator().apply(actuatorConfig, 0.25));
-    tryUntilOk(5, () -> leftPivotMotor.getConfigurator().apply(actuatorConfig, 0.25));
+    tryUntilOk(5, () -> rightActuatorMotor.getConfigurator().apply(actuatorConfig, 0.25));
+    tryUntilOk(5, () -> leftActuatorMotor.getConfigurator().apply(actuatorConfig, 0.25));
 
     // leftPivotMotor.setControl(new Follower(rightPivotMotor.getDeviceID(), false));
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
-    tunableAngle = new LoggedTunableNumber("actuator123", 15);
+    tunableAngle = new LoggedTunableNumber("actuatorDesiredPos", 15);
   }
 
   @Override
@@ -77,27 +77,16 @@ public class ActuatorSubsystem extends SubsystemBase {
         });
   }
 
-  public Command resetPivot() {
-    return run(
-        () -> {
-          resetPosition();
-        });
-  }
-
   public void setSetpoint(double setpoint) {
-    rightPivotMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
-    leftPivotMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    rightActuatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    leftActuatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getRightPosition() {
-    return rightPivotMotor.getPosition().getValueAsDouble();
+    return rightActuatorMotor.getPosition().getValueAsDouble();
   }
 
   public double getLeftPosition() {
-    return leftPivotMotor.getPosition().getValueAsDouble();
-  }
-
-  public void resetPosition() {
-    setSetpoint(5.0);
+    return leftActuatorMotor.getPosition().getValueAsDouble();
   }
 }
