@@ -5,7 +5,9 @@
 package frc.robot.subsystems;
 
 import static frc.robot.Constants.*;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,7 +16,13 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new CoralOuttake. */
   private final TalonFX Coral_Intake = new TalonFX(INTAKE_MOTOR_PORT);
 
-  public IntakeSubsystem() {}
+  public IntakeSubsystem() {
+    var intakeConfig = new TalonFXConfiguration();
+    intakeConfig.CurrentLimits.SupplyCurrentLimit = 10;
+    intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    tryUntilOk(5, () -> Coral_Intake.getConfigurator().apply(intakeConfig, 0.25));
+  }
 
   public Command DefaultCommand() {
     return run(

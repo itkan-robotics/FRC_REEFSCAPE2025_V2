@@ -23,8 +23,10 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
 
 public class ElevatorSubsystem extends SubsystemBase {
+  private LoggedTunableNumber tunableAngle;
   private final TalonFX elevator = new TalonFX(ELEVATOR_MOTOR_PORT);
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
@@ -40,7 +42,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 25;
+    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
     var elevatorSlot0Configs = elevatorConfig.Slot0;
@@ -70,14 +72,18 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
+    tunableAngle = new LoggedTunableNumber("elevatorRotation1234", 5);
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    //System.out.println(tunableAngle.get());
+  }
 
   public Command setGoal(double setpoint) {
     return run(
         () -> {
+          //setSetpoint(tunableAngle.get());
           setSetpoint(setpoint);
         });
   }

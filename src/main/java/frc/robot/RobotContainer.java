@@ -154,14 +154,21 @@ public class RobotContainer {
         .or(operator.R2())
         .whileTrue(
             score
-                .setSpeed(0)
+                .setSpeed(0.002)
                 .alongWith(intake.setSpeed(0.5))
                 .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)));
+
     // Scoring Coral
-    base.L2().or(operator.L2()).whileTrue(score.setSpeed(-0.15));
+    base.R1().or(operator.L2()).whileTrue(score.setSpeed(-0.5));
+    // base.L2().or(operator.L2()).or(base.R2()).or(operator.R2()).onFalse(score.setSpeed(0.02));
 
     // Intaking algae
-    // base.L2().whileTrue(score.intakeAlgae(-0.5)).onFalse(score.intakeAlgae(-0.2));
+    base.L2().whileTrue(score.intakeAlgae(-base.getL2Axis() / 4));
+    System.out.println(base.getL2Axis());
+
+    // Outtake algae
+    base.L1().whileTrue(score.intakeAlgae(-0.5)).onFalse(score.intakeAlgae(-0.1));
+
     base.cross()
         .or(operator.cross())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
@@ -169,18 +176,24 @@ public class RobotContainer {
     base.create()
         .onTrue(
             new StateMachineCommand(elevator, actuators, currState, GROUNDALGAE)
-                .alongWith(score.intakeAlgae(-0.5)));
-    // base.create().onFalse(score.intakeAlgae(-0.2));
+                .alongWith(score.intakeAlgae(-0)));
+
+    // base.PS().whileTrue(score.setSpeed(0.6));
+    base.PS().onTrue(new StateMachineCommand(elevator, actuators, currState, BARGE));
+    // base.create().onFalse(sc.ore.intakeAlgae(-0.2));
     // Coral Positioning Commands
     base.triangle()
         .or(operator.triangle())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
+
     base.touchpad()
         .or(operator.touchpad())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
+
     base.square()
         .or(operator.square())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
+
     base.circle()
         .or(operator.circle())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
@@ -188,12 +201,15 @@ public class RobotContainer {
     base.povDown()
         .or(operator.povDown())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, LOWALGAE));
+
     base.povUp()
         .or(operator.povUp())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
+
     base.povLeft()
         .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+
     base.povRight()
         .or(operator.povRight())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));

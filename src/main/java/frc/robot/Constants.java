@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
+  public static final boolean kIsTuningMode = true;
   public static final boolean tuningMode = true;
   // PathPlanner config constants (wrong values)
   public static final double ROBOT_MASS_KG = 18.143;
@@ -69,17 +70,17 @@ public final class Constants {
     // GROUNDALGAE(44, 6.0),
     // TEST(13.0, 0),
     RESET(5.0, 0.0),
-    CORALINTAKE(0.0, 0.0),
+    CORALINTAKE(0.0, 6.0),
     L1(28.0, 3.0),
-    L2(27.0, 16),
-    L3(18.5, 24.75),
-    L4(13.5, 39.9),
-    HOME(20.0, 0),
-    CLIMB(49.0, 8.0),
-    LOWALGAE(27.0, 11.0),
-    HIGHALGAE(25.0, 15.0),
-    GROUNDALGAE(40.0, 7.50);
-    ;
+    L2(17, 15.5),
+    L3(14.5, 25),
+    L4(11.5, 38),
+    HOME(19.0, 0),
+    CLIMB(57, 15.0),
+    LOWALGAE(18, 10),
+    HIGHALGAE(15, 18.5),
+    GROUNDALGAE(43, 6), // 53
+    BARGE(5, 39.9);
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;
