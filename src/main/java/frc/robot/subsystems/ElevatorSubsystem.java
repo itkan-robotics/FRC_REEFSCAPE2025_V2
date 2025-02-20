@@ -23,9 +23,11 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
 
 public class ElevatorSubsystem extends SubsystemBase {
-  private final TalonFX elevator = new TalonFX(ELEVATOR_MOTOR_PORT);
+  private LoggedTunableNumber tunableHeight;
+  private final TalonFX elevatorMotor = new TalonFX(ELEVATOR_MOTOR_PORT);
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
 
@@ -40,8 +42,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
     elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 25;
+    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 80;
     elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    elevatorConfig.CurrentLimits.StatorCurrentLimit = 80;
+    elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
     var elevatorSlot0Configs = elevatorConfig.Slot0;
 
@@ -53,7 +57,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         ELEVATOR_KP; // A position error of ELEVATOR_KP rotations results in 12 V output
 
     elevatorSlot0Configs.kI = 0.0; // no output for integrated error
-    elevatorSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.1 V output
+    elevatorSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
 
     // set Motion Magic settings
     var motionMagicConfigs = elevatorConfig.MotionMagic;
@@ -64,48 +68,39 @@ public class ElevatorSubsystem extends SubsystemBase {
     motionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of ELEVATOR_JERK rps/s/s
 
     // in init function
-    tryUntilOk(5, () -> elevator.getConfigurator().apply(elevatorConfig, 0.25));
-
-    // rightMotor.setControl(rightMotorFollower);
+    tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(elevatorConfig, 0.25));
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
+    tunableHeight = new LoggedTunableNumber("elevatorDesiredPos", 5);
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    // System.out.println(tunableAngle.get());
+  }
 
   public Command setGoal(double setpoint) {
     return run(
         () -> {
+          // setSetpoint(tunableAngle.get());
           setSetpoint(setpoint);
         });
   }
 
-  public Command resetElevators() {
-    return run(
-        () -> {
-          resetPosition();
-        });
-  }
-
   public void setSetpoint(double setpoint) {
-    elevator.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    elevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getPosition() {
-    return elevator.getPosition().getValueAsDouble();
+    return elevatorMotor.getPosition().getValueAsDouble();
   }
 
   public double getSlowDownMult() {
     if (getPosition() > 10) {
-      return 0.5;
+      return 0.6;
     } else {
-      return 1.0;
+      return 0.85;
     }
-  }
-
-  public void resetPosition() {
-    setSetpoint(0); // rightMotor.setPosition(0.0, 0.25);
   }
 }

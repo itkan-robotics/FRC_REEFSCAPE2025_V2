@@ -25,7 +25,9 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
+  public static final boolean kIsTuningMode = true;
   public static final boolean tuningMode = true;
+
   // PathPlanner config constants (wrong values)
   public static final double ROBOT_MASS_KG = 18.143;
   public static final double ROBOT_MOI = 1.965;
@@ -39,7 +41,7 @@ public final class Constants {
   public static final int SCORE_MOTOR_PORT = 12;
   public static final int INTAKE_MOTOR_PORT = 17;
 
-  public static class PivotConstants {
+  public static class ActuatorConstants {
     public static final int RIGHT_ACTUATOR_MOTOR_PORT = 10;
     public static final int LEFT_ACTUATOR_MOTOR_PORT = 9;
     public static final double ACTUATOR_KP = 28.0;
@@ -49,7 +51,6 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    // Only Left motor being used
     public static final int ELEVATOR_MOTOR_PORT = 13;
 
     public static final double ELEVATOR_KP = 50.0;
@@ -62,31 +63,29 @@ public final class Constants {
 
   /** The different elevator and pivot states our robot can do, all in one enum! */
   public static enum BotState {
-    // BARGE(0.0, 0.0),
-    // LOLLIPOPALGAE(35.5, 5.0),
-    // TEST(13.0, 0),
     RESET(5.0, 0.0),
-    CORALINTAKE(0.0, 0.0),
+    CORALINTAKE(6.0, 0.0),
     L1(28.0, 3.0),
-    L2(27.0, 16),
-    L3(18.5, 24.75),
-    L4(13.5, 39.9),
-    HOME(20.0, 0),
-    CLIMB(49.0, 8.0),
-    LOWALGAE(27.0, 11.0),
-    HIGHALGAE(25.0, 15.0),
-    GROUNDALGAE(40.0, 7.50);
-    ;
+    L2(15.5, 17),
+    L3(14.5, 25),
+    L4(11.5, 38),
+    HOME(19.0, 0),
+    CLIMB(57, 15.0),
+    LOWALGAE(18, 10),
+    HIGHALGAE(15, 18.5),
+    GROUNDALGAE(43, 6), // 53
+    BARGE(5, 39.9),
+    PROCESSOR(40, 5); // TO-DO: Test and tune
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;
 
-    BotState(double pivotSetpoint, double elevatorSetpoint) {
-      this.pivotSetpoint = pivotSetpoint;
+    BotState(double actuatorSetpoint, double elevatorSetpoint) {
+      this.pivotSetpoint = actuatorSetpoint;
       this.elevatorSetpoint = elevatorSetpoint;
     }
 
-    public double getPivotSetpoint() {
+    public double getActuatorSetpoint() {
       return pivotSetpoint;
     }
 

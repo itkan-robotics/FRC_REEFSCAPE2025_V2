@@ -14,6 +14,8 @@
 package frc.robot;
 
 import static frc.robot.Constants.BotState.*;
+
+import static frc.robot.Constants.BotState.*;
 import static frc.robot.FieldConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -29,11 +31,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants.ReefSide;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
+import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -156,75 +162,70 @@ public class RobotContainer {
         .or(operator.R2())
         .whileTrue(
             score
-                .setSpeed(0)
-                .alongWith(intake.setSpeed(0.5))
-                .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)));
+                .setSpeedAndState(0.002, false)
+                .alongWith(intake.setSpeed(0.75))
+                .alongWith(new StateMachineCommand(elevator, actuators, currState, CORALINTAKE)))
+        .onFalse(new StateMachineCommand(elevator, actuators, currState, HOME));
+
     // Scoring Coral
-    base.L2().or(operator.L2()).whileTrue(score.setSpeed(-0.15));
+    base.R1().or(operator.L2()).whileTrue(score.setSpeedAndState(-1.0, false));
 
     // Intaking algae
-    // base.L2().whileTrue(score.intakeAlgae(-0.5)).onFalse(score.intakeAlgae(-0.2));
+    base.L2().whileTrue(score.setSpeedAndState(-base.getL2Axis() / 4, false));
+
+    // Outtake algae
+    base.L1()
+        .whileTrue(score.setSpeedAndState(-0.5, true))
+        .onFalse(score.setSpeedAndState(-0.1, true));
+
     base.cross()
         .or(operator.cross())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
 
-    base.create()
-        .onTrue(
-            new StateMachineCommand(elevator, actuators, currState, GROUNDALGAE)
-                .alongWith(score.intakeAlgae(-0.5)));
-    // base.create().onFalse(score.intakeAlgae(-0.2));
-
     // Coral Positioning Commands
+
     base.triangle()
         .or(operator.triangle())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
+
     base.touchpad()
         .or(operator.touchpad())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
+
     base.square()
         .or(operator.square())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
+
     base.circle()
         .or(operator.circle())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
 
     // Algae Positioning Commands
+
     base.povDown()
         .or(operator.povDown())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, LOWALGAE));
+
     base.povUp()
         .or(operator.povUp())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
+
+    base.create()
+        .onTrue(
+            new StateMachineCommand(elevator, actuators, currState, GROUNDALGAE)
+                .alongWith(score.setSpeedAndState(-0.0, true)));
+
+    base.PS().onTrue(new StateMachineCommand(elevator, actuators, currState, BARGE));
+
     base.povLeft()
         .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+
     base.povRight()
         .or(operator.povRight())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
-    // Reef Alignment Commands
-    base.L1()
-        .or(operator.L1())
-        .whileTrue(
-            DriveCommands.joystickApproach(
-                drive,
-                () -> -base.getLeftY(),
-                () -> getNearestReefBranch(drive.getPose(), ReefSide.LEFT)));
-    base.R1()
-        .or(operator.R1())
-        .whileTrue(
-            DriveCommands.joystickApproach(
-                drive,
-                () -> -base.getLeftY(),
-                () -> getNearestReefBranch(drive.getPose(), ReefSide.RIGHT)));
-
-    // base.R1().and(base.L1())
-    //     .or(operator.R1().and(operator.R1()))
-    //     .whileTrue(
-    //         DriveCommands.joystickApproach(
-    //             drive,
-    //             () -> -base.getLeftY(),
-    //             () -> getNearestReefFace(drive.getPose())));
+    // Reef Alignment Commands (TBD)
   }
 
   /*********************************************************
@@ -246,13 +247,13 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
 
-    NamedCommands.registerCommand("stopIntake", intake.DefaultCommand());
+    NamedCommands.registerCommand("stopIntake", intake.getDefaultCommand());
 
     NamedCommands.registerCommand(
-        "pivElevL4", new StateMachineCommand(elevator, actuators, currState, L4));
+        "L4", new StateMachineCommand(elevator, actuators, currState, L4));
 
     NamedCommands.registerCommand(
-        "pivElevHome", new StateMachineCommand(elevator, actuators, currState, HOME));
+        "HOME", new StateMachineCommand(elevator, actuators, currState, HOME));
   }
 
   /*********************************************************
@@ -271,11 +272,11 @@ public class RobotContainer {
 
     // Set the robot to the RESET position
     currState.setState(RESET);
-    actuators.setGoal(currState.getState().getPivotSetpoint());
+    actuators.setGoal(currState.getState().getActuatorSetpoint());
     elevator.setGoal(currState.getState().getElevatorSetpoint());
 
-    score.setDefaultCommand(score.DefaultCommand());
-    intake.setDefaultCommand(intake.DefaultCommand());
+    score.setDefaultCommand(score.getDefaultCommand());
+    intake.setDefaultCommand(intake.getDefaultCommand());
     limelight.setDefaultCommand(limelight.setLimelight());
   }
 

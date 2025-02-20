@@ -133,6 +133,20 @@ public class DriveCommands {
     angleController.enableContinuousInput(-180, 180);
 
     // Construct command
+    // return Commands.run(
+    //     () -> {
+    //       // Get linear velocity
+    //       Translation2d linearVelocity =
+    //           getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+    //       // Calculate angular speed
+    //       double omega = 0.0;
+
+    //       if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
+    //         omega =
+    //             fieldPIDController.calculate(
+    //                 getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
+    //       }
     return Commands.run(
         () -> {
           // Get linear velocity
