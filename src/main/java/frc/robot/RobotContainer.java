@@ -211,9 +211,10 @@ public class RobotContainer {
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
 
     base.create()
-        .onTrue(
-            new StateMachineCommand(elevator, actuators, currState, GROUNDALGAE)
-                .alongWith(score.setSpeedAndState(-0.0, true)));
+        .whileTrue(
+            DriveCommands.limelightDriveToReef(
+                drive, limelight, 
+                ));
 
     base.PS().onTrue(new StateMachineCommand(elevator, actuators, currState, BARGE));
 

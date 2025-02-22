@@ -105,28 +105,43 @@ public final class Constants {
      * Enum to store the offsets for the left and right branches on the reef. Includes value of the
      * offset in inches with methods to get the offset in various units.
      */
-    public static enum TagOffsets {
-      LEFT_BRANCH(-8.0),
-      CENTER(0.0),
-      ALGAE(0.0),
-      RIGHT_BRANCH(8.0);
+    public static enum OffsetPipelines {
+      LEFT_BRANCH(1),
+      CENTER(0),
+      ALGAE(0),
+      RIGHT_BRANCH(2);
 
-      private final double horizontalOffsetInches;
+      private final int pipeline;
 
-      TagOffsets(double offsetInches) {
-        this.horizontalOffsetInches = offsetInches;
+      OffsetPipelines(int pipeline) {
+        this.pipeline = pipeline;
       }
 
       /** Returns the limelight offset in inches */
-      public double getHorizontalOffsetInches() {
-        return horizontalOffsetInches;
+      public int getPipeline() {
+        return pipeline;
       }
 
-      /** Returns the limelight offset in meters */
-      public double getHorizontalOffsetMeters() {
-        return Units.inchesToMeters(horizontalOffsetInches);
-      }
+      // /** Returns the limelight offset in meters */
+      // public double getHorizontalOffsetMeters() {
+      //   return Units.inchesToMeters(pipeline);
+      // }
     };
+
+    public static final double VELOCITY_DEADBAND = 0.025;
+
+    public static final double MAX_AREA = 8.0; // Must be tuned once field is built
+    public static final double MIN_AREA = 0.01;
+    public static final double MAX_KP = 0.12; // Must be tuned once field is built
+    public static final double MIN_KP = 0.015; // Must be tuned once field is built
+    public static final double ALIGN_KS = 0.05;
+
+    public static final double TURN_KP = 0.23;
+    public static final double TURN_KD = 0.05;
+
+    public static final double CENTERING_KP = 1.695;
+    public static final double CENTERING_KD = 0.001;
+    public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 
   // Simulation stuff we aren't using this season

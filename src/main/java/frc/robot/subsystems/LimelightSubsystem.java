@@ -6,8 +6,12 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LimelightConstants.*;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LimelightConstants.OffsetPipelines;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -32,6 +37,8 @@ public class LimelightSubsystem extends SubsystemBase {
   private final double fovVerticalDegrees = 49.7;
   private final double areaMultiplier = 1.5;
   public boolean limelightHeadingGood = true;
+  private PIDController m_aTagSpeedContoller;
+  private PIDController m_aTagDirController;
   private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
   public double[] tagPose = {0, 0, 0, 0};
 
@@ -68,7 +75,7 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return
    *************************************************************************************/
   @SuppressWarnings("unused")
-  public Pose2d getTagEstimatedPosition(Drive drive, TagOffsets offset) {
+  public Pose2d getTagEstimatedPosition(Drive drive, OffsetPipelines offset) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
             .getTable("limelight")
@@ -76,7 +83,7 @@ public class LimelightSubsystem extends SubsystemBase {
             .getDoubleArray(new double[6]);
     ;
 
-    double targetTX = targetPose[0] + offset.getHorizontalOffsetMeters();
+    double targetTX = targetPose[0] + ((offset.getPipeline() == 1) ? -8.0 : 8.0);
     double targetTY = targetPose[1];
     double targetTZ = targetPose[2];
     Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
@@ -114,6 +121,83 @@ public class LimelightSubsystem extends SubsystemBase {
     double angle = (reefAngles.get(getID()) == null) ? -1.0 : reefAngles.get(getID());
     // System.out.println("id: " + getID());
     return angle;
+  }
+
+  /*******************************************************
+   * Function to get angle of target AprilTag based on its ID.
+   *
+   * <p> Last Updated by Abdullah Khaled, 1/17/2025
+   * @return Angle of the target AprilTag in degrees
+   *******************************************************/
+
+  public double getLLReefAngle() {
+    return reefAngles.get(getID());
+  }
+
+  /***************************************************************************************
+   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
+   * The method uses ta to calculate magnitude and tx to calculate direction, and an exponential
+   * interpolation equation to find the kP value the speed controller should use based on ta
+   * <p>Last Updated by Abdullah Khaled, 1/19/2025
+   *
+   * @param offset Offset for left and right branches
+   * @return The linear velocity of the robot as a Translation2d
+   **************************************************************************************/
+
+  public Translation2d getAprilTagVelocity(int pipeline, boolean overTurned, double reefAngle) {
+
+    LimelightHelpers.setPipelineIndex("limelight", pipeline);
+
+    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
+    if (!overTurned) {
+      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
+
+      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
+    }
+
+    // Apply deadband
+    double linearMagnitude =
+        MathUtil.applyDeadband(
+            // Calculate speed based on ta
+            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
+
+    // Calculate direction based on tx
+    m_aTagDirController = new PIDController(CENTERING_KP, 0.0, CENTERING_KD);
+    Rotation2d linearDirection =
+        new Rotation2d(
+            MathUtil.applyDeadband(
+                    m_aTagDirController.calculate(Math.toRadians(getX())),
+                    VELOCITY_DEADBAND)
+                + Math.toRadians(reefAngle));
+    // Square magnitude for more precise control
+    linearMagnitude = linearMagnitude * linearMagnitude;
+
+    // Return new linear velocity
+    return new Pose2d(new Translation2d(), linearDirection)
+        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+        .getTranslation();
+  }
+
+  // Helper Methods
+
+  /***************************************************************************************
+   * Finds the kP of the speed controller using a linear interpolation equation as created by
+   * ChatGPT
+   * <p> Last Updated by Abdullah Khaled, 1/19/2025
+   * @param ta The area of the limelight's FOV the target fills.
+   * @return The interpolated value
+   **************************************************************************************/
+
+  public double kPExpInterpolation(double ta) {
+
+    double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
+    double[] pair0 = {MIN_AREA, MAX_KP};
+    double[] pair1 = {MAX_AREA, MIN_KP};
+
+    double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
+    double A = pair0[1] * Math.exp(k * pair0[0]);
+    double interpolatedVal = A * Math.exp(-k * area);
+    return interpolatedVal;
   }
 
   /***************************************************************************************
