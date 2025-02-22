@@ -16,7 +16,7 @@ package frc.robot;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -70,7 +70,6 @@ public final class Constants {
     L3(14.5, 25),
     L4(11.5, 38),
     HOME(19.0, 0),
-    CLIMB(57, 15.0),
     LOWALGAE(18, 10),
     HIGHALGAE(15, 18.5),
     GROUNDALGAE(43, 6), // 53
@@ -91,6 +90,37 @@ public final class Constants {
 
     public double getElevatorSetpoint() {
       return elevatorSetpoint;
+    }
+  }
+
+  public static String getBotStateAsString(BotState state) {
+    switch (state) {
+      case BARGE:
+        return "BARGE";
+      case CORALINTAKE:
+        return "CORALINTAKE";
+      case GROUNDALGAE:
+        return "GROUNDALGAE";
+      case HIGHALGAE:
+        return "HIGHALGAE";
+      case HOME:
+        return "HOME";
+      case L1:
+        return "L1";
+      case L2:
+        return "L2";
+      case L3:
+        return "L3";
+      case L4:
+        return "L4";
+      case LOWALGAE:
+        return "LOWALGAE";
+      case PROCESSOR:
+        return "PROCESSOR";
+      case RESET:
+        return "RESET";
+      default:
+        return "HOW DID WE GET HERE?";
     }
   }
 
@@ -132,7 +162,7 @@ public final class Constants {
 
     public static final double MAX_AREA = 8.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
-    public static final double MAX_KP = 0.12; // Must be tuned once field is built
+    public static final double MAX_KP = 0.12; // Formerly // Must be tuned once field is built
     public static final double MIN_KP = 0.015; // Must be tuned once field is built
     public static final double ALIGN_KS = 0.05;
 
@@ -157,5 +187,22 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  /***************************************************************************************
+   * Get the current alliance as specific in the Driver Station.
+   * <p> Last Updated by Abdullah Khaled, 1/17/2025
+   * @return The current alliance, where red is true and blue is false
+   **************************************************************************************/
+  public static boolean isRedAlliance() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      if (alliance.get() == DriverStation.Alliance.Red) {
+        return true;
+      } else if (alliance.get() == DriverStation.Alliance.Blue) {
+        return false;
+      }
+    }
+    return false;
   }
 }

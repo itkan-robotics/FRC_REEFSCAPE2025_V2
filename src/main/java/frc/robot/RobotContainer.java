@@ -14,8 +14,6 @@
 package frc.robot;
 
 import static frc.robot.Constants.BotState.*;
-
-import static frc.robot.Constants.BotState.*;
 import static frc.robot.FieldConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -26,20 +24,20 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.FieldConstants.ReefSide;
+import frc.robot.Constants.LimelightConstants.OffsetPipelines;
+import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.StateMachineCommand;
+import frc.robot.commands.DriveToReefCommand;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ActuatorSubsystem;
-import frc.robot.subsystems.ActuatorSubsystem;
+import frc.robot.subsystems.BufferSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -64,6 +62,7 @@ public class RobotContainer {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
+  private final BufferSubsystem buffer = new BufferSubsystem();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
@@ -159,7 +158,7 @@ public class RobotContainer {
 
     // Intaking coral
     base.R2()
-        .or(operator.R2())
+        // .or(operator.R2())
         .whileTrue(
             score
                 .setSpeedAndState(0.002, false)
@@ -210,23 +209,44 @@ public class RobotContainer {
         .or(operator.povUp())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
 
-    base.create()
-        .whileTrue(
-            DriveCommands.limelightDriveToReef(
-                drive, limelight, 
-                ));
-
     base.PS().onTrue(new StateMachineCommand(elevator, actuators, currState, BARGE));
 
     base.povLeft()
         .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
 
-    base.povRight()
-        .or(operator.povRight())
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
+    base.povRight().or(operator.povRight()).onTrue(new InstantCommand());
 
     // Reef Alignment Commands (TBD)
+    base.create()
+        .whileTrue(
+            new DriveToReefCommand(drive, limelight, buffer, () -> elevator.getSlowDownMult()));
+
+    // base.create()
+    //     .onTrue(
+    //         new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight, currState));
+
+    // Matthew-Align Guided Automatically (MAGA)
+    operator
+        .R2()
+        .whileTrue(buffer.setOperatorAngleCommand(() -> -base.getRightY(), () -> base.getRightX()));
+
+    operator.R2().and(operator.triangle()).onTrue(buffer.setBotStateCommand(L4));
+    operator.R2().and(operator.circle()).onTrue(buffer.setBotStateCommand(L3));
+    operator.R2().and(operator.square()).onTrue(buffer.setBotStateCommand(L2));
+    operator.R2().and(operator.touchpad()).onTrue(buffer.setBotStateCommand(L1));
+    operator
+        .R2()
+        .and(operator.povLeft())
+        .onTrue(buffer.setOffsetPipelineCommand(OffsetPipelines.LEFT_BRANCH));
+    operator
+        .R2()
+        .and(operator.povRight())
+        .onTrue(buffer.setOffsetPipelineCommand(OffsetPipelines.RIGHT_BRANCH));
+    operator
+        .R2()
+        .and(operator.povUp())
+        .onTrue(buffer.setOffsetPipelineCommand(OffsetPipelines.CENTER));
   }
 
   /*********************************************************
@@ -266,10 +286,11 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickMDrive(
             drive,
-            () -> -base.getLeftY() * elevator.getSlowDownMult(),
-            () -> -base.getLeftX() * elevator.getSlowDownMult(),
-            () -> -base.getRightY() * elevator.getSlowDownMult(),
-            () -> base.getRightX() * elevator.getSlowDownMult()));
+            () -> -base.getLeftY(),
+            () -> -base.getLeftX(),
+            () -> -base.getRightY(),
+            () -> base.getRightX(),
+            () -> elevator.getSlowDownMult()));
 
     // Set the robot to the RESET position
     currState.setState(RESET);

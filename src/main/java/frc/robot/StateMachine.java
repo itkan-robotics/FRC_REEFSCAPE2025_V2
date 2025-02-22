@@ -57,14 +57,6 @@ public class StateMachine {
           default:
             return currState;
         }
-      case CLIMB:
-        switch (currState) {
-          case HOME:
-            setState(state);
-            return CLIMB;
-          default:
-            return currState;
-        }
       case RESET:
         switch (currState) {
           case HOME:

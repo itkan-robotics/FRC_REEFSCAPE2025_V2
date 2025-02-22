@@ -14,11 +14,11 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.LimelightConstants.OffsetPipelines;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
@@ -106,7 +106,7 @@ public class LimelightSubsystem extends SubsystemBase {
    **************************************************************************************/
 
   public void createReefHashMap() {
-    int blueAllianceTags = !isRedAlliance() ? 11 : 0;
+    int blueAllianceTags = !Constants.isRedAlliance() ? 11 : 0;
     reefAngles.put(-1, -1.0);
     reefAngles.put(0, -1.0);
     reefAngles.put(6 + blueAllianceTags, -60.0); // 17
@@ -166,8 +166,7 @@ public class LimelightSubsystem extends SubsystemBase {
     Rotation2d linearDirection =
         new Rotation2d(
             MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX())),
-                    VELOCITY_DEADBAND)
+                    m_aTagDirController.calculate(Math.toRadians(getX())), VELOCITY_DEADBAND)
                 + Math.toRadians(reefAngle));
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
@@ -176,6 +175,10 @@ public class LimelightSubsystem extends SubsystemBase {
     return new Pose2d(new Translation2d(), linearDirection)
         .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
         .getTranslation();
+  }
+
+  public boolean withinTolerance(double toleranceX, double toleranceA) {
+    return ((getX() <= toleranceX) && (getArea() - MAX_AREA <= toleranceA));
   }
 
   // Helper Methods
@@ -198,24 +201,6 @@ public class LimelightSubsystem extends SubsystemBase {
     double A = pair0[1] * Math.exp(k * pair0[0]);
     double interpolatedVal = A * Math.exp(-k * area);
     return interpolatedVal;
-  }
-
-  /***************************************************************************************
-   * Get the current alliance as specific in the Driver Station.
-   * <p> Last Updated by Abdullah Khaled, 1/17/2025
-   * @return The current alliance, where red is true and blue is false
-   **************************************************************************************/
-
-  public boolean isRedAlliance() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        return true;
-      } else if (alliance.get() == DriverStation.Alliance.Blue) {
-        return false;
-      }
-    }
-    return false;
   }
 
   public double getX() {

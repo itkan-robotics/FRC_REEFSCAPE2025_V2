@@ -27,21 +27,15 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.util.TuneableProfiledPID;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -55,6 +49,7 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
   private static PIDController angleController;
+  private static PIDController fieldPIDController;
 
   private DriveCommands() {}
 
@@ -103,69 +98,6 @@ public class DriveCommands {
     return MathUtil.inputModulus(drive.getRotation().getDegrees(), -180, 180);
   }
 
-  /*************************************************************************************
-   * Field centric drive command using limelight target data to
-   * calculate the desired angle of the robot to align parallel to the target AprilTag
-   * and move to the AprilTag based on the target's ta and tx values using Profiled PID.
-   * <p> Last Updated by Abdullah Khaled, 1/18/2025
-   *************************************************************************************/
-
-   public static Command limelightDriveToReef(
-    Drive drive, LimelightSubsystem limelight, LimelightConstants.OffsetPipelines branchOffset) {
-
-  // Create PID controller
-  angleController = new PIDController(TURN_KP, 0.0, TURN_KD);
-  angleController.enableContinuousInput(-180, 180);
-
-  // Construct command
-  return Commands.run(
-      () -> {
-        // Default values in the case an AprilTag is not seen
-        Translation2d linearVelocity = new Translation2d();
-        double omega = 0.0;
-        int offsetPipeline = branchOffset.getPipeline();
-
-        if (limelight.canSeeTarget()) {
-
-          // Get the target angle for the robot based on the AprilTag ID
-          double reefAngle = limelight.getLLReefAngle();
-
-          /* To-Do List
-           * Test for offset degree #
-           *    Add constants to limelightConstants file
-           */
-          if (reefAngle != -1.0) {
-            // Calculate angular speed
-            omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
-
-            // If within certain *arbitrary* turn range drive normally; else, drive slowly
-            if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 20) {
-              linearVelocity = limelight.getAprilTagVelocity(offsetPipeline, false, reefAngle);
-            } else {
-              linearVelocity = limelight.getAprilTagVelocity(offsetPipeline, true, reefAngle);
-            }
-          }
-        }
-
-        // Convert to field relative speeds & send command
-        ChassisSpeeds speeds =
-            new ChassisSpeeds(
-                linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                omega);
-        boolean isFlipped =
-            DriverStation.getAlliance().isPresent()
-                && DriverStation.getAlliance().get() == Alliance.Red;
-        drive.runVelocity(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                speeds,
-                isFlipped
-                    ? drive.getRotation().plus(new Rotation2d(Math.PI))
-                    : drive.getRotation()));
-      },
-      drive);
-}
-
   /**********************************************************************************************
    * Field centric drive command using joystick for linear control and PID for angular control.
    * This specific drive based on Matthew's swerve drive from
@@ -178,17 +110,20 @@ public class DriveCommands {
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier jwxSupplier,
-      DoubleSupplier jwySupplier) {
+      DoubleSupplier jwySupplier,
+      DoubleSupplier slowDownMultSupplier) {
 
     // Create PID controller w/ +-180 degree range
-    fieldPIDController = new PIDController(ANGLE_FIELDKP, 0.0, ANGLE_FIELDKD);
+    fieldPIDController = new PIDController(ANGLE_KP, 0.0, ANGLE_KP);
     fieldPIDController.enableContinuousInput(-180, 180);
 
     return Commands.run(
         () -> {
           // Get linear velocity
           Translation2d linearVelocity =
-              getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+              getLinearVelocityFromJoysticks(
+                  xSupplier.getAsDouble() * slowDownMultSupplier.getAsDouble(),
+                  ySupplier.getAsDouble() * slowDownMultSupplier.getAsDouble());
 
           // Calculate angular speed
           double omega = 0.0;
