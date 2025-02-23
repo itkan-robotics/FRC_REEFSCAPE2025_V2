@@ -129,34 +129,18 @@ public final class Constants {
      * The desired offset from the limelight to the reef in meters (negative since we want to be
      * farther away, not closer up)
      */
+    public static final String limelightName = "limelight";
+
     public static final double kReefOffset = -0.35;
 
-    /**
-     * Enum to store the offsets for the left and right branches on the reef. Includes value of the
-     * offset in inches with methods to get the offset in various units.
-     */
-    public static enum OffsetPipelines {
-      LEFT_BRANCH(1),
-      CENTER(0),
-      ALGAE(0),
-      RIGHT_BRANCH(2);
+    public static final int LEFT_BRANCH_PIPELINE = 1;
+    public static final int RIGHT_BRANCH_PIPELINE = 2;
+    public static final int CENTER_PIPELINE = 0;
+    public static final int DEFAULT_PIPELINE = 0;
 
-      private final int pipeline;
-
-      OffsetPipelines(int pipeline) {
-        this.pipeline = pipeline;
-      }
-
-      /** Returns the limelight offset in inches */
-      public int getPipeline() {
-        return pipeline;
-      }
-
-      // /** Returns the limelight offset in meters */
-      // public double getHorizontalOffsetMeters() {
-      //   return Units.inchesToMeters(pipeline);
-      // }
-    };
+    public static final double kLeftBranchXOffset = -0.33 / 2;
+    public static final double kRightBranchXOffset = 0.33 / 2;
+    public static final double kDefaultXOffset = 0.0;
 
     public static final double VELOCITY_DEADBAND = 0.025;
 

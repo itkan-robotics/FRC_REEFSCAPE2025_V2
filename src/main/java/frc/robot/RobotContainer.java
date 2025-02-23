@@ -27,8 +27,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.LimelightConstants.OffsetPipelines;
-import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.DriveToReefCommand;
 import frc.robot.commands.StateMachineCommand;
@@ -224,7 +222,8 @@ public class RobotContainer {
 
     // base.create()
     //     .onTrue(
-    //         new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight, currState));
+    //         new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight,
+    // currState));
 
     // Matthew-Align Guided Automatically (MAGA)
     operator
@@ -235,18 +234,9 @@ public class RobotContainer {
     operator.R2().and(operator.circle()).onTrue(buffer.setBotStateCommand(L3));
     operator.R2().and(operator.square()).onTrue(buffer.setBotStateCommand(L2));
     operator.R2().and(operator.touchpad()).onTrue(buffer.setBotStateCommand(L1));
-    operator
-        .R2()
-        .and(operator.povLeft())
-        .onTrue(buffer.setOffsetPipelineCommand(OffsetPipelines.LEFT_BRANCH));
-    operator
-        .R2()
-        .and(operator.povRight())
-        .onTrue(buffer.setOffsetPipelineCommand(OffsetPipelines.RIGHT_BRANCH));
-    operator
-        .R2()
-        .and(operator.povUp())
-        .onTrue(buffer.setOffsetPipelineCommand(OffsetPipelines.CENTER));
+    operator.R2().and(operator.povLeft()).onTrue(buffer.setOffsetPipelineCommand("LEFT"));
+    operator.R2().and(operator.povRight()).onTrue(buffer.setOffsetPipelineCommand("RIGHT"));
+    operator.R2().and(operator.povUp()).onTrue(buffer.setOffsetPipelineCommand("CENTER"));
   }
 
   /*********************************************************

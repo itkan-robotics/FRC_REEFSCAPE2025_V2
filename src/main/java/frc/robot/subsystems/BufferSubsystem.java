@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.BotState;
-import frc.robot.Constants.LimelightConstants.OffsetPipelines;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.util.LimelightHelpers;
 import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 
 public class BufferSubsystem extends SubsystemBase {
   private static BotState operatorState = BotState.RESET;
-  private static OffsetPipelines operatorBranch = OffsetPipelines.CENTER;
+  private static int operatorPipeline = 0;
   private static double operatorAngle = 0.0;
   private HashMap<Double, Integer> reefAngles = new HashMap<Double, Integer>();
 
@@ -57,9 +57,24 @@ public class BufferSubsystem extends SubsystemBase {
   }
   ;
 
-  public Command setOffsetPipelineCommand(OffsetPipelines cPipeline) {
+  public Command setOffsetPipelineCommand(String placement) {
     return run(
         () -> {
+          int cPipeline = 0;
+          switch (placement.toLowerCase()) {
+            case "left":
+              cPipeline = LimelightConstants.LEFT_BRANCH_PIPELINE;
+              break;
+            case "right":
+              cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
+              break;
+            case "center":
+              cPipeline = LimelightConstants.CENTER_PIPELINE;
+              break;
+            default:
+              cPipeline = LimelightConstants.DEFAULT_PIPELINE;
+              break;
+          }
           setOffsetPipeLine(cPipeline);
         });
   }
@@ -77,8 +92,8 @@ public class BufferSubsystem extends SubsystemBase {
     operatorState = state;
   }
 
-  public void setOffsetPipeLine(OffsetPipelines pipeline) {
-    operatorBranch = pipeline;
+  public void setOffsetPipeLine(int pipeline) {
+    operatorPipeline = pipeline;
   }
 
   public void setOperatorAngle(DoubleSupplier rJoystickX, DoubleSupplier rJoystickY) {
@@ -95,8 +110,8 @@ public class BufferSubsystem extends SubsystemBase {
     return operatorState;
   }
 
-  public OffsetPipelines getTargetBranch() {
-    return operatorBranch;
+  public int getTargetPipeline() {
+    return operatorPipeline;
   }
 
   public double getTargetReefAngle() {

@@ -58,7 +58,7 @@ public class DriveToReefCommand extends Command {
     // Default values in the case an AprilTag is not seen
     Translation2d linearVelocity = new Translation2d();
     double omega = 0.0;
-    int offsetPipeline = buffer.getTargetBranch().getPipeline();
+    int offsetPipeline = buffer.getTargetPipeline();
 
     if (limelight.canSeeTarget() && limelight.getID() == buffer.getTargetAprilTag()) {
 

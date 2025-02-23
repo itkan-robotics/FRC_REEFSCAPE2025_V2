@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.LimelightConstants.OffsetPipelines;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -27,7 +26,7 @@ import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
-  public static NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  public static NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
 
   Timer lastTargetTime = new Timer();
   public boolean targetSeen = false;
@@ -43,6 +42,18 @@ public class LimelightSubsystem extends SubsystemBase {
   public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem() {
+    LimelightHelpers.setPipelineIndex(limelightName, CENTER_PIPELINE);
+    LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, 0.0, 0.0);
+
+    LimelightHelpers.setPipelineIndex(limelightName, DEFAULT_PIPELINE);
+    LimelightHelpers.setFiducial3DOffset(limelightName, kDefaultXOffset, 0.0, 0.0);
+
+    LimelightHelpers.setPipelineIndex(limelightName, LEFT_BRANCH_PIPELINE);
+    LimelightHelpers.setFiducial3DOffset(limelightName, kLeftBranchXOffset, 0.0, 0.0);
+    
+    LimelightHelpers.setPipelineIndex(limelightName, RIGHT_BRANCH_PIPELINE);
+    LimelightHelpers.setFiducial3DOffset(limelightName, kRightBranchXOffset, 0.0, 0.0);
+
     createReefHashMap();
   }
 
@@ -75,21 +86,21 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return
    *************************************************************************************/
   @SuppressWarnings("unused")
-  public Pose2d getTagEstimatedPosition(Drive drive, OffsetPipelines offset) {
+  public Pose2d getTagEstimatedPosition(Drive drive) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
-            .getTable("limelight")
+            .getTable(limelightName)
             .getEntry("targetpose_robotspace")
             .getDoubleArray(new double[6]);
     ;
 
-    double targetTX = targetPose[0] + ((offset.getPipeline() == 1) ? -8.0 : 8.0);
+    double targetTX = targetPose[0] /*+ ((offset.getPipeline() == 1) ? -8.0 : 8.0)*/;
     double targetTY = targetPose[1];
     double targetTZ = targetPose[2];
     Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
     // System.out.println("targetRotation: " + tAngleToRobot.getDegrees());
     double distanceToTarget =
-        getPrimaryFiducial(LimelightHelpers.getRawFiducials("limelight")).distToRobot;
+        getPrimaryFiducial(LimelightHelpers.getRawFiducials(limelightName)).distToRobot;
     double absRotation = -1.0 * drive.getHeadingDegrees() - getReefAngle();
 
     // System.out.println("absRotation: " + absRotation);
@@ -146,7 +157,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public Translation2d getAprilTagVelocity(int pipeline, boolean overTurned, double reefAngle) {
 
-    LimelightHelpers.setPipelineIndex("limelight", pipeline);
+    LimelightHelpers.setPipelineIndex(limelightName, pipeline);
 
     m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
     if (!overTurned) {
