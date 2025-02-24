@@ -3,33 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.0,
-        "y": 1.4509999999999992
+        "x": 7.987244318181817,
+        "y": 4.15
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.961,
-        "y": 2.1334999999999993
+        "x": 7.73724437317603,
+        "y": 4.150165822505032
       },
       "isLocked": false,
-      "linkedName": "3ft"
+      "linkedName": "center"
     },
     {
       "anchor": {
-        "x": 5.0,
-        "y": 2.3
+        "x": 6.2,
+        "y": 4.15
       },
       "prevControl": {
-        "x": 4.980500000000001,
-        "y": 1.62725
+        "x": 6.449999996915748,
+        "y": 4.149960730091992
       },
       "nextControl": null,
       "isLocked": false,
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/centerToH.path
       "linkedName": "H"
-========
-      "linkedName": null
->>>>>>>> main:src/main/deploy/pathplanner/paths/3ft2.path
     }
   ],
   "rotationTargets": [],
@@ -37,15 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/centerToH.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
     "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/3ft2.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 75.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

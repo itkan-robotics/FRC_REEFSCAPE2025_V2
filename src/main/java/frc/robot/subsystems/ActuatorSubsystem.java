@@ -22,6 +22,7 @@ public class ActuatorSubsystem extends SubsystemBase {
   private final TalonFX rightActuatorMotor = new TalonFX(RIGHT_ACTUATOR_MOTOR_PORT, "static");
   final MotionMagicVoltage m_lRequest;
   private LoggedTunableNumber tunableAngle;
+  private double actuatorSetpoint;
 
   public ActuatorSubsystem() {
     // in init function
@@ -78,6 +79,7 @@ public class ActuatorSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
+    actuatorSetpoint = setpoint;
     rightActuatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
     leftActuatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
@@ -88,5 +90,16 @@ public class ActuatorSubsystem extends SubsystemBase {
 
   public double getLeftPosition() {
     return leftActuatorMotor.getPosition().getValueAsDouble();
+  }
+
+  public double getPositionRequest() {
+    return actuatorSetpoint;
+  }
+
+  public boolean setpointReached() {
+    // SmartDashboard.putNumber(
+    //     "/SetPointReached/Actuator",
+    //     Math.abs((getRightPosition() + getLeftPosition()) / 2 - actuatorSetpoint));
+    return Math.abs((getRightPosition() + getLeftPosition()) / 2 - actuatorSetpoint) <= 0.20;
   }
 }

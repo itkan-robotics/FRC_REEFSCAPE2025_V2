@@ -25,18 +25,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "sourceRToD"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DToSourceR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "sourceRToC"
           }
         },
@@ -44,30 +32,6 @@
           "type": "path",
           "data": {
             "pathName": "CToSourceR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sourceRToB"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BToSourceR"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sourceRToA"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "AToSourceR"
           }
         }
       ]

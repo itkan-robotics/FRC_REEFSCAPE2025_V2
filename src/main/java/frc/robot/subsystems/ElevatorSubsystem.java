@@ -28,13 +28,13 @@ import frc.robot.util.LoggedTunableNumber;
 public class ElevatorSubsystem extends SubsystemBase {
   private LoggedTunableNumber tunableHeight;
   private final TalonFX elevatorMotor = new TalonFX(ELEVATOR_MOTOR_PORT);
+  private double elevatorSetpoint;
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
 
   final MotionMagicVoltage m_lRequest;
 
   public ElevatorSubsystem() {
-
     // in init function
     var elevatorConfig = new TalonFXConfiguration();
     elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -89,11 +89,16 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
+    elevatorSetpoint = setpoint;
     elevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getPosition() {
     return elevatorMotor.getPosition().getValueAsDouble();
+  }
+
+  public double getPositionRequest() {
+    return elevatorSetpoint;
   }
 
   public double getSlowDownMult() {
@@ -102,5 +107,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     } else {
       return 0.85;
     }
+  }
+
+  public boolean setpointReached() {
+    // SmartDashboard.putNumber(
+    //     "/SetPointReached/Elevator",
+    //     Math.abs(elevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint));
+    return Math.abs(elevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint) <= 0.10;
   }
 }

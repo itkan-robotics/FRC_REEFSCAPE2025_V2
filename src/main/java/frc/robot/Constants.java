@@ -25,15 +25,16 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
+
   public static final boolean kIsTuningMode = true;
   public static final boolean tuningMode = true;
 
   // PathPlanner config constants (wrong values)
-  public static final double ROBOT_MASS_KG = 18.143;
-  public static final double ROBOT_MOI = 1.965;
+  public static final double ROBOT_MASS_KG = 47.627;
+  public static final double ROBOT_MOI = 6.429;
   public static final double WHEEL_COF = 1.2;
-  public static final double translationalAutoP = 6.0;
-  public static final double rotationalAutoP = 15.0;
+  public static final double translationalAutoP = 6.25;
+  public static final double rotationalAutoP = 10.0;
 
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
@@ -63,18 +64,18 @@ public final class Constants {
 
   /** The different elevator and pivot states our robot can do, all in one enum! */
   public static enum BotState {
-    RESET(5.0, 0.0),
-    CORALINTAKE(6.0, 0.0),
+    RESET(5.0, 0.25),
+    CORALINTAKE(6.0, 0.25),
     L1(28.0, 3.0),
-    L2(15.5, 17),
-    L3(14.5, 25),
-    L4(11.5, 38),
-    HOME(19.0, 0),
-    LOWALGAE(18, 10),
+    L2(15.5, 17.0),
+    L3(14.5, 25.0),
+    L4(11.5, 38.0),
+    HOME(19.0, 0.25),
+    LOWALGAE(18, 10.0),
     HIGHALGAE(15, 18.5),
-    GROUNDALGAE(43, 6), // 53
-    BARGE(5, 39.9),
-    PROCESSOR(40, 5); // TO-DO: Test and tune
+    GROUNDALGAE(43, 6.0), // 53
+    BARGE(5, 39.90),
+    PROCESSOR(40, 5.0); // TO-DO: Test and tune
 
     private final double pivotSetpoint;
     private final double elevatorSetpoint;
@@ -93,8 +94,8 @@ public final class Constants {
     }
   }
 
-  public static String getBotStateAsString(BotState state) {
-    switch (state) {
+  public static String toString(BotState botState) {
+    switch (botState) {
       case BARGE:
         return "BARGE";
       case CORALINTAKE:
@@ -124,6 +125,68 @@ public final class Constants {
     }
   }
 
+  public static BotState toBotState(String botState) {
+    switch (botState.toUpperCase()) {
+      case "BARGE":
+        return BotState.BARGE;
+      case "CORALINTAKE":
+        return BotState.CORALINTAKE;
+      case "GROUNDALGAE":
+        return BotState.GROUNDALGAE;
+      case "HIGHALGAE":
+        return BotState.HIGHALGAE;
+      case "HOME":
+        return BotState.HOME;
+      case "L1":
+        return BotState.L1;
+      case "L2":
+        return BotState.L2;
+      case "L3":
+        return BotState.L3;
+      case "L4":
+        return BotState.L4;
+      case "LOWALGAE":
+        return BotState.LOWALGAE;
+      case "PROCESSOR":
+        return BotState.PROCESSOR;
+      case "RESET":
+        return BotState.RESET;
+      default:
+        return BotState.RESET;
+    }
+  }
+
+  public static BotState toBotState(int botState) {
+    switch (botState) {
+      case 0:
+        return BotState.HOME;
+      case 1:
+        return BotState.L1;
+      case 2:
+        return BotState.L2;
+      case 3:
+        return BotState.L3;
+      case 4:
+        return BotState.L4;
+      case 5:
+        return BotState.BARGE;
+      case 6:
+        return BotState.CORALINTAKE;
+      case 7:
+        return BotState.GROUNDALGAE;
+      case 8:
+        return BotState.HIGHALGAE;
+      case 9:
+        return BotState.LOWALGAE;
+      case 10:
+        return BotState.PROCESSOR;
+      case -1:
+        return BotState.RESET;
+      default:
+        return BotState.RESET;
+    }
+  }
+
   public static class LimelightConstants {
     /**
      * The desired offset from the limelight to the reef in meters (negative since we want to be
@@ -144,17 +207,17 @@ public final class Constants {
 
     public static final double VELOCITY_DEADBAND = 0.025;
 
-    public static final double MAX_AREA = 8.0; // Must be tuned once field is built
+    public static final double MAX_AREA = 10.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
-    public static final double MAX_KP = 0.12; // Formerly // Must be tuned once field is built
-    public static final double MIN_KP = 0.015; // Must be tuned once field is built
+    public static final double MAX_KP = 0.12; // Formerly 0.15// Must be tuned once field is built
+    public static final double MIN_KP = 0.01; // Must be tuned once field is built
+
+    public static final double TURN_KP = 0.15;
+    public static final double TURN_KD = 0.00;
+
     public static final double ALIGN_KS = 0.05;
-
-    public static final double TURN_KP = 0.23;
-    public static final double TURN_KD = 0.05;
-
-    public static final double CENTERING_KP = 1.695;
-    public static final double CENTERING_KD = 0.001;
+    public static final double ALIGN_KP = 2.5;
+    public static final double ALIGN_KD = 0.005;
     public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 

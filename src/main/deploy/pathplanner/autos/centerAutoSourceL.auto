@@ -57,18 +57,6 @@
           "data": {
             "pathName": "AToSourceL"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sourceLToB"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BToSourceL"
-          }
         }
       ]
     }

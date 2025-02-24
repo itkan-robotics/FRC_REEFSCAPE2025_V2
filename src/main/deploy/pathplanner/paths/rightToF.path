@@ -3,52 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/rightToF.path
-        "x": 8.03,
-        "y": 1.9
+        "x": 8.10690340909091,
+        "y": 2.9929403409090907
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.017101737219172,
-        "y": 2.1471427395468017
-========
-        "x": 6.5116,
-        "y": 1.7532499999999993
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 5.8355999999999995,
-        "y": 1.7532499999999993
->>>>>>>> main:src/main/deploy/pathplanner/paths/5ft.path
+        "x": 7.488897095962601,
+        "y": 2.9651236099994547
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "bargeRight"
     },
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/rightToF.path
         "x": 5.284943181818181,
         "y": 2.9929403409090907
       },
       "prevControl": {
-        "x": 5.955512311757513,
-        "y": 2.7117321788447994
+        "x": 4.939635684150319,
+        "y": 2.997818772439445
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "F"
-========
-        "x": 4.378,
-        "y": 1.7532499999999993
-      },
-      "prevControl": {
-        "x": 5.519041656776824,
-        "y": 1.753249999999999
-      },
-      "nextControl": null,
-      "isLocked": false,
-      "linkedName": null
->>>>>>>> main:src/main/deploy/pathplanner/paths/5ft.path
     }
   ],
   "rotationTargets": [],
@@ -56,21 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/rightToF.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
     "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/5ft.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 75.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 119.99999999999999
   },
   "reversed": false,
   "folder": null,

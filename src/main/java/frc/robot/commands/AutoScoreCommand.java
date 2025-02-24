@@ -4,13 +4,15 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.StateMachine;
 import frc.robot.subsystems.ActuatorSubsystem;
-import frc.robot.subsystems.BufferSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.OperatorStore;
 import frc.robot.subsystems.drive.Drive;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -20,7 +22,7 @@ public class AutoScoreCommand extends SequentialCommandGroup {
   Drive drive;
   ActuatorSubsystem actuator;
   ElevatorSubsystem elevator;
-  BufferSubsystem buffer;
+  OperatorStore buffer;
   LimelightSubsystem limelight;
   IntakeSubsystem intake;
   StateMachine stateMachine;
@@ -30,21 +32,23 @@ public class AutoScoreCommand extends SequentialCommandGroup {
       ActuatorSubsystem a,
       ElevatorSubsystem e,
       IntakeSubsystem i,
-      BufferSubsystem b,
+      OperatorStore b,
       LimelightSubsystem l,
       StateMachine s) {
-    this.drive = d;
-    this.actuator = a;
-    this.elevator = e;
-    this.buffer = b;
-    this.limelight = l;
-    this.stateMachine = s;
-    this.intake = i;
+    drive = d;
+    actuator = a;
+    elevator = e;
+    buffer = b;
+    limelight = l;
+    stateMachine = s;
+    intake = i;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new StateMachineCommand(e, a, stateMachine, buffer.getTargetBotState()),
+        new StateMachineCommand(
+            elevator, actuator, stateMachine, Constants.toBotState(buffer.getBotStateInt())),
         new DriveToReefCommand(drive, limelight, buffer, () -> elevator.getSlowDownMult()),
-        intake.setSpeed(0.75).withTimeout(0.25));
+        new InstantCommand()
+        /*intake.setSpeed(0.75).withTimeout(0.25)*/ );
   }
 }

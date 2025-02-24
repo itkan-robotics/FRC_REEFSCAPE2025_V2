@@ -27,15 +27,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.DriveToReefCommand;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ActuatorSubsystem;
-import frc.robot.subsystems.BufferSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.OperatorStore;
 import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -60,7 +60,7 @@ public class RobotContainer {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
-  private final BufferSubsystem buffer = new BufferSubsystem();
+  public static final OperatorStore buffer = new OperatorStore();
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
@@ -156,7 +156,7 @@ public class RobotContainer {
 
     // Intaking coral
     base.R2()
-        // .or(operator.R2())
+        // .or(operator.L2())
         .whileTrue(
             score
                 .setSpeedAndState(0.002, false)
@@ -165,7 +165,9 @@ public class RobotContainer {
         .onFalse(new StateMachineCommand(elevator, actuators, currState, HOME));
 
     // Scoring Coral
-    base.R1().or(operator.L2()).whileTrue(score.setSpeedAndState(-1.0, false));
+    base.R1()
+        // .or(operator.L2())
+        .whileTrue(score.setSpeedAndState(-1.0, false));
 
     // Intaking algae
     base.L2().whileTrue(score.setSpeedAndState(-base.getL2Axis() / 4, false));
@@ -176,67 +178,118 @@ public class RobotContainer {
         .onFalse(score.setSpeedAndState(-0.1, true));
 
     base.cross()
-        .or(operator.cross())
+        // .or(operator.cross())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
 
     // Coral Positioning Commands
 
     base.triangle()
-        .or(operator.triangle())
+        // .or(operator.triangle())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
 
     base.touchpad()
-        .or(operator.touchpad())
+        // .or(operator.touchpad())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
 
     base.square()
-        .or(operator.square())
+        // .or(operator.square())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
 
     base.circle()
-        .or(operator.circle())
+        // .or(operator.circle())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
 
     // Algae Positioning Commands
 
     base.povDown()
-        .or(operator.povDown())
+        // .or(operator.povDown())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, LOWALGAE));
 
     base.povUp()
-        .or(operator.povUp())
+        // .or(operator.povUp())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
 
     base.PS().onTrue(new StateMachineCommand(elevator, actuators, currState, BARGE));
 
     base.povLeft()
-        .or(operator.povLeft())
+        // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
 
-    base.povRight().or(operator.povRight()).onTrue(new InstantCommand());
+    base.povRight()
+        // .or(operator.povRight())
+        .onTrue(new InstantCommand());
 
-    // Reef Alignment Commands (TBD)
     base.create()
-        .whileTrue(
-            new DriveToReefCommand(drive, limelight, buffer, () -> elevator.getSlowDownMult()));
-
-    // base.create()
-    //     .onTrue(
-    //         new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight,
-    // currState));
+        .onTrue(
+            new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight, currState))
+        .onFalse(new InstantCommand());
 
     // Matthew-Align Guided Automatically (MAGA)
-    operator
-        .R2()
-        .whileTrue(buffer.setOperatorAngleCommand(() -> -base.getRightY(), () -> base.getRightX()));
 
-    operator.R2().and(operator.triangle()).onTrue(buffer.setBotStateCommand(L4));
-    operator.R2().and(operator.circle()).onTrue(buffer.setBotStateCommand(L3));
-    operator.R2().and(operator.square()).onTrue(buffer.setBotStateCommand(L2));
-    operator.R2().and(operator.touchpad()).onTrue(buffer.setBotStateCommand(L1));
-    operator.R2().and(operator.povLeft()).onTrue(buffer.setOffsetPipelineCommand("LEFT"));
-    operator.R2().and(operator.povRight()).onTrue(buffer.setOffsetPipelineCommand("RIGHT"));
-    operator.R2().and(operator.povUp()).onTrue(buffer.setOffsetPipelineCommand("CENTER"));
+    operator
+        .L2()
+        .and(operator.triangle())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setBotStateInt(4);
+                }));
+    operator
+        .L2()
+        .and(operator.circle())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setBotStateInt(3);
+                }));
+    operator
+        .L2()
+        .and(operator.square())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setBotStateInt(2);
+                }));
+    operator
+        .L2()
+        .and(operator.touchpad())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setBotStateInt(1);
+                }));
+    operator
+        .L2()
+        .and(operator.povLeft())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setOffsetPipeLine("LEFT");
+                }));
+    operator
+        .L2()
+        .and(operator.povRight())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setOffsetPipeLine("RIGHT");
+                }));
+    operator
+        .L2()
+        .and(operator.povUp())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setOffsetPipeLine("CENTER");
+                }));
+
+    operator
+        .L2()
+        .whileTrue(
+            new InstantCommand(
+                () -> {
+                  buffer.setOperatorAngle(() -> -operator.getRightY(), () -> operator.getRightX());
+                }));
   }
 
   /*********************************************************
@@ -287,8 +340,8 @@ public class RobotContainer {
     actuators.setGoal(currState.getState().getActuatorSetpoint());
     elevator.setGoal(currState.getState().getElevatorSetpoint());
 
-    score.setDefaultCommand(score.getDefaultCommand());
-    intake.setDefaultCommand(intake.getDefaultCommand());
+    score.setDefaultCommand(score.setSpeedAndState(0.000, false));
+    intake.setDefaultCommand(intake.setSpeed(0.1));
     limelight.setDefaultCommand(limelight.setLimelight());
   }
 

@@ -3,14 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToD.path
-        "x": 1.3262215909090906,
-        "y": 0.9188494318181825
+        "x": 1.0569886363636365,
+        "y": 1.1182812499999988
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8836813994779462,
-        "y": 1.36917864109631
+        "x": 1.931503926263673,
+        "y": 1.6211960522570417
       },
       "isLocked": false,
       "linkedName": "sourceRight"
@@ -21,37 +20,12 @@
         "y": 2.8034801136363625
       },
       "prevControl": {
-        "x": 3.3980283730666017,
-        "y": 2.339640723535247
+        "x": 3.3173918590934983,
+        "y": 2.4173720598922372
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "D"
-========
-        "x": 3.6202868852459016,
-        "y": 2.62843237704918
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 3.236680327868853,
-        "y": 2.1489241803278682
-      },
-      "isLocked": false,
-      "linkedName": "3"
-    },
-    {
-      "anchor": {
-        "x": 0.05,
-        "y": 0.8
-      },
-      "prevControl": {
-        "x": 1.2727459016406455,
-        "y": 0.6201844262235272
-      },
-      "nextControl": null,
-      "isLocked": false,
-      "linkedName": null
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 2.path
     }
   ],
   "rotationTargets": [],
@@ -59,15 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToD.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
     "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 2.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 75.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -79,11 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToD.path
     "rotation": 54.01
-========
-    "rotation": 59.53445508054011
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 2.path
   },
   "useDefaultConstraints": true
 }

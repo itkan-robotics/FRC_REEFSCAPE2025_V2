@@ -3,117 +3,73 @@
   "waypoints": [
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/GToSourceR.path
-        "x": 5.763579545454545,
-        "y": 3.840525568181818
+        "x": 5.903181818181818,
+        "y": 3.8903835227272725
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.923125,
-        "y": 2.6838210227272725
+        "x": 6.067577216563428,
+        "y": 3.702037689242823
       },
       "isLocked": false,
       "linkedName": "G"
     },
     {
       "anchor": {
-        "x": 4.9359375,
-        "y": 1.99578125
+        "x": 5.065568181818182,
+        "y": 1.6467755681818175
       },
       "prevControl": {
-        "x": 5.136639827803654,
-        "y": 2.144840216903016
+        "x": 5.51660252758338,
+        "y": 2.0421501999212723
       },
       "nextControl": {
-        "x": 3.6537615275283666,
-        "y": 1.0435260971277214
-========
-        "x": 3.800102459016393,
-        "y": 4.978022540983606
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 3.7042008196721317,
-        "y": 6.97996926229508
-      },
-      "isLocked": false,
-      "linkedName": "1"
-    },
-    {
-      "anchor": {
-        "x": 1.1028688524590162,
-        "y": 5.577407786885245
-      },
-      "prevControl": {
-        "x": 1.4025614754098352,
-        "y": 7.555379098360655
-      },
-      "nextControl": {
-        "x": 0.821879630046777,
-        "y": 3.722878918964467
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 1.path
+        "x": 4.115232162127384,
+        "y": 0.8137153869742587
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/GToSourceR.path
-        "x": 1.3262215909090906,
-        "y": 0.9188494318181825
+        "x": 1.0569886363636365,
+        "y": 1.1182812499999988
       },
       "prevControl": {
-        "x": 1.5924723535372,
-        "y": 1.0727354647030267
-========
-        "x": 0.2,
-        "y": 0.7
-      },
-      "prevControl": {
-        "x": 1.8782786885245872,
-        "y": 1.179508196721312
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 1.path
+        "x": 0.7254620763322259,
+        "y": 1.1707563054477543
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "2"
+      "linkedName": "sourceRight"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.3428063943161672,
-      "rotationDegrees": 54.01
+      "waypointRelativePos": 1.2824156305506247,
+      "rotationDegrees": 54.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/GToSourceR.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
     "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 1.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 75.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/GToSourceR.path
     "rotation": 54.01
-========
-    "rotation": 59.0362434679265
->>>>>>>> main:src/main/deploy/pathplanner/paths/intake 1.path
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

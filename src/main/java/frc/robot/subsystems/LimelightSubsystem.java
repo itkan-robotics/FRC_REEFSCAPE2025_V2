@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -42,17 +41,19 @@ public class LimelightSubsystem extends SubsystemBase {
   public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem() {
+    // LimelightHelpers.setPipelineIndex(limelightName, CENTER_PIPELINE);
+    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, 0.0, 0.0);
+
+    // LimelightHelpers.setPipelineIndex(limelightName, DEFAULT_PIPELINE);
+    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, kDefaultXOffset, 0.0);
+
+    // LimelightHelpers.setPipelineIndex(limelightName, LEFT_BRANCH_PIPELINE);
+    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, kLeftBranchXOffset, 0.0);
+
+    // LimelightHelpers.setPipelineIndex(limelightName, RIGHT_BRANCH_PIPELINE);
+    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, kRightBranchXOffset, 0.0);
+
     LimelightHelpers.setPipelineIndex(limelightName, CENTER_PIPELINE);
-    LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, 0.0, 0.0);
-
-    LimelightHelpers.setPipelineIndex(limelightName, DEFAULT_PIPELINE);
-    LimelightHelpers.setFiducial3DOffset(limelightName, kDefaultXOffset, 0.0, 0.0);
-
-    LimelightHelpers.setPipelineIndex(limelightName, LEFT_BRANCH_PIPELINE);
-    LimelightHelpers.setFiducial3DOffset(limelightName, kLeftBranchXOffset, 0.0, 0.0);
-    
-    LimelightHelpers.setPipelineIndex(limelightName, RIGHT_BRANCH_PIPELINE);
-    LimelightHelpers.setFiducial3DOffset(limelightName, kRightBranchXOffset, 0.0, 0.0);
 
     createReefHashMap();
   }
@@ -67,7 +68,7 @@ public class LimelightSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("AprilTag ID", getID());
+    // SmartDashboard.putNumber("AprilTag ID", getID());
     if (table.getEntry("tv").getDouble(0.0) == 1) {
       lastTargetTime.restart();
       targetSeen = true;
@@ -173,7 +174,41 @@ public class LimelightSubsystem extends SubsystemBase {
             m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
 
     // Calculate direction based on tx
-    m_aTagDirController = new PIDController(CENTERING_KP, 0.0, CENTERING_KD);
+    m_aTagDirController = new PIDController(ALIGN_KP, 0.0, ALIGN_KD);
+    Rotation2d linearDirection =
+        new Rotation2d(
+            MathUtil.applyDeadband(
+                    m_aTagDirController.calculate(Math.toRadians(getX())), VELOCITY_DEADBAND)
+                + Math.toRadians(reefAngle));
+    // Square magnitude for more precise control
+    linearMagnitude = linearMagnitude * linearMagnitude;
+
+    // Return new linear velocity
+    return new Pose2d(new Translation2d(), linearDirection)
+        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+        .getTranslation();
+  }
+
+  public Translation2d getAprilTagVelocity(
+      double alignkP, double alignkD, int pipeline, boolean overTurned, double reefAngle) {
+
+    LimelightHelpers.setPipelineIndex(limelightName, pipeline);
+
+    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
+    if (!overTurned) {
+      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
+
+      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
+    }
+
+    // Apply deadband
+    double linearMagnitude =
+        MathUtil.applyDeadband(
+            // Calculate speed based on ta
+            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
+
+    // Calculate direction based on tx
+    m_aTagDirController = new PIDController(alignkP, 0.0, alignkD);
     Rotation2d linearDirection =
         new Rotation2d(
             MathUtil.applyDeadband(
@@ -189,7 +224,7 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public boolean withinTolerance(double toleranceX, double toleranceA) {
-    return ((getX() <= toleranceX) && (getArea() - MAX_AREA <= toleranceA));
+    return ((Math.abs(getX()) <= toleranceX) && (Math.abs(getArea() - MAX_AREA) <= toleranceA));
   }
 
   // Helper Methods

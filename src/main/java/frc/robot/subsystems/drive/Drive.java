@@ -168,7 +168,7 @@ public class Drive extends SubsystemBase {
   @Override
   public void periodic() {
     setVisionPoseMT2();
-    SmartDashboard.putNumber("Heading", getRotation().getDegrees());
+    // SmartDashboard.putNumber("Heading", getRotation().getDegrees());
 
     robotPose.setRobotPose(getPose());
     SmartDashboard.putData("Robot Pose", robotPose);
@@ -177,9 +177,9 @@ public class Drive extends SubsystemBase {
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
 
-    for (int x = 0; x <= 3; x++) {
-      SmartDashboard.putNumber("encoder " + x, modules[x].moduleAbsolutePosition());
-    }
+    // for (int x = 0; x <= 3; x++) {
+    //   SmartDashboard.putNumber("encoder " + x, modules[x].moduleAbsolutePosition());
+    // }
 
     for (var module : modules) {
       module.periodic();

@@ -6,30 +6,27 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.BotState;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.util.LimelightHelpers;
 import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 
-public class BufferSubsystem extends SubsystemBase {
-  private static BotState operatorState = BotState.RESET;
+public class OperatorStore {
+  private static int operatorStateInt = -1;
   private static int operatorPipeline = 0;
   private static double operatorAngle = 0.0;
   private HashMap<Double, Integer> reefAngles = new HashMap<Double, Integer>();
+  boolean working;
 
-  /** Creates a new BuffsetSubsystem. */
-  public BufferSubsystem() {}
+  /** Creates a new BufferSubsystem. */
+  public OperatorStore() {
+    createReefHashMap();
+  }
 
-  @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putString("Buffer/BotState", Constants.getBotStateAsString(operatorState));
-    SmartDashboard.putNumber(
-        "Buffer/Pipeline", LimelightHelpers.getCurrentPipelineIndex("limelight"));
+    SmartDashboard.putNumber("Buffer/RobotState", operatorStateInt);
+    SmartDashboard.putNumber("Buffer/Pipeline", operatorPipeline);
     SmartDashboard.putNumber("Buffer/TargetAngle", operatorAngle);
   }
 
@@ -49,51 +46,27 @@ public class BufferSubsystem extends SubsystemBase {
     return ID;
   }
 
-  public Command setBotStateCommand(BotState cState) {
-    return run(
-        () -> {
-          setBotState(cState);
-        });
-  }
-  ;
-
-  public Command setOffsetPipelineCommand(String placement) {
-    return run(
-        () -> {
-          int cPipeline = 0;
-          switch (placement.toLowerCase()) {
-            case "left":
-              cPipeline = LimelightConstants.LEFT_BRANCH_PIPELINE;
-              break;
-            case "right":
-              cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
-              break;
-            case "center":
-              cPipeline = LimelightConstants.CENTER_PIPELINE;
-              break;
-            default:
-              cPipeline = LimelightConstants.DEFAULT_PIPELINE;
-              break;
-          }
-          setOffsetPipeLine(cPipeline);
-        });
-  }
-  ;
-
-  public Command setOperatorAngleCommand(DoubleSupplier rxSupplier, DoubleSupplier rySupplier) {
-    return run(
-        () -> {
-          setOperatorAngle(rxSupplier, rySupplier);
-        });
-  }
-  ;
-
-  public void setBotState(BotState state) {
-    operatorState = state;
-  }
-
   public void setOffsetPipeLine(int pipeline) {
     operatorPipeline = pipeline;
+  }
+
+  public void setOffsetPipeLine(String placement) {
+    int cPipeline = 0;
+    switch (placement.toLowerCase()) {
+      case "left":
+        cPipeline = LimelightConstants.LEFT_BRANCH_PIPELINE;
+        break;
+      case "right":
+        cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
+        break;
+      case "center":
+        cPipeline = LimelightConstants.CENTER_PIPELINE;
+        break;
+      default:
+        cPipeline = LimelightConstants.DEFAULT_PIPELINE;
+        break;
+    }
+    operatorPipeline = cPipeline;
   }
 
   public void setOperatorAngle(DoubleSupplier rJoystickX, DoubleSupplier rJoystickY) {
@@ -106,12 +79,16 @@ public class BufferSubsystem extends SubsystemBase {
     operatorAngle = Math.round(opAngle / 60.0) * 60.0;
   }
 
-  public BotState getTargetBotState() {
-    return operatorState;
+  public int getTargetPipeline() {
+    return (int) SmartDashboard.getNumber("Buffer/Pipeline", 0);
   }
 
-  public int getTargetPipeline() {
-    return operatorPipeline;
+  public void setBotStateInt(int stateInt) {
+    operatorStateInt = stateInt;
+  }
+
+  public int getBotStateInt() {
+    return (int) SmartDashboard.getNumber("Buffer/RobotState", -1);
   }
 
   public double getTargetReefAngle() {
