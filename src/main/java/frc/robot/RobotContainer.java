@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.BotState;
 import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
@@ -61,6 +62,7 @@ public class RobotContainer {
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
   public static final OperatorStore buffer = new OperatorStore();
+  public static BotState operatorBufferState = BotState.RESET;
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
@@ -227,7 +229,7 @@ public class RobotContainer {
                 elevator,
                 intake,
                 buffer,
-                () -> Constants.toBotState(buffer.getBotStateInt()),
+                () -> operatorBufferState,
                 limelight,
                 currState))
         .onFalse(new InstantCommand());
@@ -240,7 +242,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(4);
+                  operatorBufferState = L4;
                 }));
     operator
         .L2()
@@ -248,7 +250,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(3);
+                  operatorBufferState = L3;
                 }));
     operator
         .L2()
@@ -256,7 +258,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(2);
+                  operatorBufferState = L2;
                 }));
     operator
         .L2()
@@ -264,7 +266,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(1);
+                  operatorBufferState = L1;
                 }));
     operator
         .L2()

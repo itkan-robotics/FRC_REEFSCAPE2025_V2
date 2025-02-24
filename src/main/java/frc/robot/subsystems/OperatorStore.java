@@ -25,7 +25,6 @@ public class OperatorStore {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Buffer/RobotState", operatorStateInt);
     SmartDashboard.putNumber("Buffer/Pipeline", operatorPipeline);
     SmartDashboard.putNumber("Buffer/TargetAngle", operatorAngle);
   }
