@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.OperatorStore;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 
@@ -30,7 +30,7 @@ import java.util.function.DoubleSupplier;
  *************************************************************************************/
 public class DriveToReefCommand extends Command {
   Drive drive;
-  OperatorStore buffer;
+  AutoScoreSelection buffer;
   LimelightSubsystem limelight;
   PIDController angleController, extremeAngleController;
   double slowDownMult = 0.0;
@@ -42,7 +42,7 @@ public class DriveToReefCommand extends Command {
   public DriveToReefCommand(
       Drive drive,
       LimelightSubsystem limelight,
-      OperatorStore buffer,
+      AutoScoreSelection buffer,
       DoubleSupplier slowDownMultSupplier) {
     this.drive = drive;
     this.limelight = limelight;

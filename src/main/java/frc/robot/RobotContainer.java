@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.BotState;
 import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
@@ -36,7 +35,6 @@ import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.OperatorStore;
 import frc.robot.subsystems.ScoringSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -44,6 +42,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.util.AutoScoreSelection;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -61,8 +60,8 @@ public class RobotContainer {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
-  public static final OperatorStore buffer = new OperatorStore();
-  public static BotState operatorBufferState = BotState.RESET;
+  public static final AutoScoreSelection buffer = new AutoScoreSelection();
+
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
@@ -223,15 +222,7 @@ public class RobotContainer {
 
     base.create()
         .onTrue(
-            new AutoScoreCommand(
-                drive,
-                actuators,
-                elevator,
-                intake,
-                buffer,
-                () -> operatorBufferState,
-                limelight,
-                currState))
+            new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight, currState))
         .onFalse(new InstantCommand());
 
     // Matthew-Align Guided Automatically (MAGA)
@@ -242,7 +233,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  operatorBufferState = L4;
+                  buffer.setBotStateInt(4);
                 }));
     operator
         .L2()
@@ -250,7 +241,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  operatorBufferState = L3;
+                  buffer.setBotStateInt(3);
                 }));
     operator
         .L2()
@@ -258,7 +249,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  operatorBufferState = L2;
+                  buffer.setBotStateInt(2);
                 }));
     operator
         .L2()
@@ -266,7 +257,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  operatorBufferState = L1;
+                  buffer.setBotStateInt(1);
                 }));
     operator
         .L2()

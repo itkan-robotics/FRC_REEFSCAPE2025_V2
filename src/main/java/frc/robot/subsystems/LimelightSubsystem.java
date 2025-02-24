@@ -37,7 +37,7 @@ public class LimelightSubsystem extends SubsystemBase {
   public boolean limelightHeadingGood = true;
   private PIDController m_aTagSpeedContoller;
   private PIDController m_aTagDirController;
-  private HashMap<Integer, Double> reefAngles = new HashMap<Integer, Double>();
+  private HashMap<Integer, Double> reefIDsToAngles = new HashMap<Integer, Double>();
   public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem() {
@@ -55,7 +55,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     LimelightHelpers.setPipelineIndex(limelightName, CENTER_PIPELINE);
 
-    createReefHashMap();
+    createReefIDsToAnglesHashMap();
   }
 
   public Command setLimelight() {
@@ -117,20 +117,20 @@ public class LimelightSubsystem extends SubsystemBase {
    * <p> Last Updated by Abdullah Khaled, 1/17/2025
    **************************************************************************************/
 
-  public void createReefHashMap() {
+  public void createReefIDsToAnglesHashMap() {
     int blueAllianceTags = !Constants.isRedAlliance() ? 11 : 0;
-    reefAngles.put(-1, -1.0);
-    reefAngles.put(0, -1.0);
-    reefAngles.put(6 + blueAllianceTags, -60.0); // 17
-    reefAngles.put(7 + blueAllianceTags, 0.0); // 18
-    reefAngles.put(8 + blueAllianceTags, 60.0); // 19
-    reefAngles.put(9 + blueAllianceTags, 120.0); // 20
-    reefAngles.put(10 + blueAllianceTags, 180.0); // 21
-    reefAngles.put(11 + blueAllianceTags, -120.0); // 22
+    reefIDsToAngles.put(-1, -1.0);
+    reefIDsToAngles.put(0, -1.0);
+    reefIDsToAngles.put(6 + blueAllianceTags, -60.0); // 17
+    reefIDsToAngles.put(7 + blueAllianceTags, 0.0); // 18
+    reefIDsToAngles.put(8 + blueAllianceTags, 60.0); // 19
+    reefIDsToAngles.put(9 + blueAllianceTags, 120.0); // 20
+    reefIDsToAngles.put(10 + blueAllianceTags, 180.0); // 21
+    reefIDsToAngles.put(11 + blueAllianceTags, -120.0); // 22
   }
 
   public double getReefAngle() {
-    double angle = (reefAngles.get(getID()) == null) ? -1.0 : reefAngles.get(getID());
+    double angle = (reefIDsToAngles.get(getID()) == null) ? -1.0 : reefIDsToAngles.get(getID());
     // System.out.println("id: " + getID());
     return angle;
   }
@@ -143,7 +143,7 @@ public class LimelightSubsystem extends SubsystemBase {
    *******************************************************/
 
   public double getLLReefAngle() {
-    return reefAngles.get(getID());
+    return reefIDsToAngles.get(getID());
   }
 
   /***************************************************************************************
