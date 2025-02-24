@@ -221,7 +221,15 @@ public class RobotContainer {
 
     base.create()
         .onTrue(
-            new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight, currState))
+            new AutoScoreCommand(
+                drive,
+                actuators,
+                elevator,
+                intake,
+                buffer,
+                () -> Constants.toBotState(buffer.getBotStateInt()),
+                limelight,
+                currState))
         .onFalse(new InstantCommand());
 
     // Matthew-Align Guided Automatically (MAGA)

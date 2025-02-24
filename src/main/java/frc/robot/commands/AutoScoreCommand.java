@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
+import frc.robot.Constants.BotState;
 import frc.robot.StateMachine;
 import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -14,6 +14,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.OperatorStore;
 import frc.robot.subsystems.drive.Drive;
+import java.util.function.Supplier;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -23,6 +24,7 @@ public class AutoScoreCommand extends SequentialCommandGroup {
   ActuatorSubsystem actuator;
   ElevatorSubsystem elevator;
   OperatorStore buffer;
+  Supplier<BotState> bufferedState;
   LimelightSubsystem limelight;
   IntakeSubsystem intake;
   StateMachine stateMachine;
@@ -33,20 +35,21 @@ public class AutoScoreCommand extends SequentialCommandGroup {
       ElevatorSubsystem e,
       IntakeSubsystem i,
       OperatorStore b,
+      Supplier<BotState> tState,
       LimelightSubsystem l,
       StateMachine s) {
     drive = d;
     actuator = a;
     elevator = e;
     buffer = b;
+    bufferedState = tState;
     limelight = l;
     stateMachine = s;
     intake = i;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new StateMachineCommand(
-            elevator, actuator, stateMachine, Constants.toBotState(buffer.getBotStateInt())),
+        new StateMachineCommand(elevator, actuator, stateMachine, bufferedState.get()),
         new DriveToReefCommand(drive, limelight, buffer, () -> elevator.getSlowDownMult()),
         new InstantCommand()
         /*intake.setSpeed(0.75).withTimeout(0.25)*/ );
