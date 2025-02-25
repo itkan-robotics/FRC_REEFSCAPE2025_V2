@@ -13,6 +13,10 @@
 
 package frc.robot;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
@@ -188,12 +192,16 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
+    
+    public static final String singleLimelightName = "limelight";
+    public static final String leftLimelightName = "leftLimelight";
+    public static final String rightLimelightName = "rightLimelight";
+    public static final boolean multipleLimelights = true;
+
     /**
      * The desired offset from the limelight to the reef in meters (negative since we want to be
      * farther away, not closer up)
      */
-    public static final String limelightName = "limelight";
-
     public static final double kReefOffset = -0.35;
 
     public static final int LEFT_BRANCH_PIPELINE = 1;

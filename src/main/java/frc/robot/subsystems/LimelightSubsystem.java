@@ -21,11 +21,13 @@ import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
-  public static NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
+  public static NetworkTable table = NetworkTableInstance.getDefault().getTable(leftLimelightName);
 
   Timer lastTargetTime = new Timer();
   public boolean targetSeen = false;
@@ -41,20 +43,6 @@ public class LimelightSubsystem extends SubsystemBase {
   public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem() {
-    // LimelightHelpers.setPipelineIndex(limelightName, CENTER_PIPELINE);
-    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, 0.0, 0.0);
-
-    // LimelightHelpers.setPipelineIndex(limelightName, DEFAULT_PIPELINE);
-    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, kDefaultXOffset, 0.0);
-
-    // LimelightHelpers.setPipelineIndex(limelightName, LEFT_BRANCH_PIPELINE);
-    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, kLeftBranchXOffset, 0.0);
-
-    // LimelightHelpers.setPipelineIndex(limelightName, RIGHT_BRANCH_PIPELINE);
-    // LimelightHelpers.setFiducial3DOffset(limelightName, 0.0, kRightBranchXOffset, 0.0);
-
-    LimelightHelpers.setPipelineIndex(limelightName, CENTER_PIPELINE);
-
     createReefIDsToAnglesHashMap();
   }
 
@@ -90,7 +78,7 @@ public class LimelightSubsystem extends SubsystemBase {
   public Pose2d getTagEstimatedPosition(Drive drive) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
-            .getTable(limelightName)
+            .getTable(leftLimelightName)
             .getEntry("targetpose_robotspace")
             .getDoubleArray(new double[6]);
     ;
@@ -101,12 +89,40 @@ public class LimelightSubsystem extends SubsystemBase {
     Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
     // System.out.println("targetRotation: " + tAngleToRobot.getDegrees());
     double distanceToTarget =
-        getPrimaryFiducial(LimelightHelpers.getRawFiducials(limelightName)).distToRobot;
+        getPrimaryFiducial(LimelightHelpers.getRawFiducials(leftLimelightName)).distToRobot;
     double absRotation = -1.0 * drive.getHeadingDegrees() - getReefAngle();
 
     // System.out.println("absRotation: " + absRotation);
     Pose2d targetPose2d = new Pose2d(targetTZ, -targetTX, Rotation2d.fromDegrees(absRotation));
     return targetPose2d == null ? new Pose2d(-1, -1, Rotation2d.fromDegrees(0)) : targetPose2d;
+  }
+
+  /**
+   * 
+   * @param limelightNames Array of names of Limelights
+   * @return The name of the limelight with the "best" view of the AprilTag 
+   * (the one with the lowest ambiguity)
+   */
+  public static String getPrimaryLimelight(ArrayList<String> limelightNames) {
+    String primaryLimelight = leftLimelightName;
+    double minAmbiguity = Double.POSITIVE_INFINITY;
+    for (int i = 0; i < limelightNames.size(); i++) {
+      RawFiducial primaryFiducial = getPrimaryFiducial(LimelightHelpers.getRawFiducials(limelightNames.get(i)));
+      if (primaryFiducial.ambiguity < minAmbiguity) {
+        minAmbiguity = primaryFiducial.ambiguity;
+        primaryLimelight = limelightNames.get(i);
+      }
+    }
+    return primaryLimelight;
+  }
+
+  public static String getPrimaryLimelight() {
+    if (multipleLimelights) return singleLimelightName;
+
+    ArrayList<String> limelightNames = new ArrayList<String>();
+    limelightNames.add(leftLimelightName); 
+    limelightNames.add(rightLimelightName);
+    return getPrimaryLimelight(limelightNames);
   }
 
   // Helper Methods
@@ -158,7 +174,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public Translation2d getAprilTagVelocity(int pipeline, boolean overTurned, double reefAngle) {
 
-    LimelightHelpers.setPipelineIndex(limelightName, pipeline);
+    LimelightHelpers.setPipelineIndex(leftLimelightName, pipeline);
 
     m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
     if (!overTurned) {
@@ -192,7 +208,7 @@ public class LimelightSubsystem extends SubsystemBase {
   public Translation2d getAprilTagVelocity(
       double alignkP, double alignkD, int pipeline, boolean overTurned, double reefAngle) {
 
-    LimelightHelpers.setPipelineIndex(limelightName, pipeline);
+    LimelightHelpers.setPipelineIndex(leftLimelightName, pipeline);
 
     m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
     if (!overTurned) {

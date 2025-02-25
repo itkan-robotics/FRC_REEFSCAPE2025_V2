@@ -55,6 +55,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -242,9 +243,10 @@ public class Drive extends SubsystemBase {
    **********************************************************************************************/
 
   public void setVisionPoseMT2() {
+    String primaryLimelightName = LimelightSubsystem.getPrimaryLimelight();
     boolean doRejectUpdate = false;
     LimelightHelpers.SetRobotOrientation(
-        "limelight",
+        primaryLimelightName,
         poseEstimator.getEstimatedPosition().getRotation().getDegrees(),
         0,
         0,
@@ -252,7 +254,7 @@ public class Drive extends SubsystemBase {
         0,
         0);
     LimelightHelpers.PoseEstimate mt2 =
-        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(primaryLimelightName);
 
     if (mt2 == null) return;
     if (Math.abs(gyroIO.getRate())
