@@ -40,6 +40,18 @@ public class StateMachineCommand extends Command {
     SmartDashboard.putString("TargetState", Constants.toString(targetState));
     elevator.setSetpoint(targetState.getElevatorSetpoint());
     pivot.setSetpoint(targetState.getActuatorSetpoint());
+
+    if(elevator.getPosition() < targetState.getElevatorSetpoint()){
+      elevator.setSetpoint(targetState.getElevatorSetpoint());
+      if (elevator.setpointReached()) {
+        pivot.setSetpoint(targetState.getActuatorSetpoint());
+      }
+    } else {
+      pivot.setSetpoint(targetState.getActuatorSetpoint());
+      if (pivot.setpointReached()) {
+        elevator.setSetpoint(targetState.getElevatorSetpoint());
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.
