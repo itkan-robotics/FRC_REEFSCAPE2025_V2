@@ -113,7 +113,7 @@ public class AutoScoreSelection {
 
   /**
    * @return The store state as an integer, with a default value of -1. Corresponding values can be
-   *     found in {@link frc.robot.Constants#toBotState(int)} 
+   *     found in {@link frc.robot.Constants#toBotState(int)}
    */
   public int getBotStateInt() {
     return (int) SmartDashboard.getNumber("Buffer/RobotState", -1);

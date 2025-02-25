@@ -13,10 +13,6 @@
 
 package frc.robot;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
@@ -192,10 +188,10 @@ public final class Constants {
   }
 
   public static class LimelightConstants {
-    
+
     public static final String singleLimelightName = "limelight";
-    public static final String leftLimelightName = "leftLimelight";
-    public static final String rightLimelightName = "rightLimelight";
+    public static final String leftLimelightName = "limelight";
+    public static final String rightLimelightName = "limelight";
     public static final boolean multipleLimelights = true;
 
     /**

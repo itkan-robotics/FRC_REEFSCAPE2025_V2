@@ -20,9 +20,11 @@ public class BufferedStateMachineCommand extends Command {
   AutoScoreSelection buffer;
   StateMachine stateMachine;
 
-  /** Creates a new BufferedStateMachineCommand. 
-   * <p> This is an alternative StateMachine Command that takes in an AutoScoreSelection 
-   * instead of a target state, hopefully fixing the issue of the target state being unable to be read.
+  /**
+   * Creates a new BufferedStateMachineCommand.
+   *
+   * <p>This is an alternative StateMachine Command that takes in an AutoScoreSelection instead of a
+   * target state, hopefully fixing the issue of the target state being unable to be read.
    */
   public BufferedStateMachineCommand(
       ElevatorSubsystem e, ActuatorSubsystem p, StateMachine sMachine, AutoScoreSelection b) {

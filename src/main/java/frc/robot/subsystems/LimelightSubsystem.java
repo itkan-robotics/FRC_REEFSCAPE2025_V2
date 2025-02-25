@@ -21,7 +21,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -98,16 +97,16 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   /**
-   * 
    * @param limelightNames Array of names of Limelights
-   * @return The name of the limelight with the "best" view of the AprilTag 
-   * (the one with the lowest ambiguity)
+   * @return The name of the limelight with the "best" view of the AprilTag (the one with the lowest
+   *     ambiguity)
    */
   public static String getPrimaryLimelight(ArrayList<String> limelightNames) {
     String primaryLimelight = leftLimelightName;
     double minAmbiguity = Double.POSITIVE_INFINITY;
     for (int i = 0; i < limelightNames.size(); i++) {
-      RawFiducial primaryFiducial = getPrimaryFiducial(LimelightHelpers.getRawFiducials(limelightNames.get(i)));
+      RawFiducial primaryFiducial =
+          getPrimaryFiducial(LimelightHelpers.getRawFiducials(limelightNames.get(i)));
       if (primaryFiducial.ambiguity < minAmbiguity) {
         minAmbiguity = primaryFiducial.ambiguity;
         primaryLimelight = limelightNames.get(i);
@@ -120,7 +119,7 @@ public class LimelightSubsystem extends SubsystemBase {
     if (multipleLimelights) return singleLimelightName;
 
     ArrayList<String> limelightNames = new ArrayList<String>();
-    limelightNames.add(leftLimelightName); 
+    limelightNames.add(leftLimelightName);
     limelightNames.add(rightLimelightName);
     return getPrimaryLimelight(limelightNames);
   }

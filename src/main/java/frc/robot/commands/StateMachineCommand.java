@@ -41,7 +41,7 @@ public class StateMachineCommand extends Command {
     elevator.setSetpoint(targetState.getElevatorSetpoint());
     pivot.setSetpoint(targetState.getActuatorSetpoint());
 
-    if(elevator.getPosition() < targetState.getElevatorSetpoint()){
+    if (elevator.getPosition() < targetState.getElevatorSetpoint()) {
       elevator.setSetpoint(targetState.getElevatorSetpoint());
       if (elevator.setpointReached()) {
         pivot.setSetpoint(targetState.getActuatorSetpoint());
