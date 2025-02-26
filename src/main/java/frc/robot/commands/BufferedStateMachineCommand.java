@@ -17,8 +17,10 @@ import frc.robot.util.AutoScoreSelection;
 public class BufferedStateMachineCommand extends Command {
   ActuatorSubsystem pivot;
   ElevatorSubsystem elevator;
-  AutoScoreSelection buffer;
+  AutoScoreSelection storedState;
   StateMachine stateMachine;
+
+  BotState currentState;
 
   /**
    * Creates a new BufferedStateMachineCommand.
@@ -30,7 +32,7 @@ public class BufferedStateMachineCommand extends Command {
       ElevatorSubsystem e, ActuatorSubsystem p, StateMachine sMachine, AutoScoreSelection b) {
     this.elevator = e;
     this.pivot = p;
-    this.buffer = b;
+    this.storedState = b;
     this.stateMachine = sMachine;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(elevator, pivot);
@@ -38,15 +40,16 @@ public class BufferedStateMachineCommand extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    currentState = Constants.toBotState(storedState.getBotStateInt());
+    SmartDashboard.putNumber("BufferedTargetState", storedState.getBotStateInt());
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    BotState bufferedState = Constants.toBotState(buffer.getBotStateInt());
-    SmartDashboard.putNumber("BufferedTargetState", buffer.getBotStateInt());
-    elevator.setSetpoint(bufferedState.getElevatorSetpoint());
-    pivot.setSetpoint(bufferedState.getActuatorSetpoint());
+    elevator.setSetpoint(currentState.getElevatorSetpoint());
+    pivot.setSetpoint(currentState.getActuatorSetpoint());
   }
 
   // Called once the command ends or is interrupted.

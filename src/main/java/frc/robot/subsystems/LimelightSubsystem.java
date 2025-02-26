@@ -54,6 +54,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    table = getPrimaryLimelightTable();
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("AprilTag ID", getID());
     if (table.getEntry("tv").getDouble(0.0) == 1) {
@@ -158,7 +159,7 @@ public class LimelightSubsystem extends SubsystemBase {
    *******************************************************/
 
   public double getLLReefAngle() {
-    return reefIDsToAngles.get(getID());
+    return reefIDsToAngles.get(getID(getPrimaryLimelight()));
   }
 
   /***************************************************************************************
@@ -170,48 +171,19 @@ public class LimelightSubsystem extends SubsystemBase {
    * @param offset Offset for left and right branches
    * @return The linear velocity of the robot as a Translation2d
    **************************************************************************************/
-
-  public Translation2d getAprilTagVelocity(int pipeline, boolean overTurned, double reefAngle) {
-
-    LimelightHelpers.setPipelineIndex(leftLimelightName, pipeline);
-
-    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
-    if (!overTurned) {
-      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
-
-      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
-    }
-
-    // Apply deadband
-    double linearMagnitude =
-        MathUtil.applyDeadband(
-            // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
-
-    // Calculate direction based on tx
-    m_aTagDirController = new PIDController(ALIGN_KP, 0.0, ALIGN_KD);
-    Rotation2d linearDirection =
-        new Rotation2d(
-            MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX())), VELOCITY_DEADBAND)
-                + Math.toRadians(reefAngle));
-    // Square magnitude for more precise control
-    linearMagnitude = linearMagnitude * linearMagnitude;
-
-    // Return new linear velocity
-    return new Pose2d(new Translation2d(), linearDirection)
-        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
-        .getTranslation();
-  }
-
   public Translation2d getAprilTagVelocity(
-      double alignkP, double alignkD, int pipeline, boolean overTurned, double reefAngle) {
+      double alignkP,
+      double alignkD,
+      int pipeline,
+      boolean overTurned,
+      double reefAngle,
+      String limelightName) {
 
-    LimelightHelpers.setPipelineIndex(leftLimelightName, pipeline);
+    if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
 
     m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
     if (!overTurned) {
-      double targetArea = getArea() != 0.0 ? getArea() : MAX_AREA;
+      double targetArea = getArea(limelightName) != 0.0 ? getArea(limelightName) : MAX_AREA;
 
       m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
     }
@@ -220,14 +192,16 @@ public class LimelightSubsystem extends SubsystemBase {
     double linearMagnitude =
         MathUtil.applyDeadband(
             // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(), MAX_AREA) + ALIGN_KS, VELOCITY_DEADBAND);
+            m_aTagSpeedContoller.calculate(getArea(limelightName), MAX_AREA) + ALIGN_KS,
+            VELOCITY_DEADBAND);
 
     // Calculate direction based on tx
     m_aTagDirController = new PIDController(alignkP, 0.0, alignkD);
     Rotation2d linearDirection =
         new Rotation2d(
             MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX())), VELOCITY_DEADBAND)
+                    m_aTagDirController.calculate(Math.toRadians(getX(limelightName))),
+                    VELOCITY_DEADBAND)
                 + Math.toRadians(reefAngle));
     // Square magnitude for more precise control
     linearMagnitude = linearMagnitude * linearMagnitude;
@@ -268,6 +242,10 @@ public class LimelightSubsystem extends SubsystemBase {
     return table.getEntry("tx").getDouble(0.0);
   }
 
+  public double getX(String limelightName) {
+    return getLimelightTable(limelightName).getEntry("tx").getDouble(0.0);
+  }
+
   public double getLatency() {
     return table.getEntry("tl").getDouble(0.0) + table.getEntry("cl").getDouble(0.0);
   }
@@ -280,12 +258,28 @@ public class LimelightSubsystem extends SubsystemBase {
     return table.getEntry("ta").getDouble(0.0);
   }
 
+  public double getArea(String limelightName) {
+    return table.getEntry("ta").getDouble(0.0);
+  }
+
   public boolean hasTarget() {
     return table.getEntry("tv").getDouble(0.0) == 1;
   }
 
   public int getID() {
     return (int) table.getEntry("tid").getDouble(0.0);
+  }
+
+  public int getID(String limelightName) {
+    return (int) getLimelightTable(limelightName).getEntry("tid").getDouble(0.0);
+  }
+
+  public NetworkTable getPrimaryLimelightTable() {
+    return NetworkTableInstance.getDefault().getTable(getPrimaryLimelight());
+  }
+
+  public NetworkTable getLimelightTable(String llName) {
+    return NetworkTableInstance.getDefault().getTable(getPrimaryLimelight());
   }
 
   public static RawFiducial getPrimaryFiducial(RawFiducial[] fiducials) {

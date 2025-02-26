@@ -6,8 +6,14 @@ package frc.robot.commands;
 
 import static frc.robot.Constants.LimelightConstants.ALIGN_KD;
 import static frc.robot.Constants.LimelightConstants.ALIGN_KP;
+import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
+import static frc.robot.Constants.LimelightConstants.RIGHT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.TURN_KD;
 import static frc.robot.Constants.LimelightConstants.TURN_KP;
+import static frc.robot.Constants.LimelightConstants.leftLimelightName;
+import static frc.robot.Constants.LimelightConstants.multipleLimelights;
+import static frc.robot.Constants.LimelightConstants.rightLimelightName;
+import static frc.robot.Constants.LimelightConstants.singleLimelightName;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,7 +36,7 @@ import java.util.function.DoubleSupplier;
  *************************************************************************************/
 public class DriveToReefCommand extends Command {
   Drive drive;
-  AutoScoreSelection buffer;
+  AutoScoreSelection storedState;
   LimelightSubsystem limelight;
   PIDController angleController, extremeAngleController;
   double slowDownMult = 0.0;
@@ -42,11 +48,11 @@ public class DriveToReefCommand extends Command {
   public DriveToReefCommand(
       Drive drive,
       LimelightSubsystem limelight,
-      AutoScoreSelection buffer,
+      AutoScoreSelection storedState,
       DoubleSupplier slowDownMultSupplier) {
     this.drive = drive;
     this.limelight = limelight;
-    this.buffer = buffer;
+    this.storedState = storedState;
     slowDownMult = slowDownMultSupplier.getAsDouble();
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
@@ -76,9 +82,16 @@ public class DriveToReefCommand extends Command {
     // Default values in the case an AprilTag is not seen
     Translation2d linearVelocity = new Translation2d();
     double omega = 0.0;
-    int offsetPipeline = buffer.getTargetPipeline();
+    int offsetPipeline = storedState.getLimelightTargetPipeline();
+    String llName = singleLimelightName;
+    if (multipleLimelights) {
+      llName =
+          (offsetPipeline == LEFT_BRANCH_PIPELINE)
+              ? leftLimelightName
+              : (offsetPipeline == RIGHT_BRANCH_PIPELINE) ? rightLimelightName : leftLimelightName;
+    }
 
-    if (limelight.canSeeTarget() && limelight.getID() == buffer.getTargetAprilTag()) {
+    if (limelight.canSeeTarget() && limelight.getID(llName) == storedState.getTargetAprilTag()) {
 
       // Get the target angle for the robot based on the AprilTag ID
       reefAngle = limelight.getLLReefAngle();
@@ -96,27 +109,45 @@ public class DriveToReefCommand extends Command {
         }
 
         // If within certain *arbitrary* turn range drive normally; else, drive slowly
-        if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 200) {
-          linearVelocity =
-              limelight.getAprilTagVelocity(
-                  alignkP.getAsDouble(), alignkD.getAsDouble(), offsetPipeline, false, reefAngle);
-        } else {
-          linearVelocity =
-              limelight.getAprilTagVelocity(
-                  alignkP.getAsDouble(), alignkD.getAsDouble(), offsetPipeline, true, reefAngle);
-        }
+        // if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 200) {
+        //   linearVelocity =
+        //       limelight.getAprilTagVelocity(
+        //           alignkP.getAsDouble(),
+        //           alignkD.getAsDouble(),
+        //           offsetPipeline,
+        //           false,
+        //           reefAngle,
+        //           llName);
+        // } else {
+        //   linearVelocity =
+        //       limelight.getAprilTagVelocity(
+        //           alignkP.getAsDouble(),
+        //           alignkD.getAsDouble(),
+        //           offsetPipeline,
+        //           true,
+        //           reefAngle,
+        //           llName);
+        // }
+        linearVelocity =
+            limelight.getAprilTagVelocity(
+                alignkP.getAsDouble(),
+                alignkD.getAsDouble(),
+                offsetPipeline,
+                false,
+                reefAngle,
+                llName);
       }
-    } else if (reefAngle != 91.28 && reefAngle == buffer.getTargetReefAngle()) {
+      // Correct angle once location reached
+    } else if (reefAngle != 91.28 && reefAngle == storedState.getTargetReefAngle()) {
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
     }
-    limelight.withinTolerance(0.1, 0.2);
+
     // Convert to field relative speeds & send command
     ChassisSpeeds speeds =
         new ChassisSpeeds(
             linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult,
             linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult,
             omega);
-    finished = speeds.vxMetersPerSecond <= 0.1;
     boolean isFlipped =
         DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == Alliance.Red;
@@ -124,6 +155,8 @@ public class DriveToReefCommand extends Command {
         ChassisSpeeds.fromFieldRelativeSpeeds(
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
+
+    finished = speeds.vxMetersPerSecond <= 0.1 || speeds.vyMetersPerSecond <= 0.1;
   }
 
   // Called once the command ends or is interrupted.

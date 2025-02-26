@@ -14,8 +14,8 @@ import java.util.function.DoubleSupplier;
 
 public class AutoScoreSelection {
   private static int operatorStateInt = -1;
-  private static int operatorPipeline = 0;
-  private static double operatorAngle = 0.0;
+  private static int operatorLimelight = 0;
+  private static double operatorReefAngle = 0.0;
   private HashMap<Double, Integer> reefAnglesToIDs = new HashMap<Double, Integer>();
   boolean working;
 
@@ -26,9 +26,9 @@ public class AutoScoreSelection {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Buffer/RobotState", operatorStateInt);
-    SmartDashboard.putNumber("Buffer/Pipeline", operatorPipeline);
-    SmartDashboard.putNumber("Buffer/TargetAngle", operatorAngle);
+    SmartDashboard.putNumber("storedState/RobotState", operatorStateInt);
+    SmartDashboard.putNumber("storedState/Pipeline", operatorLimelight);
+    SmartDashboard.putNumber("storedState/TargetAngle", operatorReefAngle);
   }
 
   /**
@@ -47,31 +47,30 @@ public class AutoScoreSelection {
   }
 
   /** Set the pipeline the limelight should use during auto-align */
-  public void setOffsetPipeLine(int pipeline) {
-    operatorPipeline = pipeline;
+  public void setLimelightPipeLine(int pipeline) {
+    operatorLimelight = pipeline;
   }
 
   /**
    * Alternative method of setting a pipeline that takes in a string based on what branch the robot
    * should go to
    */
-  public void setOffsetPipeLine(String placement) {
+  public void setLimelightPipeLine(String placement) {
     int cPipeline = 0;
     switch (placement.toLowerCase()) {
       case "left":
         cPipeline = LimelightConstants.LEFT_BRANCH_PIPELINE;
         break;
-      case "right":
+        
+        case "right":
         cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
         break;
-      case "center":
-        cPipeline = LimelightConstants.CENTER_PIPELINE;
-        break;
-      default:
-        cPipeline = LimelightConstants.DEFAULT_PIPELINE;
+
+        default:
+        cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
         break;
     }
-    operatorPipeline = cPipeline;
+    operatorLimelight = cPipeline;
   }
 
   /**
@@ -79,28 +78,28 @@ public class AutoScoreSelection {
    * joysticks. If joystick is not moving (i.e. within deadband range) the resulting angle will be
    * 0.0
    */
-  public void setOperatorAngle(DoubleSupplier rJoystickX, DoubleSupplier rJoystickY) {
+  public void setOperatorReefAngle(DoubleSupplier rJoystickX, DoubleSupplier rJoystickY) {
     double DEADBAND = 0.1;
     double xDeadband = MathUtil.applyDeadband(rJoystickX.getAsDouble(), DEADBAND);
     double yDeadband = MathUtil.applyDeadband(rJoystickY.getAsDouble(), DEADBAND);
 
     // If joystick input is likely caused by deadband, set the angle to 0.0
     if (xDeadband + yDeadband <= 0.05) {
-      operatorAngle = 0.0;
+      operatorReefAngle = 0.0;
       return;
     }
 
     // Else, set the angle to the calculated angle, rounded to the nearest 60 degrees
     double opAngle = Math.toDegrees(Math.atan2(xDeadband, yDeadband)) - 90;
-    operatorAngle = Math.round(opAngle / 60.0) * 60.0;
+    operatorReefAngle = Math.round(opAngle / 60.0) * 60.0;
   }
 
   /**
    * @return The pipeline the operator has inputted from NetworkTables. Defaults to the center
    *     pipeline.
    */
-  public int getTargetPipeline() {
-    return (int) SmartDashboard.getNumber("Buffer/Pipeline", 0);
+  public int getLimelightTargetPipeline() {
+    return operatorLimelight;//(int) SmartDashboard.getNumber("storedState/Pipeline", 0);
   }
 
   /**
@@ -116,21 +115,21 @@ public class AutoScoreSelection {
    *     found in {@link frc.robot.Constants#toBotState(int)}
    */
   public int getBotStateInt() {
-    return (int) SmartDashboard.getNumber("Buffer/RobotState", -1);
+    return operatorStateInt; //(int) SmartDashboard.getNumber("storedState/RobotState", -1);
   }
 
   /**
    * @return the store state as a BotState enum, with a default value of RESET.
    */
   public BotState getBotState() {
-    return Constants.toBotState((int) SmartDashboard.getNumber("Buffer/RobotState", -1));
+    return Constants.toBotState(operatorStateInt);//Constants.toBotState((int) SmartDashboard.getNumber("storedState/RobotState", -1));
   }
 
   /**
    * @return The stored target angle of the reef
    */
   public double getTargetReefAngle() {
-    return operatorAngle;
+    return operatorReefAngle;
   }
 
   /** Takes in an angle and returns the corresponding AprilTag ID, relative to the alliance */
@@ -144,6 +143,6 @@ public class AutoScoreSelection {
    *     return an AprilTag ID of 0
    */
   public int getTargetAprilTag() {
-    return getReefAprilTag(operatorAngle);
+    return getReefAprilTag(operatorReefAngle);
   }
 }

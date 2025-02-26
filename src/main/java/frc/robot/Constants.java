@@ -202,8 +202,6 @@ public final class Constants {
 
     public static final int LEFT_BRANCH_PIPELINE = 1;
     public static final int RIGHT_BRANCH_PIPELINE = 2;
-    public static final int CENTER_PIPELINE = 0;
-    public static final int DEFAULT_PIPELINE = 0;
 
     public static final double kLeftBranchXOffset = -0.33 / 2;
     public static final double kRightBranchXOffset = 0.33 / 2;

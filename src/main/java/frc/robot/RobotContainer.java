@@ -60,7 +60,7 @@ public class RobotContainer {
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
-  public static final AutoScoreSelection buffer = new AutoScoreSelection();
+  public static final AutoScoreSelection storedState = new AutoScoreSelection();
 
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
@@ -216,13 +216,9 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
 
-    base.povRight()
-        // .or(operator.povRight())
-        .onTrue(new InstantCommand());
-
     base.create()
         .onTrue(
-            new AutoScoreCommand(drive, actuators, elevator, intake, buffer, limelight, currState))
+            new AutoScoreCommand(drive, actuators, elevator, intake, storedState, limelight, currState))
         .onFalse(new InstantCommand());
 
     // Matthew-Align Guided Automatically (MAGA)
@@ -233,7 +229,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(4);
+                  storedState.setBotStateInt(4);
                 }));
     operator
         .L2()
@@ -241,7 +237,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(3);
+                  storedState.setBotStateInt(3);
                 }));
     operator
         .L2()
@@ -249,7 +245,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(2);
+                  storedState.setBotStateInt(2);
                 }));
     operator
         .L2()
@@ -257,7 +253,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setBotStateInt(1);
+                  storedState.setBotStateInt(1);
                 }));
     operator
         .L2()
@@ -265,7 +261,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setOffsetPipeLine("LEFT");
+                  storedState.setLimelightPipeLine("LEFT");
                 }));
     operator
         .L2()
@@ -273,23 +269,23 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setOffsetPipeLine("RIGHT");
+                  storedState.setLimelightPipeLine("RIGHT");
                 }));
-    operator
-        .L2()
-        .and(operator.povUp())
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  buffer.setOffsetPipeLine("CENTER");
-                }));
+    // operator
+    //     .L2()
+    //     .and(operator.povUp())
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               storedState.setLimelightPipeLine("CENTER");
+    //             }));
 
     operator
         .L2()
         .whileTrue(
             new InstantCommand(
                 () -> {
-                  buffer.setOperatorAngle(() -> -operator.getRightY(), () -> operator.getRightX());
+                  storedState.setOperatorReefAngle(() -> -operator.getRightY(), () -> operator.getRightX());
                 }));
   }
 
