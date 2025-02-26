@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.StateMachine;
 import frc.robot.subsystems.ActuatorSubsystem;
@@ -22,7 +21,7 @@ public class AutoScoreCommand extends SequentialCommandGroup {
   ActuatorSubsystem actuator;
   ElevatorSubsystem elevator;
   AutoScoreSelection storedState;
-  LimelightSubsystem limelight;
+  LimelightSubsystem lLimelight, rLimelight;
   IntakeSubsystem intake;
   StateMachine stateMachine;
   /** Creates a new AutoScoreCommand. */
@@ -32,20 +31,22 @@ public class AutoScoreCommand extends SequentialCommandGroup {
       ElevatorSubsystem e,
       IntakeSubsystem i,
       AutoScoreSelection b,
-      LimelightSubsystem l,
+      LimelightSubsystem ll,
+      LimelightSubsystem rl,
       StateMachine s) {
     drive = d;
     actuator = a;
     elevator = e;
     storedState = b;
-    limelight = l;
+    lLimelight = ll;
+    rLimelight = rl;
     stateMachine = s;
     intake = i;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new BufferedStateMachineCommand(elevator, actuator, stateMachine, storedState),
-        new DriveToReefCommand(drive, limelight, storedState, () -> elevator.getSlowDownMult())
-        );
+        // new BufferedStateMachineCommand(elevator, actuator, stateMachine, storedState),
+        new DriveToReefCommand(
+            drive, lLimelight, rLimelight, storedState, () -> elevator.getSlowDownMult()));
   }
 }

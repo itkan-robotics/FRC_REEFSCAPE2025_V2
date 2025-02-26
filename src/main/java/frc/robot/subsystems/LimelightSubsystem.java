@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
-  public static NetworkTable table = NetworkTableInstance.getDefault().getTable(leftLimelightName);
+  public static NetworkTable table;
 
   Timer lastTargetTime = new Timer();
   public boolean targetSeen = false;
@@ -41,7 +41,8 @@ public class LimelightSubsystem extends SubsystemBase {
   private HashMap<Integer, Double> reefIDsToAngles = new HashMap<Integer, Double>();
   public double[] tagPose = {0, 0, 0, 0};
 
-  public LimelightSubsystem() {
+  public LimelightSubsystem(String name) {
+    table = NetworkTableInstance.getDefault().getTable(name);
     createReefIDsToAnglesHashMap();
   }
 

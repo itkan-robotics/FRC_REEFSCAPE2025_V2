@@ -190,8 +190,8 @@ public final class Constants {
   public static class LimelightConstants {
 
     public static final String singleLimelightName = "limelight";
-    public static final String leftLimelightName = "limelight";
-    public static final String rightLimelightName = "limelight";
+    public static final String leftLimelightName = "limelight-left";
+    public static final String rightLimelightName = "limelight-right";
     public static final boolean multipleLimelights = true;
 
     /**

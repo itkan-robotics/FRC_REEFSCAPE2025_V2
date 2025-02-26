@@ -7,13 +7,8 @@ package frc.robot.commands;
 import static frc.robot.Constants.LimelightConstants.ALIGN_KD;
 import static frc.robot.Constants.LimelightConstants.ALIGN_KP;
 import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
-import static frc.robot.Constants.LimelightConstants.RIGHT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.TURN_KD;
 import static frc.robot.Constants.LimelightConstants.TURN_KP;
-import static frc.robot.Constants.LimelightConstants.leftLimelightName;
-import static frc.robot.Constants.LimelightConstants.multipleLimelights;
-import static frc.robot.Constants.LimelightConstants.rightLimelightName;
-import static frc.robot.Constants.LimelightConstants.singleLimelightName;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,7 +16,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
@@ -29,7 +26,7 @@ import frc.robot.util.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 
 /*************************************************************************************
- * Field centric drive command using limelight target data to
+ * Field centric drive command using targetLimelight target data to
  * calculate the desired angle of the robot to align parallel to the target AprilTag
  * and move to the AprilTag based on the target's ta and tx values using Profiled PID.
  * <p> Last Updated by Abdullah Khaled, 1/18/2025
@@ -37,23 +34,31 @@ import java.util.function.DoubleSupplier;
 public class DriveToReefCommand extends Command {
   Drive drive;
   AutoScoreSelection storedState;
-  LimelightSubsystem limelight;
+  LimelightSubsystem lLimelight;
+  LimelightSubsystem rLimelight;
+  LimelightSubsystem targetLimelight;
   PIDController angleController, extremeAngleController;
-  double slowDownMult = 0.0;
+  double slowDownMult = 1.0;
   LoggedTunableNumber alignkP, alignkD, turnkP, turnkD;
   double reefAngle = 91.28;
   boolean finished = false;
+  int targetLimelightInt;
+  Translation2d linearVelocity = new Translation2d();
+  double omega = 0.0;
+  String llName;
 
   /** Creates a new DriveToReefCommand. */
   public DriveToReefCommand(
       Drive drive,
-      LimelightSubsystem limelight,
+      LimelightSubsystem lLimelight,
+      LimelightSubsystem rLimelight,
       AutoScoreSelection storedState,
       DoubleSupplier slowDownMultSupplier) {
     this.drive = drive;
-    this.limelight = limelight;
+    this.lLimelight = lLimelight;
+    this.rLimelight = rLimelight;
     this.storedState = storedState;
-    slowDownMult = slowDownMultSupplier.getAsDouble();
+    // slowDownMult = slowDownMultSupplier.getAsDouble();
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
   }
@@ -74,27 +79,33 @@ public class DriveToReefCommand extends Command {
     extremeAngleController =
         new PIDController(turnkP.getAsDouble() * 2.0, 0.0, turnkD.getAsDouble() * 1.05);
     extremeAngleController.enableContinuousInput(-180, 180);
+
+    targetLimelightInt = storedState.getLimelightTargetPipeline();
+    targetLimelight = lLimelight;
+
+    if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
+      targetLimelight = lLimelight;
+      llName = LimelightConstants.leftLimelightName;
+      SmartDashboard.putNumber("limelightAlign/int", 1);
+    } else {
+      targetLimelight = rLimelight;
+      llName = LimelightConstants.rightLimelightName;
+      SmartDashboard.putNumber("limelightAlign/int", 2);
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     // Default values in the case an AprilTag is not seen
-    Translation2d linearVelocity = new Translation2d();
-    double omega = 0.0;
-    int offsetPipeline = storedState.getLimelightTargetPipeline();
-    String llName = singleLimelightName;
-    if (multipleLimelights) {
-      llName =
-          (offsetPipeline == LEFT_BRANCH_PIPELINE)
-              ? leftLimelightName
-              : (offsetPipeline == RIGHT_BRANCH_PIPELINE) ? rightLimelightName : leftLimelightName;
-    }
 
-    if (limelight.canSeeTarget() && limelight.getID(llName) == storedState.getTargetAprilTag()) {
+    if (targetLimelight.canSeeTarget()
+        && targetLimelight.getID() == storedState.getTargetAprilTag()) {
+
+      SmartDashboard.putString("limelightAlign/target", "can see");
 
       // Get the target angle for the robot based on the AprilTag ID
-      reefAngle = limelight.getLLReefAngle();
+      reefAngle = targetLimelight.getLLReefAngle();
 
       /* To-Do List
        * Test for offset degree #
@@ -108,31 +119,11 @@ public class DriveToReefCommand extends Command {
           omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
         }
 
-        // If within certain *arbitrary* turn range drive normally; else, drive slowly
-        // if (Math.abs(reefAngle - drive.getRotation().getDegrees()) <= 200) {
-        //   linearVelocity =
-        //       limelight.getAprilTagVelocity(
-        //           alignkP.getAsDouble(),
-        //           alignkD.getAsDouble(),
-        //           offsetPipeline,
-        //           false,
-        //           reefAngle,
-        //           llName);
-        // } else {
-        //   linearVelocity =
-        //       limelight.getAprilTagVelocity(
-        //           alignkP.getAsDouble(),
-        //           alignkD.getAsDouble(),
-        //           offsetPipeline,
-        //           true,
-        //           reefAngle,
-        //           llName);
-        // }
         linearVelocity =
-            limelight.getAprilTagVelocity(
+            targetLimelight.getAprilTagVelocity(
                 alignkP.getAsDouble(),
                 alignkD.getAsDouble(),
-                offsetPipeline,
+                targetLimelightInt,
                 false,
                 reefAngle,
                 llName);
@@ -140,6 +131,8 @@ public class DriveToReefCommand extends Command {
       // Correct angle once location reached
     } else if (reefAngle != 91.28 && reefAngle == storedState.getTargetReefAngle()) {
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
+    } else {
+      SmartDashboard.putString("limelightAlign/target", "cant see");
     }
 
     // Convert to field relative speeds & send command
@@ -166,6 +159,6 @@ public class DriveToReefCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return limelight.withinTolerance(2.5, 2.5) || finished;
+    return targetLimelight.withinTolerance(2.5, 2.5) || finished;
   }
 }

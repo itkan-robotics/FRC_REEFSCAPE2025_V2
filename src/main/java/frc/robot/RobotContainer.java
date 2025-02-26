@@ -27,8 +27,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.AutoScoreCommand;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.DriveToReefCommand;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ActuatorSubsystem;
@@ -54,7 +55,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final LimelightSubsystem limelight = new LimelightSubsystem();
+  private final LimelightSubsystem rightLimelight =
+      new LimelightSubsystem(LimelightConstants.rightLimelightName);
+  private final LimelightSubsystem leftLimelight =
+      new LimelightSubsystem(LimelightConstants.leftLimelightName);
   private final ScoringSubsystem score = new ScoringSubsystem();
   private final ActuatorSubsystem actuators = new ActuatorSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
@@ -216,10 +220,27 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
 
+    // base.create()
+    //     .onTrue(
+    //         new AutoScoreCommand(
+    //             drive,
+    //             actuators,
+    //             elevator,
+    //             intake,
+    //             storedState,
+    //             leftLimelight,
+    //             rightLimelight,
+    //             currState))
+    //     .onFalse(new InstantCommand());
+
     base.create()
         .onTrue(
-            new AutoScoreCommand(drive, actuators, elevator, intake, storedState, limelight, currState))
-        .onFalse(new InstantCommand());
+            new DriveToReefCommand(
+                drive,
+                rightLimelight,
+                leftLimelight,
+                storedState,
+                () -> elevator.getSlowDownMult()));
 
     // Matthew-Align Guided Automatically (MAGA)
 
@@ -285,7 +306,8 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(
                 () -> {
-                  storedState.setOperatorReefAngle(() -> -operator.getRightY(), () -> operator.getRightX());
+                  storedState.setOperatorReefAngle(
+                      () -> -operator.getRightY(), () -> operator.getRightX());
                 }));
   }
 
@@ -339,7 +361,6 @@ public class RobotContainer {
 
     score.setDefaultCommand(score.setSpeedAndState(0.000, false));
     intake.setDefaultCommand(intake.setSpeed(0.1));
-    limelight.setDefaultCommand(limelight.setLimelight());
   }
 
   /**

@@ -61,12 +61,12 @@ public class AutoScoreSelection {
       case "left":
         cPipeline = LimelightConstants.LEFT_BRANCH_PIPELINE;
         break;
-        
-        case "right":
+
+      case "right":
         cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
         break;
 
-        default:
+      default:
         cPipeline = LimelightConstants.RIGHT_BRANCH_PIPELINE;
         break;
     }
@@ -99,7 +99,7 @@ public class AutoScoreSelection {
    *     pipeline.
    */
   public int getLimelightTargetPipeline() {
-    return operatorLimelight;//(int) SmartDashboard.getNumber("storedState/Pipeline", 0);
+    return operatorLimelight; // (int) SmartDashboard.getNumber("storedState/Pipeline", 0);
   }
 
   /**
@@ -115,14 +115,15 @@ public class AutoScoreSelection {
    *     found in {@link frc.robot.Constants#toBotState(int)}
    */
   public int getBotStateInt() {
-    return operatorStateInt; //(int) SmartDashboard.getNumber("storedState/RobotState", -1);
+    return operatorStateInt; // (int) SmartDashboard.getNumber("storedState/RobotState", -1);
   }
 
   /**
    * @return the store state as a BotState enum, with a default value of RESET.
    */
   public BotState getBotState() {
-    return Constants.toBotState(operatorStateInt);//Constants.toBotState((int) SmartDashboard.getNumber("storedState/RobotState", -1));
+    return Constants.toBotState(operatorStateInt); // Constants.toBotState((int)
+    // SmartDashboard.getNumber("storedState/RobotState", -1));
   }
 
   /**
