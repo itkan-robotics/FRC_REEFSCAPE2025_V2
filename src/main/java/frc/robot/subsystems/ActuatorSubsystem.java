@@ -73,8 +73,8 @@ public class ActuatorSubsystem extends SubsystemBase {
   public Command setGoal(double setpoint) {
     return run(
         () -> {
-          // setSetpoint(tunableAngle.get());
-          setSetpoint(setpoint);
+          setSetpoint(tunableAngle.get());
+          // setSetpoint(setpoint);
         });
   }
 
@@ -82,6 +82,8 @@ public class ActuatorSubsystem extends SubsystemBase {
     actuatorSetpoint = setpoint;
     rightActuatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
     leftActuatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    // rightActuatorMotor.setControl(m_lRequest.withPosition(tunableAngle.get()).withSlot(0));
+    // leftActuatorMotor.setControl(m_lRequest.withPosition(tunableAngle.get()).withSlot(0));
   }
 
   public double getRightPosition() {

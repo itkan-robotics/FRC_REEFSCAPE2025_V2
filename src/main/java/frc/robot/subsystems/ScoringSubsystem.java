@@ -43,7 +43,7 @@ public class ScoringSubsystem extends SubsystemBase {
   public Command DefaultCommand() {
     return run(
         () -> {
-          scoreMotor.set(0.005);
+          scoreMotor.set(-0.005);
         });
   }
 
@@ -71,7 +71,7 @@ public class ScoringSubsystem extends SubsystemBase {
             currentScoringState = ScoreState.OUTTAKECORAL;
           }
 
-          scoreMotor.set(getCurrentSpike() ? 0.05 : speed);
+          scoreMotor.set(getCurrentSpike() ? 0.05 : -speed);
         });
   }
 

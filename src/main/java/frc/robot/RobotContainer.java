@@ -167,7 +167,9 @@ public class RobotContainer {
                 .setSpeedAndState(0.002, false)
                 .alongWith(intake.setSpeed(0.75))
                 .alongWith(new StateMachineCommand(elevator, actuators, currState, CORALINTAKE)))
-        .onFalse(new StateMachineCommand(elevator, actuators, currState, HOME));
+        .onFalse(
+            new StateMachineCommand(elevator, actuators, currState, HOME)
+                .alongWith(score.setSpeedAndState(0.0075, false)));
 
     // Scoring Coral
     base.R1()
@@ -175,11 +177,11 @@ public class RobotContainer {
         .whileTrue(score.setSpeedAndState(-1.0, false));
 
     // Intaking algae
-    base.L2().whileTrue(score.setSpeedAndState(-base.getL2Axis() / 4, false));
+    base.L2().whileTrue(score.setSpeedAndState(1, false));
 
     // Outtake algae
     base.L1()
-        .whileTrue(score.setSpeedAndState(-0.5, true))
+        .whileTrue(score.setSpeedAndState(-0.75, true))
         .onFalse(score.setSpeedAndState(-0.1, true));
 
     base.cross()
@@ -219,6 +221,10 @@ public class RobotContainer {
     base.povLeft()
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
+
+    base.povRight()
+        // .or(operator.povLeft())
+        .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
     // base.create()
     //     .onTrue(

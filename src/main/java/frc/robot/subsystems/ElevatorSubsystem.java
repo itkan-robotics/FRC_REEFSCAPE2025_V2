@@ -20,6 +20,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,7 +28,8 @@ import frc.robot.util.LoggedTunableNumber;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private LoggedTunableNumber tunableHeight;
-  private final TalonFX elevatorMotor = new TalonFX(ELEVATOR_MOTOR_PORT);
+  private final TalonFX leftElevatorMotor = new TalonFX(ELEVATOR_MOTOR_PORT_LEFT);
+  private final TalonFX rightElevatorMotor = new TalonFX(ELEVATOR_MOTOR_PORT_RIGHT);
   private double elevatorSetpoint;
   // private final TalonFX rightMotor = new TalonFX(RIGHT_ELEVATOR_MOTOR_PORT);
   // private final Follower rightMotorFollower = new Follower(LEFT_ELEVATOR_MOTOR_PORT,true);
@@ -36,39 +38,76 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public ElevatorSubsystem() {
     // in init function
-    var elevatorConfig = new TalonFXConfiguration();
-    elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    elevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
-    elevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
-    elevatorConfig.CurrentLimits.SupplyCurrentLimit = 80;
-    elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    elevatorConfig.CurrentLimits.StatorCurrentLimit = 80;
-    elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    var leftElevatorConfig = new TalonFXConfiguration();
+    leftElevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    leftElevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    leftElevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    leftElevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
+    leftElevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    leftElevatorConfig.CurrentLimits.SupplyCurrentLimit = 100;
+    leftElevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    leftElevatorConfig.CurrentLimits.StatorCurrentLimit = 100;
+    leftElevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    var elevatorSlot0Configs = elevatorConfig.Slot0;
+    var leftElevatorSlot0Configs = leftElevatorConfig.Slot0;
 
     // set slot 0 gains
-    elevatorSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
-    elevatorSlot0Configs.kS = ELEVATOR_KS; // Add ELEVATOR_KS V output to overcome static friction
-    elevatorSlot0Configs.kG = ELEVATOR_KG;
-    elevatorSlot0Configs.kP =
+    leftElevatorSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+    leftElevatorSlot0Configs.kS =
+        ELEVATOR_KS; // Add ELEVATOR_KS V output to overcome static friction
+    leftElevatorSlot0Configs.kG = ELEVATOR_KG;
+    leftElevatorSlot0Configs.kP =
         ELEVATOR_KP; // A position error of ELEVATOR_KP rotations results in 12 V output
 
-    elevatorSlot0Configs.kI = 0.0; // no output for integrated error
-    elevatorSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
+    leftElevatorSlot0Configs.kI = 0.0; // no output for integrated error
+    leftElevatorSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
 
     // set Motion Magic settings
-    var motionMagicConfigs = elevatorConfig.MotionMagic;
-    motionMagicConfigs.MotionMagicCruiseVelocity =
+    var leftMotionMagicConfigs = leftElevatorConfig.MotionMagic;
+    leftMotionMagicConfigs.MotionMagicCruiseVelocity =
         ELEVATOR_CRUISE_VELOCITY; // Target cruise velocity of ELEVATOR_CRUISE_VELOCITY rps
-    motionMagicConfigs.MotionMagicAcceleration =
+    leftMotionMagicConfigs.MotionMagicAcceleration =
         ELEVATOR_ACCELERATION; // Target acceleration of ELEVATOR_ACCELERATION rps/s
-    motionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of ELEVATOR_JERK rps/s/s
+    leftMotionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of ELEVATOR_JERK rps/s/s
+
+    var rightElevatorConfig = new TalonFXConfiguration();
+    rightElevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    rightElevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    rightElevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    rightElevatorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
+    rightElevatorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    rightElevatorConfig.CurrentLimits.SupplyCurrentLimit = 120;
+    rightElevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rightElevatorConfig.CurrentLimits.StatorCurrentLimit = 120;
+    rightElevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    rightElevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    var rightElevatorSlot0Configs = rightElevatorConfig.Slot0;
+
+    // set slot 0 gains
+    rightElevatorSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+    rightElevatorSlot0Configs.kS =
+        ELEVATOR_KS; // Add ELEVATOR_KS V output to overcome static friction
+    rightElevatorSlot0Configs.kG = ELEVATOR_KG;
+    rightElevatorSlot0Configs.kP =
+        ELEVATOR_KP; // A position error of ELEVATOR_KP rotations results in 12 V output
+
+    rightElevatorSlot0Configs.kI = 0.0; // no output for integrated error
+    rightElevatorSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
+
+    // set Motion Magic settings
+    var rightMotionMagicConfigs = rightElevatorConfig.MotionMagic;
+    rightMotionMagicConfigs.MotionMagicCruiseVelocity =
+        ELEVATOR_CRUISE_VELOCITY; // Target cruise velocity of ELEVATOR_CRUISE_VELOCITY rps
+    rightMotionMagicConfigs.MotionMagicAcceleration =
+        ELEVATOR_ACCELERATION; // Target acceleration of ELEVATOR_ACCELERATION rps/s
+    rightMotionMagicConfigs.MotionMagicJerk = ELEVATOR_JERK; // Target jerk of ELEVATOR_JERK rps/s/s
 
     // in init function
-    tryUntilOk(5, () -> elevatorMotor.getConfigurator().apply(elevatorConfig, 0.25));
+    tryUntilOk(5, () -> leftElevatorMotor.getConfigurator().apply(leftElevatorConfig, 0.25));
+    // tryUntilOk(5, () -> rightElevatorMotor.getConfigurator().apply(rightElevatorConfig, 0.25));
+
+    // rightElevatorMotor.setControl(new Follower(leftElevatorMotor.getDeviceID(), true));
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
@@ -77,24 +116,26 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // System.out.println(tunableAngle.get());
+    // System.out.println(tunableHeight.get());
   }
 
   public Command setGoal(double setpoint) {
     return run(
         () -> {
-          // setSetpoint(tunableAngle.get());
+          // setSetpoint(tunableHeight.get());
           setSetpoint(setpoint);
         });
   }
 
   public void setSetpoint(double setpoint) {
-    elevatorSetpoint = setpoint;
-    elevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    // elevatorSetpoint = setpoint;
+    leftElevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    // leftElevatorMotor.setControl(m_lRequest.withPosition(tunableHeight.get()).withSlot(0));
+    // rightElevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getPosition() {
-    return elevatorMotor.getPosition().getValueAsDouble();
+    return leftElevatorMotor.getPosition().getValueAsDouble();
   }
 
   public double getPositionRequest() {
@@ -112,7 +153,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public boolean setpointReached() {
     // SmartDashboard.putNumber(
     //     "/SetPointReached/Elevator",
-    //     Math.abs(elevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint));
-    return Math.abs(elevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint) <= 0.10;
+    //     Math.abs(leftElevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint));
+    return Math.abs(leftElevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint) <= 0.10;
   }
 }

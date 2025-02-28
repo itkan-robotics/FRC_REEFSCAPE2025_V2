@@ -52,13 +52,14 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final int ELEVATOR_MOTOR_PORT = 13;
+    public static final int ELEVATOR_MOTOR_PORT_LEFT = 13;
+    public static final int ELEVATOR_MOTOR_PORT_RIGHT = 14;
 
-    public static final double ELEVATOR_KP = 50.0;
+    public static final double ELEVATOR_KP = 60.0;
     public static final double ELEVATOR_KS = 7.5;
     public static final double ELEVATOR_KG = 0.0;
-    public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
-    public static final double ELEVATOR_ACCELERATION = 250.0;
+    public static final double ELEVATOR_CRUISE_VELOCITY = 80.0;
+    public static final double ELEVATOR_ACCELERATION = 400;
     public static final double ELEVATOR_JERK = 750.0;
   }
 
@@ -67,14 +68,15 @@ public final class Constants {
     RESET(5.0, 0.25),
     CORALINTAKE(6.0, 0.25),
     L1(28.0, 3.0),
-    L2(15.5, 17.0),
-    L3(14.5, 25.0),
-    L4(11.5, 38.0),
-    HOME(19.0, 0.25),
+    L2(18, 15.0),
+    L3(14.5, 24.75),
+    L4(11, 39.0),
+    HOME(19.0, 0.75),
     LOWALGAE(18, 10.0),
     HIGHALGAE(15, 18.5),
     GROUNDALGAE(43, 6.0), // 53
     BARGE(5, 39.90),
+    CLIMB(0, 10),
     PROCESSOR(40, 5.0); // TO-DO: Test and tune
 
     private final double pivotSetpoint;
