@@ -17,7 +17,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -30,6 +29,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
   Timer lastTargetTime = new Timer();
   public boolean targetSeen = false;
+  private final String limelightName;
   private final double imageWidth = 320;
   private final double imageHeight = 240;
   private final double fovHorizontalDegrees = 59.6;
@@ -42,7 +42,8 @@ public class LimelightSubsystem extends SubsystemBase {
   public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem(String name) {
-    table = NetworkTableInstance.getDefault().getTable(name);
+    limelightName = name;
+    table = NetworkTableInstance.getDefault().getTable(limelightName);
     createReefIDsToAnglesHashMap();
   }
 
@@ -55,9 +56,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    table = getPrimaryLimelightTable();
+    table = NetworkTableInstance.getDefault().getTable(leftLimelightName);
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("AprilTag ID", getID());
+    // SmartDashboard.putNumber("tv", table.getEntry("tv").getDouble(0.0));
     if (table.getEntry("tv").getDouble(0.0) == 1) {
       lastTargetTime.restart();
       targetSeen = true;
@@ -135,15 +136,14 @@ public class LimelightSubsystem extends SubsystemBase {
    **************************************************************************************/
 
   public void createReefIDsToAnglesHashMap() {
-    int blueAllianceTags = !Constants.isRedAlliance() ? 11 : 0;
     reefIDsToAngles.put(-1, -1.0);
     reefIDsToAngles.put(0, -1.0);
-    reefIDsToAngles.put(6 + blueAllianceTags, -60.0); // 17
-    reefIDsToAngles.put(7 + blueAllianceTags, 0.0); // 18
-    reefIDsToAngles.put(8 + blueAllianceTags, 60.0); // 19
-    reefIDsToAngles.put(9 + blueAllianceTags, 120.0); // 20
-    reefIDsToAngles.put(10 + blueAllianceTags, 180.0); // 21
-    reefIDsToAngles.put(11 + blueAllianceTags, -120.0); // 22
+    reefIDsToAngles.put(6, -60.0); // 17
+    reefIDsToAngles.put(7, 0.0); // 18
+    reefIDsToAngles.put(8, 60.0); // 19
+    reefIDsToAngles.put(9, 120.0); // 20
+    reefIDsToAngles.put(10, 180.0); // 21
+    reefIDsToAngles.put(11, -120.0); // 22
   }
 
   public double getReefAngle() {
@@ -163,6 +163,10 @@ public class LimelightSubsystem extends SubsystemBase {
     return reefIDsToAngles.get(getID(getPrimaryLimelight()));
   }
 
+  public double getLLReefAngle(String limelightName) {
+    return reefIDsToAngles.get((int) LimelightHelpers.getFiducialID(limelightName));
+  }
+
   /***************************************************************************************
    * Gets the magnitude and direction the robot should drive in based on AprilTag data.
    * The method uses ta to calculate magnitude and tx to calculate direction, and an exponential
@@ -180,11 +184,14 @@ public class LimelightSubsystem extends SubsystemBase {
       double reefAngle,
       String limelightName) {
 
-    if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
+    // if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
 
     m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
     if (!overTurned) {
-      double targetArea = getArea(limelightName) != 0.0 ? getArea(limelightName) : MAX_AREA;
+      double targetArea =
+          LimelightHelpers.getTA(limelightName) != 0.0
+              ? LimelightHelpers.getTA(limelightName)
+              : MAX_AREA;
 
       m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
     }
@@ -193,7 +200,8 @@ public class LimelightSubsystem extends SubsystemBase {
     double linearMagnitude =
         MathUtil.applyDeadband(
             // Calculate speed based on ta
-            m_aTagSpeedContoller.calculate(getArea(limelightName), MAX_AREA) + ALIGN_KS,
+            m_aTagSpeedContoller.calculate(LimelightHelpers.getTA(limelightName), MAX_AREA)
+                + ALIGN_KS,
             VELOCITY_DEADBAND);
 
     // Calculate direction based on tx
@@ -201,7 +209,8 @@ public class LimelightSubsystem extends SubsystemBase {
     Rotation2d linearDirection =
         new Rotation2d(
             MathUtil.applyDeadband(
-                    m_aTagDirController.calculate(Math.toRadians(getX(limelightName))),
+                    m_aTagDirController.calculate(
+                        Math.toRadians(LimelightHelpers.getTX(limelightName))),
                     VELOCITY_DEADBAND)
                 + Math.toRadians(reefAngle));
     // Square magnitude for more precise control
@@ -213,8 +222,9 @@ public class LimelightSubsystem extends SubsystemBase {
         .getTranslation();
   }
 
-  public boolean withinTolerance(double toleranceX, double toleranceA) {
-    return ((Math.abs(getX()) <= toleranceX) && (Math.abs(getArea() - MAX_AREA) <= toleranceA));
+  public boolean withinTolerance(double toleranceX, double toleranceA, String limelight) {
+    return ((Math.abs(LimelightHelpers.getTX(limelight)) <= toleranceX)
+        && (Math.abs(LimelightHelpers.getTA(limelight) - MAX_AREA) <= toleranceA));
   }
 
   // Helper Methods
@@ -230,8 +240,8 @@ public class LimelightSubsystem extends SubsystemBase {
   public double kPExpInterpolation(double ta) {
 
     double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
-    double[] pair0 = {MIN_AREA, MAX_KP};
-    double[] pair1 = {MAX_AREA, MIN_KP};
+    double[] pair0 = {MIN_AREA, MAX_KP.getAsDouble()};
+    double[] pair1 = {MAX_AREA, MIN_KP.getAsDouble()};
 
     double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
     double A = pair0[1] * Math.exp(k * pair0[0]);
@@ -265,6 +275,14 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public boolean hasTarget() {
     return table.getEntry("tv").getDouble(0.0) == 1;
+  }
+
+  public double getTV() {
+    return table.getEntry("tv").getDouble(0.0);
+  }
+
+  public double getTV(String limelightName) {
+    return NetworkTableInstance.getDefault().getTable(limelightName).getEntry("tv").getDouble(0.0);
   }
 
   public int getID() {

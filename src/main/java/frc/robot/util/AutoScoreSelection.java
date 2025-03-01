@@ -36,14 +36,13 @@ public class AutoScoreSelection {
    * determining whether the primary seen ATag is the correct one during Auto Score
    */
   public void createReefAnglestoIDsHashMap() {
-    int blueAllianceTags = !Constants.isRedAlliance() ? 11 : 0;
     reefAnglesToIDs.put(-1.0, -1);
-    reefAnglesToIDs.put(-60.0, 6 + blueAllianceTags); // 17
-    reefAnglesToIDs.put(0.0, 7 + blueAllianceTags); // 18
-    reefAnglesToIDs.put(60.0, 8 + blueAllianceTags); // 19
-    reefAnglesToIDs.put(120.0, 9 + blueAllianceTags); // 20
-    reefAnglesToIDs.put(180.0, 10 + blueAllianceTags); // 21
-    reefAnglesToIDs.put(-120.0, 11 + blueAllianceTags); // 22
+    reefAnglesToIDs.put(-60.0, 6); // 17
+    reefAnglesToIDs.put(0.0, 7); // 18
+    reefAnglesToIDs.put(60.0, 8); // 19
+    reefAnglesToIDs.put(120.0, 9); // 20
+    reefAnglesToIDs.put(180.0, 10); // 21
+    reefAnglesToIDs.put(-120.0, 11); // 22
   }
 
   /** Set the pipeline the limelight should use during auto-align */

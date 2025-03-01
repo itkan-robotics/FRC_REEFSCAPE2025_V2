@@ -28,8 +28,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.DriveToReefCommand;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ActuatorSubsystem;
@@ -226,27 +226,27 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
-    // base.create()
-    //     .onTrue(
-    //         new AutoScoreCommand(
-    //             drive,
-    //             actuators,
-    //             elevator,
-    //             intake,
-    //             storedState,
-    //             leftLimelight,
-    //             rightLimelight,
-    //             currState))
-    //     .onFalse(new InstantCommand());
-
     base.create()
         .onTrue(
-            new DriveToReefCommand(
+            new AutoScoreCommand(
                 drive,
-                rightLimelight,
-                leftLimelight,
+                actuators,
+                elevator,
+                score,
                 storedState,
-                () -> elevator.getSlowDownMult()));
+                leftLimelight,
+                rightLimelight,
+                currState))
+        .onFalse(new InstantCommand());
+
+    // base.create()
+    //     .onTrue(
+    //         new DriveToReefCommand(
+    //             drive,
+    //             rightLimelight,
+    //             leftLimelight,
+    //             storedState,
+    //             () -> elevator.getSlowDownMult()));
 
     // Matthew-Align Guided Automatically (MAGA)
 

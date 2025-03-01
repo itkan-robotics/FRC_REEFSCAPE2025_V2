@@ -111,7 +111,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
-    tunableHeight = new LoggedTunableNumber("elevatorDesiredPos", 5);
+    tunableHeight = new LoggedTunableNumber("elevatorDesiredPos", 24.75);
   }
 
   @Override
@@ -128,10 +128,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
-    // elevatorSetpoint = setpoint;
-    leftElevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
     // leftElevatorMotor.setControl(m_lRequest.withPosition(tunableHeight.get()).withSlot(0));
-    // rightElevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    leftElevatorMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getPosition() {

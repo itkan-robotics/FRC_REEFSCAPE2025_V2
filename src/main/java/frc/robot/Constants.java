@@ -18,6 +18,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.LoggedTunableNumber;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -55,11 +56,11 @@ public final class Constants {
     public static final int ELEVATOR_MOTOR_PORT_LEFT = 13;
     public static final int ELEVATOR_MOTOR_PORT_RIGHT = 14;
 
-    public static final double ELEVATOR_KP = 60.0;
-    public static final double ELEVATOR_KS = 7.5;
-    public static final double ELEVATOR_KG = 0.0;
-    public static final double ELEVATOR_CRUISE_VELOCITY = 80.0;
-    public static final double ELEVATOR_ACCELERATION = 400;
+    public static final double ELEVATOR_KP = 10.0;
+    public static final double ELEVATOR_KS = 3.0;
+    public static final double ELEVATOR_KG = 1.0;
+    public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
+    public static final double ELEVATOR_ACCELERATION = 300.0;
     public static final double ELEVATOR_JERK = 750.0;
   }
 
@@ -68,9 +69,9 @@ public final class Constants {
     RESET(5.0, 0.25),
     CORALINTAKE(6.0, 0.25),
     L1(28.0, 3.0),
-    L2(18, 15.0),
-    L3(14.5, 24.75),
-    L4(11, 39.0),
+    L2(32.5, 15.5),
+    L3(25.5, 23.5),
+    L4(20.0, 39.9),
     HOME(19.0, 0.75),
     LOWALGAE(18, 10.0),
     HIGHALGAE(15, 18.5),
@@ -211,10 +212,14 @@ public final class Constants {
 
     public static final double VELOCITY_DEADBAND = 0.025;
 
-    public static final double MAX_AREA = 10.0; // Must be tuned once field is built
+    public static final double MAX_AREA = 15.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
-    public static final double MAX_KP = 0.12; // Formerly 0.15// Must be tuned once field is built
-    public static final double MIN_KP = 0.01; // Must be tuned once field is built
+    public static final LoggedTunableNumber MAX_KP =
+        new LoggedTunableNumber(
+            "interpolation/Max_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
+    public static final LoggedTunableNumber MIN_KP =
+        new LoggedTunableNumber("interpolation/Min_kP", 0.055);
+    ; // Must be tuned once field is built
 
     public static final double TURN_KP = 0.15;
     public static final double TURN_KD = 0.00;

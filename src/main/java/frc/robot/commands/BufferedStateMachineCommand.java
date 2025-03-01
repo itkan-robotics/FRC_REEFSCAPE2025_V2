@@ -59,6 +59,7 @@ public class BufferedStateMachineCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return elevator.setpointReached() && pivot.setpointReached();
+    return (elevator.getPosition() - currentState.getElevatorSetpoint() < 0.1)
+        && (pivot.getAvgPosition() - currentState.getActuatorSetpoint() < 0.1);
   }
 }

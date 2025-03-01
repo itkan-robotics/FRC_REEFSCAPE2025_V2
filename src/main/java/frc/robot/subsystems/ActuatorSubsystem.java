@@ -64,7 +64,7 @@ public class ActuatorSubsystem extends SubsystemBase {
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
-    tunableAngle = new LoggedTunableNumber("actuatorDesiredPos", 15);
+    tunableAngle = new LoggedTunableNumber("actuatorDesiredPos", 14.5);
   }
 
   @Override
@@ -92,6 +92,10 @@ public class ActuatorSubsystem extends SubsystemBase {
 
   public double getLeftPosition() {
     return leftActuatorMotor.getPosition().getValueAsDouble();
+  }
+
+  public double getAvgPosition() {
+    return (getLeftPosition() + getRightPosition()) / 2.0;
   }
 
   public double getPositionRequest() {
