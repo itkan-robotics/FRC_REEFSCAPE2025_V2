@@ -5,21 +5,33 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Score 1 V2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "name": "setGyroTo180"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Intake 1 V2"
+            "pathName": "centerToG"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "GToSourceR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "sourceRToC"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CToSourceR"
           }
         }
       ]

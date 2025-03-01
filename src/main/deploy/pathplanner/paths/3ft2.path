@@ -25,7 +25,11 @@
       },
       "nextControl": null,
       "isLocked": false,
+<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/centerToH.path
+      "linkedName": "H"
+========
       "linkedName": null
+>>>>>>>> main:src/main/deploy/pathplanner/paths/3ft2.path
     }
   ],
   "rotationTargets": [],
@@ -33,8 +37,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
+<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/centerToH.path
+    "maxVelocity": 5.0,
+    "maxAcceleration": 6.0,
+========
     "maxVelocity": 3.5,
     "maxAcceleration": 10.0,
+>>>>>>>> main:src/main/deploy/pathplanner/paths/3ft2.path
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

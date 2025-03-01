@@ -22,7 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.generated.TunerConstants;
+import frc.robot.Constants.TunerConstants;
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
@@ -60,5 +60,15 @@ public class GyroIOPigeon2 implements GyroIO {
             .toArray(Rotation2d[]::new);
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
+  }
+
+  @Override
+  public double getRate() {
+    return pigeon.getAngularVelocityZWorld().getValueAsDouble();
+  }
+
+  @Override
+  public double getYaw() {
+    return pigeon.getYaw().getValueAsDouble();
   }
 }
