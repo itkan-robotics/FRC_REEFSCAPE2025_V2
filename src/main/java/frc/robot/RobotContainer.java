@@ -325,7 +325,8 @@ public class RobotContainer {
                         new InstantCommand(
                             () -> {
                               storedState.setOperatorReefAngle(
-                                  () -> -operator.getRightY(), () -> operator.getRightX());
+                                  () -> -operator.getRightY(), () -> operator.getRightX(),
+                                  () -> -operator.getLeftY(), () -> operator.getRightY());
                             }),
                     Set.of())));
   }
