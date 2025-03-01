@@ -79,49 +79,18 @@ public class AutoScoreSelection {
    * joysticks. If joystick is not moving (i.e. within deadband range) the resulting angle will be
    * 0.0
    */
-  public void setOperatorReefAngle(
-      DoubleSupplier rJoystickX,
-      DoubleSupplier rJoystickY,
-      DoubleSupplier lJoystickX,
-      DoubleSupplier lJoystickY) {
+  public void setOperatorReefAngle(DoubleSupplier rJoystickX, DoubleSupplier rJoystickY) {
     double DEADBAND = 0.1;
-    double rxDeadband = MathUtil.applyDeadband(rJoystickX.getAsDouble(), DEADBAND);
-    double ryDeadband = MathUtil.applyDeadband(rJoystickY.getAsDouble(), DEADBAND);
-    double lxDeadband = MathUtil.applyDeadband(lJoystickX.getAsDouble(), DEADBAND);
-    double lyDeadband = MathUtil.applyDeadband(lJoystickY.getAsDouble(), DEADBAND);
+    double xDeadband = MathUtil.applyDeadband(rJoystickX.getAsDouble(), DEADBAND);
+    double yDeadband = MathUtil.applyDeadband(rJoystickY.getAsDouble(), DEADBAND);
 
     // If joystick input is likely caused by deadband, set the angle to 0.0
-    if (rxDeadband == 0.0 && ryDeadband == 0.0 && lxDeadband == 0 && lyDeadband == 0) {
+    if (xDeadband == 0.0 && yDeadband == 0.0) {
       operatorReefAngle = 0.0;
     } else {
       // Else, set the angle to the calculated angle, rounded to the nearest 60 degrees
-      boolean right;
-      double opAngle;
-      if (rxDeadband == 0 && ryDeadband == 0) {
-        opAngle = Math.toDegrees(Math.atan2(rxDeadband, ryDeadband)) - 90;
-        right = false;
-      } else {
-        opAngle = Math.toDegrees(Math.atan2(rxDeadband, ryDeadband)) - 90;
-        right = true;
-      }
-      double tempReefAngle = Math.round(opAngle / 120.0) * 120;
-      if (right) {
-        if (tempReefAngle == 0) {
-          operatorReefAngle = 0;
-        } else if (tempReefAngle == 120) {
-          operatorReefAngle = 60;
-        } else {
-          operatorReefAngle = -60;
-        }
-      } else {
-        if (tempReefAngle == 0) {
-          operatorReefAngle = 180;
-        } else if (tempReefAngle == 120) {
-          operatorReefAngle = 120;
-        } else {
-          operatorReefAngle = -120;
-        }
-      }
+      double opAngle = Math.toDegrees(Math.atan2(xDeadband, yDeadband)) - 90;
+      operatorReefAngle = Math.round(opAngle / 60.0) * 60.0;
     }
   }
 
