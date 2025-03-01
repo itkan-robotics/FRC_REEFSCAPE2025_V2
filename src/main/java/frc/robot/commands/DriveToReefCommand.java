@@ -154,7 +154,9 @@ public class DriveToReefCommand extends Command {
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
     double minSpeed = (0.03 * (Math.cos(Math.toRadians(reefAngle))));
-    finished = speeds.vxMetersPerSecond <= (0.03 * Math.cos(Math.toRadians(reefAngle))) && speeds.vyMetersPerSecond <= 0.03;
+    finished =
+        speeds.vxMetersPerSecond <= (0.03 * Math.cos(Math.toRadians(reefAngle)))
+            && speeds.vyMetersPerSecond <= 0.03;
   }
 
   // Called once the command ends or is interrupted.

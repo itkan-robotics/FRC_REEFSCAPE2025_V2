@@ -177,11 +177,7 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return The linear velocity of the robot as a Translation2d
    **************************************************************************************/
   public Translation2d getAprilTagVelocity(
-      double alignkP,
-      double alignkD,
-      int pipeline,
-      double reefAngle,
-      String limelightName) {
+      double alignkP, double alignkD, int pipeline, double reefAngle, String limelightName) {
 
     // if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
 

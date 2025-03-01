@@ -13,8 +13,8 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.*;
 import static frc.robot.Constants.BotState.*;
-import static frc.robot.FieldConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -30,10 +30,10 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
