@@ -22,7 +22,7 @@ public class AutoScoreCommand extends SequentialCommandGroup {
   ElevatorSubsystem elevator;
   AutoScoreSelection storedState;
   LimelightSubsystem lLimelight, rLimelight;
-  ScoringSubsystem scoring;
+  ScoringSubsystem score;
   StateMachine stateMachine;
   /** Creates a new AutoScoreCommand. */
   public AutoScoreCommand(
@@ -41,13 +41,13 @@ public class AutoScoreCommand extends SequentialCommandGroup {
     lLimelight = ll;
     rLimelight = rl;
     stateMachine = sm;
-    scoring = s;
+    score = s;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new BufferedStateMachineCommand(elevator, actuator, stateMachine, storedState),
         new DriveToReefCommand(
             drive, lLimelight, rLimelight, storedState, () -> elevator.getSlowDownMult()),
-        scoring.setSpeedAndState(-0.75, false).withTimeout(0.5));
+        score.setSpeedAndState(-0.75, false).withTimeout(0.5));
   }
 }

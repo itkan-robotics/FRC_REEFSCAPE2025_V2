@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.BotState;
@@ -19,7 +18,6 @@ public class BufferedStateMachineCommand extends Command {
   ElevatorSubsystem elevator;
   AutoScoreSelection storedState;
   StateMachine stateMachine;
-
   BotState currentState;
 
   /**
@@ -42,7 +40,6 @@ public class BufferedStateMachineCommand extends Command {
   @Override
   public void initialize() {
     currentState = Constants.toBotState(storedState.getBotStateInt());
-    SmartDashboard.putNumber("BufferedTargetState", storedState.getBotStateInt());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -59,7 +56,9 @@ public class BufferedStateMachineCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (elevator.getPosition() - currentState.getElevatorSetpoint() < 0.1)
-        && (pivot.getAvgPosition() - currentState.getActuatorSetpoint() < 0.1);
+    return ((elevator.getPosition() - currentState.getElevatorSetpoint()) < 0.1)
+        && ((pivot.getAvgPosition() - currentState.getActuatorSetpoint()) < 0.1);
+    // (Math.abs(elevator.getPosition() - currentState.getElevatorSetpoint()) < 15.0)
+    // && (Math.abs(pivot.getAvgPosition() - currentState.getActuatorSetpoint()) < 5.0);
   }
 }

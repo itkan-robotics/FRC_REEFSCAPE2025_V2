@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.TuneableProfiledPID;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -37,7 +38,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import org.littletonrobotics.junction.Logger;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
@@ -109,6 +109,7 @@ public class DriveCommands {
 
   public static Command joystickMDrive(
       Drive drive,
+      AutoScoreSelection storedState,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier jwxSupplier,
@@ -130,7 +131,11 @@ public class DriveCommands {
           // Calculate angular speed
           double omega = 0.0;
 
-          if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
+          if (storedState.getAutoTurn()) {
+            omega =
+                fieldPIDController.calculate(
+                    getDriveHeading(drive), storedState.getTargetReefAngle());
+          } else if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
             omega =
                 fieldPIDController.calculate(
                     getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
@@ -199,7 +204,7 @@ public class DriveCommands {
                   new Translation2d(alignController.calculate(distanceToGoal), 0)
                       .rotateBy(robotToGoal.getAngle());
 
-              Logger.recordOutput("AlignDebug/Current", distanceToGoal);
+              // Logger.recordOutput("AlignDebug/Current", distanceToGoal);
 
               // Calculate total linear velocity
               Translation2d linearVelocity =
@@ -209,7 +214,7 @@ public class DriveCommands {
                       .plus(offsetVector);
 
               // SmartDashboard.putData(alignController); // TODO: Calibrate PID
-              Logger.recordOutput("AlignDebug/approachTarget", approachTranslation);
+              // Logger.recordOutput("AlignDebug/approachTarget", approachTranslation);
 
               // Calculate angular speed
               double omega =

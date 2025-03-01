@@ -16,6 +16,7 @@ public class AutoScoreSelection {
   private static int operatorStateInt = -1;
   private static int operatorLimelight = 0;
   private static double operatorReefAngle = 0.0;
+  private static boolean baseAutoTurn = false;
   private HashMap<Double, Integer> reefAnglesToIDs = new HashMap<Double, Integer>();
   boolean working;
 
@@ -26,9 +27,10 @@ public class AutoScoreSelection {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("storedState/RobotState", operatorStateInt);
+    SmartDashboard.putString("storedState/RobotState", "L" + operatorStateInt);
     SmartDashboard.putNumber("storedState/Pipeline", operatorLimelight);
     SmartDashboard.putNumber("storedState/TargetAngle", operatorReefAngle);
+    SmartDashboard.putBoolean("storedState/ShouldAutoTurn", baseAutoTurn);
   }
 
   /**
@@ -83,14 +85,13 @@ public class AutoScoreSelection {
     double yDeadband = MathUtil.applyDeadband(rJoystickY.getAsDouble(), DEADBAND);
 
     // If joystick input is likely caused by deadband, set the angle to 0.0
-    if (xDeadband + yDeadband <= 0.05) {
+    if (Math.abs(xDeadband + yDeadband) <= 0.05) {
       operatorReefAngle = 0.0;
-      return;
+    } else {
+      // Else, set the angle to the calculated angle, rounded to the nearest 60 degrees
+      double opAngle = Math.toDegrees(Math.atan2(xDeadband, yDeadband)) - 90;
+      operatorReefAngle = Math.round(opAngle / 60.0) * 60.0;
     }
-
-    // Else, set the angle to the calculated angle, rounded to the nearest 60 degrees
-    double opAngle = Math.toDegrees(Math.atan2(xDeadband, yDeadband)) - 90;
-    operatorReefAngle = Math.round(opAngle / 60.0) * 60.0;
   }
 
   /**
@@ -99,6 +100,18 @@ public class AutoScoreSelection {
    */
   public int getLimelightTargetPipeline() {
     return operatorLimelight; // (int) SmartDashboard.getNumber("storedState/Pipeline", 0);
+  }
+
+  public void setAutoTurn(boolean shouldTurn) {
+    baseAutoTurn = shouldTurn;
+  }
+
+  public void invertAutoTurn() {
+    baseAutoTurn = !baseAutoTurn;
+  }
+
+  public boolean getAutoTurn() {
+    return baseAutoTurn;
   }
 
   /**

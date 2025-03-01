@@ -157,7 +157,6 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Command for when we are testing different positions
-    // base.PS().onTrue(new PivElevStateCommand(elevator, pivot, TEST));
 
     // Intaking coral
     base.R2()
@@ -248,7 +247,14 @@ public class RobotContainer {
     //             storedState,
     //             () -> elevator.getSlowDownMult()));
 
-    // Matthew-Align Guided Automatically (MAGA)
+    // Operator selection options for level, branch, and reef face
+
+    base.R3()
+        .toggleOnTrue(
+            new InstantCommand(
+                () -> {
+                  storedState.invertAutoTurn();
+                }));
 
     operator
         .L2()
@@ -354,6 +360,7 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickMDrive(
             drive,
+            storedState,
             () -> -base.getLeftY(),
             () -> -base.getLeftX(),
             () -> -base.getRightY(),

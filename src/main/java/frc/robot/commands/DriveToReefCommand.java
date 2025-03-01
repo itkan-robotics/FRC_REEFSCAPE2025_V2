@@ -7,7 +7,6 @@ package frc.robot.commands;
 import static frc.robot.Constants.LimelightConstants.ALIGN_KD;
 import static frc.robot.Constants.LimelightConstants.ALIGN_KP;
 import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
-import static frc.robot.Constants.LimelightConstants.RIGHT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.TURN_KD;
 import static frc.robot.Constants.LimelightConstants.TURN_KP;
 
@@ -18,7 +17,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -91,11 +89,11 @@ public class DriveToReefCommand extends Command {
     if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
       targetLimelight = lLimelight;
       llName = LimelightConstants.rightLimelightName;
-      SmartDashboard.putNumber("limelightAlign/int", LEFT_BRANCH_PIPELINE);
+      // SmartDashboard.putNumber("limelightAlign/int", LEFT_BRANCH_PIPELINE);
     } else {
       targetLimelight = rLimelight;
       llName = LimelightConstants.leftLimelightName;
-      SmartDashboard.putNumber("limelightAlign/int", RIGHT_BRANCH_PIPELINE);
+      // SmartDashboard.putNumber("limelightAlign/int", RIGHT_BRANCH_PIPELINE);
     }
   }
 
@@ -108,15 +106,11 @@ public class DriveToReefCommand extends Command {
         && (LimelightHelpers.getFiducialID(llName) == storedState.getTargetAprilTag()
             || LimelightHelpers.getFiducialID(llName) == storedState.getTargetAprilTag() + 11)) {
       toleranceTimer.reset();
-      SmartDashboard.putString("limelightAlign/target", "can see");
+      // SmartDashboard.putString("limelightAlign/target", "can see");
 
       // Get the target angle for the robot based on the AprilTag ID
       reefAngle = targetLimelight.getLLReefAngle(llName);
 
-      /* To-Do List
-       * Test for offset degree #
-       * Add constants to limelightConstants file
-       */
       if (reefAngle != -1.0) {
         // Calculate angular speed
         if (Math.abs(drive.getRotation().getDegrees() - reefAngle) <= 0.0) {
@@ -138,13 +132,13 @@ public class DriveToReefCommand extends Command {
     } else if (reefAngle != 91.28 && reefAngle == storedState.getTargetReefAngle()) {
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
     }
-    SmartDashboard.putNumber(
-        "limelightAlign/vxmps",
-        linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
-    SmartDashboard.putNumber(
-        "limelightAlign/vymps",
-        linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
-    SmartDashboard.putNumber("limelightAlign/omega", omega);
+    // SmartDashboard.putNumber(
+    //     "limelightAlign/vxmps",
+    //     linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
+    // SmartDashboard.putNumber(
+    //     "limelightAlign/vymps",
+    //     linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
+    // SmartDashboard.putNumber("limelightAlign/omega", omega);
 
     // Convert to field relative speeds & send command
     ChassisSpeeds speeds =
@@ -170,7 +164,7 @@ public class DriveToReefCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false || finished;
+    return finished;
     // targetLimelight.withinTolerance(2.5, 2.5, llName) || finished;
   }
 }
