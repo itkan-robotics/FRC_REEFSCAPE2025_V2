@@ -64,11 +64,9 @@ import java.util.Map;
  * (log replay from a file).
  */
 public final class Constants {
-  // public static final String SerialNumber = "03415973"; // 9128 serial number.
-  public static final String SerialNumber = "032D2128"; // 10340 serial number
+  public static final String SerialNumber = "03415973"; // 9128 serial number.
+  // public static final String SerialNumber = "032D2128"; // 10340 serial number
   // TODO: change this based off of team number!!! type sigma
-
-
 
   public static final boolean kIsTuningMode = true;
   public static final boolean tuningMode = true;
