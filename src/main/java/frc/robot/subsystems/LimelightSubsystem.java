@@ -180,21 +180,12 @@ public class LimelightSubsystem extends SubsystemBase {
       double alignkP,
       double alignkD,
       int pipeline,
-      boolean overTurned,
       double reefAngle,
       String limelightName) {
 
     // if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
 
-    m_aTagSpeedContoller = new PIDController(kPExpInterpolation(MAX_AREA), 0.0, 0.0);
-    if (!overTurned) {
-      double targetArea =
-          LimelightHelpers.getTA(limelightName) != 0.0
-              ? LimelightHelpers.getTA(limelightName)
-              : MAX_AREA;
-
-      m_aTagSpeedContoller = new PIDController(kPExpInterpolation(targetArea), 0.0, 0.0);
-    }
+    m_aTagSpeedContoller = new PIDController(DRIVE_KP.getAsDouble(), 0.0, 0.0);
 
     // Apply deadband
     double linearMagnitude =
@@ -237,17 +228,17 @@ public class LimelightSubsystem extends SubsystemBase {
    * @return The interpolated value
    **************************************************************************************/
 
-  public double kPExpInterpolation(double ta) {
+  // public double kPExpInterpolation(double ta) {
 
-    double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
-    double[] pair0 = {MIN_AREA, MAX_KP.getAsDouble()};
-    double[] pair1 = {MAX_AREA, MIN_KP.getAsDouble()};
+  //   double area = MathUtil.clamp(ta, MIN_AREA, MAX_AREA);
+  //   double[] pair0 = {MIN_AREA, MAX_KP.getAsDouble()};
+  //   double[] pair1 = {MAX_AREA, MIN_KP.getAsDouble()};
 
-    double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
-    double A = pair0[1] * Math.exp(k * pair0[0]);
-    double interpolatedVal = A * Math.exp(-k * area);
-    return interpolatedVal;
-  }
+  //   double k = -Math.log(pair1[1] / pair0[1]) / (pair1[0] - pair0[0]);
+  //   double A = pair0[1] * Math.exp(k * pair0[0]);
+  //   double interpolatedVal = A * Math.exp(-k * area);
+  //   return interpolatedVal;
+  // }
 
   public double getX() {
     return table.getEntry("tx").getDouble(0.0);

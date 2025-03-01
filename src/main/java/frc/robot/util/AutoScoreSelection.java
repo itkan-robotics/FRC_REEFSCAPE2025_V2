@@ -85,7 +85,7 @@ public class AutoScoreSelection {
     double yDeadband = MathUtil.applyDeadband(rJoystickY.getAsDouble(), DEADBAND);
 
     // If joystick input is likely caused by deadband, set the angle to 0.0
-    if (Math.abs(xDeadband + yDeadband) <= 0.05) {
+    if (xDeadband == 0.0 && yDeadband == 0.0) {
       operatorReefAngle = 0.0;
     } else {
       // Else, set the angle to the calculated angle, rounded to the nearest 60 degrees

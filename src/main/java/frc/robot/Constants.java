@@ -214,12 +214,10 @@ public final class Constants {
 
     public static final double MAX_AREA = 15.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
-    public static final LoggedTunableNumber MAX_KP =
+    public static final LoggedTunableNumber DRIVE_KP =
         new LoggedTunableNumber(
-            "interpolation/Max_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
-    public static final LoggedTunableNumber MIN_KP =
-        new LoggedTunableNumber("interpolation/Min_kP", 0.055);
-    ; // Must be tuned once field is built
+            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
+    // Must be tuned once field is built
 
     public static final double TURN_KP = 0.15;
     public static final double TURN_KD = 0.00;

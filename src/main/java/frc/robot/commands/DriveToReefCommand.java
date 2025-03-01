@@ -124,7 +124,6 @@ public class DriveToReefCommand extends Command {
                 alignkP.getAsDouble(),
                 alignkD.getAsDouble(),
                 targetLimelightInt,
-                false,
                 reefAngle,
                 llName);
       }
@@ -154,7 +153,8 @@ public class DriveToReefCommand extends Command {
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
-    finished = speeds.vxMetersPerSecond <= 0.03 && speeds.vyMetersPerSecond <= 0.03;
+    double minSpeed = (0.03 * (Math.cos(Math.toRadians(reefAngle))));
+    finished = speeds.vxMetersPerSecond <= (0.03 * Math.cos(Math.toRadians(reefAngle))) && speeds.vyMetersPerSecond <= 0.03;
   }
 
   // Called once the command ends or is interrupted.

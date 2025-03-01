@@ -24,7 +24,9 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
@@ -44,6 +46,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.AutoScoreSelection;
+import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -316,11 +319,15 @@ public class RobotContainer {
     operator
         .L2()
         .whileTrue(
-            new InstantCommand(
-                () -> {
-                  storedState.setOperatorReefAngle(
-                      () -> -operator.getRightY(), () -> operator.getRightX());
-                }));
+            new RepeatCommand(
+                new DeferredCommand(
+                    () ->
+                        new InstantCommand(
+                            () -> {
+                              storedState.setOperatorReefAngle(
+                                  () -> -operator.getRightY(), () -> operator.getRightX());
+                            }),
+                    Set.of())));
   }
 
   /*********************************************************
