@@ -181,7 +181,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     // if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
 
-    m_aTagSpeedContoller = new PIDController(DRIVE_KP.getAsDouble(), 0.0, 0.0);
+    m_aTagSpeedContoller = new PIDController(DRIVE_KP.getAsDouble(), 0.0, DRIVE_KD.getAsDouble());
 
     // Apply deadband
     double linearMagnitude =

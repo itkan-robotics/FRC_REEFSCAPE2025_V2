@@ -634,16 +634,16 @@ public final class Constants {
   /** The different elevator and pivot states our robot can do, all in one enum! */
   public static enum BotState {
     RESET(5.0, 0.25),
-    CORALINTAKE(6.0, 0.25),
+    CORALINTAKE(12.5, 0.25),
     L1(28.0, 3.0),
     L2(32.5, 15.5),
     L3(25.5, 23.5),
-    L4(20.0, 39.9),
-    HOME(19.0, 0.75),
-    LOWALGAE(18, 10.0),
-    HIGHALGAE(15, 18.5),
+    L4(20.0, 38),
+    HOME(19.0, 0.25),
+    LOWALGAE(32.5, 10.0),
+    HIGHALGAE(25.0, 18.5),
     GROUNDALGAE(43, 6.0), // 53
-    BARGE(5, 39.90),
+    BARGE(12.5, 39.90),
     CLIMB(0, 10),
     PROCESSOR(40, 5.0); // TO-DO: Test and tune
 
@@ -782,16 +782,18 @@ public final class Constants {
     public static final double MAX_AREA = 15.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
     public static final LoggedTunableNumber DRIVE_KP =
-        new LoggedTunableNumber(
-            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
+        new LoggedTunableNumber("drivePID/Drive_kP", 0.05);
+    public static final LoggedTunableNumber DRIVE_KD =
+        new LoggedTunableNumber("drivePID/Drive_kD", 0.0);
+    // Formerly 0.15// Must be tuned once field is built
     // Must be tuned once field is built
 
     public static final double TURN_KP = 0.15;
     public static final double TURN_KD = 0.00;
 
-    public static final double ALIGN_KS = 0.05;
-    public static final double ALIGN_KP = 2.5;
-    public static final double ALIGN_KD = 0.005;
+    public static final double ALIGN_KS = 0.075;
+    public static final double ALIGN_KP = 4.5;
+    public static final double ALIGN_KD = 0.0;
     public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 

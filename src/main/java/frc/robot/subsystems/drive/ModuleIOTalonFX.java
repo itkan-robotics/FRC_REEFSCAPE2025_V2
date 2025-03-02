@@ -273,4 +273,9 @@ public class ModuleIOTalonFX implements ModuleIO {
   public double getAbsoluteEncoderValue() {
     return customEncoder.get();
   }
+
+  @Override
+  public boolean isStalling() {
+    return driveTalon.getStatorCurrent().getValueAsDouble() > 100;
+  }
 }
