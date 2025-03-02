@@ -10,6 +10,7 @@ import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.TURN_KD;
 import static frc.robot.Constants.LimelightConstants.TURN_KP;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -51,6 +52,8 @@ public class DriveToReefCommand extends Command {
   Translation2d linearVelocity = new Translation2d();
   double omega = 0.0;
   String llName;
+  boolean isStalling = false;
+  TalonFX testMotor = new TalonFX(1);
 
   /** Creates a new DriveToReefCommand. */
   public DriveToReefCommand(
@@ -107,6 +110,8 @@ public class DriveToReefCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // isStalling = testMotor.getStatorCurrent().getValueAsDouble() > 40;
+    isStalling = false;
     // Default values in the case an AprilTag is not seen
 
     if ((LimelightHelpers.getTV(llName) || toleranceTimer.get() < 0.01)
@@ -138,13 +143,13 @@ public class DriveToReefCommand extends Command {
     } else if (reefAngle != 91.28 && reefAngle == storedState.getTargetReefAngle()) {
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
     }
-    // SmartDashboard.putNumber(
-    //     "limelightAlign/vxmps",
-    //     linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
-    // SmartDashboard.putNumber(
-    //     "limelightAlign/vymps",
-    //     linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
-    // SmartDashboard.putNumber("limelightAlign/omega", omega);
+    SmartDashboard.putNumber(
+        "limelightAlign/vxmps",
+        linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
+    SmartDashboard.putNumber(
+        "limelightAlign/vymps",
+        linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
+    SmartDashboard.putNumber("limelightAlign/omega", omega);
 
     // Convert to field relative speeds & send command
     ChassisSpeeds speeds =
@@ -160,9 +165,9 @@ public class DriveToReefCommand extends Command {
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
-    double dynamicTolerance = (0.02 * (Math.cos(Math.toRadians(reefAngle))));
+    double dynamicTolerance = (0.03 * (Math.cos(Math.toRadians(reefAngle))));
     finished =
-        speeds.vxMetersPerSecond <= dynamicTolerance
+        speeds.vxMetersPerSecond <= (dynamicTolerance)
             && speeds.vyMetersPerSecond <= dynamicTolerance;
   }
 
@@ -173,7 +178,7 @@ public class DriveToReefCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return finished;
+    return finished || isStalling;
     // targetLimelight.withinTolerance(2.5, 2.5, llName) || finished;
   }
 }

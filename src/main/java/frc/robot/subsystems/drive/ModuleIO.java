@@ -56,4 +56,8 @@ public interface ModuleIO {
   public default double getAbsoluteEncoderValue() {
     return 0.0;
   }
+
+  public default boolean isStalling() {
+    return false;
+  }
 }

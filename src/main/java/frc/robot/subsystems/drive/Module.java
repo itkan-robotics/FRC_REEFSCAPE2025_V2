@@ -147,4 +147,8 @@ public class Module {
   public double moduleAbsolutePosition() {
     return io.getAbsoluteEncoderValue();
   }
+
+  public boolean isStalling() {
+    return io.isStalling();
+  }
 }

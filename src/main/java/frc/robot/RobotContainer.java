@@ -13,8 +13,17 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.*;
-import static frc.robot.Constants.BotState.*;
+import static frc.robot.Constants.BotState.BARGE;
+import static frc.robot.Constants.BotState.CLIMB;
+import static frc.robot.Constants.BotState.CORALINTAKE;
+import static frc.robot.Constants.BotState.HIGHALGAE;
+import static frc.robot.Constants.BotState.HOME;
+import static frc.robot.Constants.BotState.L1;
+import static frc.robot.Constants.BotState.L2;
+import static frc.robot.Constants.BotState.L3;
+import static frc.robot.Constants.BotState.L4;
+import static frc.robot.Constants.BotState.LOWALGAE;
+import static frc.robot.Constants.BotState.RESET;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -193,19 +202,19 @@ public class RobotContainer {
     // Coral Positioning Commands
 
     base.triangle()
-        // .or(operator.triangle())
+        .or(operator.triangle().and(operator.R2()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
 
     base.touchpad()
-        // .or(operator.touchpad())
+        .or(operator.touchpad().and(operator.R2()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
 
     base.square()
-        // .or(operator.square())
+        .or(operator.square().and(operator.R2()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
 
     base.circle()
-        // .or(operator.circle())
+        .or(operator.circle().and(operator.R2()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
 
     // Algae Positioning Commands
@@ -259,48 +268,42 @@ public class RobotContainer {
                   storedState.invertAutoTurn();
                 }));
 
-    operator
-        .L2()
+    (operator.L2().or(operator.R2()))
         .and(operator.triangle())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(4);
                 }));
-    operator
-        .L2()
+    (operator.L2().or(operator.R2()))
         .and(operator.circle())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(3);
                 }));
-    operator
-        .L2()
+    (operator.L2().or(operator.R2()))
         .and(operator.square())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(2);
                 }));
-    operator
-        .L2()
+    (operator.L2().or(operator.R2()))
         .and(operator.touchpad())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(1);
                 }));
-    operator
-        .L2()
+    (operator.L2().or(operator.R2()))
         .and(operator.L1())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setLimelightPipeLine("LEFT");
                 }));
-    operator
-        .L2()
+    (operator.L2().or(operator.R2()))
         .and(operator.R1())
         .onTrue(
             new InstantCommand(

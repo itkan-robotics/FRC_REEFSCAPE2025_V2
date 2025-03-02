@@ -145,7 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getSlowDownMult(double elevatorPos) {
-    LoggedTunableNumber slowdown = new LoggedTunableNumber("slowdownM", 0.007);
+    LoggedTunableNumber slowdown = new LoggedTunableNumber("slowdownM", 0.008);
     return 1.0 - (elevatorPos * slowdown.getAsDouble());
   }
 

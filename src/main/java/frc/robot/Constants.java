@@ -783,7 +783,7 @@ public final class Constants {
     public static final double MAX_AREA = 15.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
     public static final LoggedTunableNumber DRIVE_KP =
-        new LoggedTunableNumber("drivePID/Drive_kP", 0.065);
+        new LoggedTunableNumber("drivePID/Drive_kP", 0.05);
     public static final LoggedTunableNumber DRIVE_KD =
         new LoggedTunableNumber("drivePID/Drive_kD", 0.0);
     // Formerly 0.15// Must be tuned once field is built
@@ -793,8 +793,8 @@ public final class Constants {
     public static final double TURN_KD = 0.00;
 
     public static final double ALIGN_KS = 0.075;
-    public static final double ALIGN_KP = 1.5;
-    public static final double ALIGN_KD = 0.0125;
+    public static final double ALIGN_KP = 4.5;
+    public static final double ALIGN_KD = 0.0;
     public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 
