@@ -17,14 +17,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.function.DoubleSupplier;
 
 /*************************************************************************************
  * Field centric drive command using targetLimelight target data to
@@ -40,6 +42,7 @@ public class DriveToReefCommand extends Command {
   LimelightSubsystem rLimelight;
   LimelightSubsystem targetLimelight;
   PIDController angleController, extremeAngleController;
+  ElevatorSubsystem elevator;
   double slowDownMult = 1.0;
   LoggedTunableNumber alignkP, alignkD, turnkP, turnkD;
   double reefAngle = 91.28;
@@ -51,16 +54,16 @@ public class DriveToReefCommand extends Command {
 
   /** Creates a new DriveToReefCommand. */
   public DriveToReefCommand(
-      Drive drive,
+      Drive d,
       LimelightSubsystem lLimelight,
       LimelightSubsystem rLimelight,
       AutoScoreSelection storedState,
-      DoubleSupplier slowDownMultSupplier) {
-    this.drive = drive;
+      ElevatorSubsystem e) {
+    this.drive = d;
     this.lLimelight = lLimelight;
     this.rLimelight = rLimelight;
     this.storedState = storedState;
-    // slowDownMult = slowDownMultSupplier.getAsDouble();
+    elevator = e;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
   }
@@ -68,6 +71,10 @@ public class DriveToReefCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    slowDownMult =
+        elevator.getSlowDownMult(
+            Constants.toBotState(storedState.getBotStateInt()).getElevatorSetpoint());
+    SmartDashboard.putNumber("slowdownmult", slowDownMult);
     toleranceTimer = new Timer();
     // Create PID controller
     turnkP = new LoggedTunableNumber("simpleTurnCtrl/kP", TURN_KP);
@@ -153,10 +160,10 @@ public class DriveToReefCommand extends Command {
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
-    double minSpeed = (0.03 * (Math.cos(Math.toRadians(reefAngle))));
+    double dynamicTolerance = (0.02 * (Math.cos(Math.toRadians(reefAngle))));
     finished =
-        speeds.vxMetersPerSecond <= (0.03 * Math.cos(Math.toRadians(reefAngle)))
-            && speeds.vyMetersPerSecond <= 0.03;
+        speeds.vxMetersPerSecond <= dynamicTolerance
+            && speeds.vyMetersPerSecond <= dynamicTolerance;
   }
 
   // Called once the command ends or is interrupted.

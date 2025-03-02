@@ -141,11 +141,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getSlowDownMult() {
-    if (getPosition() > 10) {
-      return 0.6;
-    } else {
-      return 0.85;
-    }
+    return 1.0 - (getPosition() * 0.0125);
+  }
+
+  public double getSlowDownMult(double elevatorPos) {
+    LoggedTunableNumber slowdown = new LoggedTunableNumber("slowdownM", 0.007);
+    return 1.0 - (elevatorPos * slowdown.getAsDouble());
   }
 
   public boolean setpointReached() {

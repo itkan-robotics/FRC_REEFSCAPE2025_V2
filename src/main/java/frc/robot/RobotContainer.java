@@ -293,7 +293,7 @@ public class RobotContainer {
                 }));
     operator
         .L2()
-        .and(operator.povLeft())
+        .and(operator.L1())
         .onTrue(
             new InstantCommand(
                 () -> {
@@ -301,7 +301,7 @@ public class RobotContainer {
                 }));
     operator
         .L2()
-        .and(operator.povRight())
+        .and(operator.R1())
         .onTrue(
             new InstantCommand(
                 () -> {
