@@ -10,7 +10,6 @@ import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.TURN_KD;
 import static frc.robot.Constants.LimelightConstants.TURN_KP;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,16 +17,14 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LoggedTunableNumber;
+import java.util.function.DoubleSupplier;
 
 /*************************************************************************************
  * Field centric drive command using targetLimelight target data to
@@ -35,7 +32,7 @@ import frc.robot.util.LoggedTunableNumber;
  * and move to the AprilTag based on the target's ta and tx values using Profiled PID.
  * <p> Last Updated by Abdullah Khaled, 1/18/2025
  *************************************************************************************/
-public class DriveToReefCommand extends Command {
+public class AutoDriveToReefCommand extends Command {
   Drive drive;
   Timer toleranceTimer;
   AutoScoreSelection storedState;
@@ -43,7 +40,6 @@ public class DriveToReefCommand extends Command {
   LimelightSubsystem rLimelight;
   LimelightSubsystem targetLimelight;
   PIDController angleController, extremeAngleController;
-  ElevatorSubsystem elevator;
   double slowDownMult = 1.0;
   LoggedTunableNumber alignkP, alignkD, turnkP, turnkD;
   double reefAngle = 91.28;
@@ -52,32 +48,26 @@ public class DriveToReefCommand extends Command {
   Translation2d linearVelocity = new Translation2d();
   double omega = 0.0;
   String llName;
-  boolean isStalling = false;
-  TalonFX testMotor = new TalonFX(1);
 
   /** Creates a new DriveToReefCommand. */
-  public DriveToReefCommand(
-      Drive d,
+  public AutoDriveToReefCommand(
+      Drive drive,
       LimelightSubsystem lLimelight,
       LimelightSubsystem rLimelight,
       AutoScoreSelection storedState,
-      ElevatorSubsystem e) {
-    this.drive = d;
+      DoubleSupplier slowDownMultSupplier) {
+    this.drive = drive;
     this.lLimelight = lLimelight;
     this.rLimelight = rLimelight;
     this.storedState = storedState;
-    elevator = e;
+    // slowDownMult = slowDownMultSupplier.getAsDouble();
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drive);
+    addRequirements();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    slowDownMult =
-        elevator.getSlowDownMult(
-            Constants.toBotState(storedState.getBotStateInt()).getElevatorSetpoint());
-    SmartDashboard.putNumber("slowdownmult", slowDownMult);
     toleranceTimer = new Timer();
     // Create PID controller
     turnkP = new LoggedTunableNumber("simpleTurnCtrl/kP", TURN_KP);
@@ -90,7 +80,7 @@ public class DriveToReefCommand extends Command {
     angleController.enableContinuousInput(-180, 180);
 
     extremeAngleController =
-        new PIDController(turnkP.getAsDouble() * 1.5, 0.0, turnkD.getAsDouble() * 1.05);
+        new PIDController(turnkP.getAsDouble() * 2.0, 0.0, turnkD.getAsDouble() * 1.05);
     extremeAngleController.enableContinuousInput(-180, 180);
 
     targetLimelightInt = storedState.getLimelightTargetPipeline();
@@ -110,8 +100,6 @@ public class DriveToReefCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // isStalling = testMotor.getStatorCurrent().getValueAsDouble() > 40;
-    isStalling = false;
     // Default values in the case an AprilTag is not seen
 
     if ((LimelightHelpers.getTV(llName) || toleranceTimer.get() < 0.01)
@@ -131,31 +119,26 @@ public class DriveToReefCommand extends Command {
           omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
         }
 
-        linearVelocity =
-            targetLimelight.getAprilTagVelocity(
-                alignkP.getAsDouble(),
-                alignkD.getAsDouble(),
-                targetLimelightInt,
-                reefAngle,
-                llName);
+        linearVelocity = null;
+        // targetLimelight.getAprilTagVelocity(
+        //     alignkP.getAsDouble(),
+        //     alignkD.getAsDouble(),
+        //     targetLimelightInt,
+        //     false,
+        //     reefAngle,
+        //     llName);
       }
       // Correct angle once location reached
     } else if (reefAngle != 91.28 && reefAngle == storedState.getTargetReefAngle()) {
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
     }
-    SmartDashboard.putNumber(
-        "limelightAlign/vxmps",
-        linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
-    SmartDashboard.putNumber(
-        "limelightAlign/vymps",
-        linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
-    SmartDashboard.putNumber("limelightAlign/omega", omega);
-
-
-    double linearVelocityXClipped = 0;
-
-    if(linearVelocity.getX()) > 1
-    linearVelocity.get
+    // SmartDashboard.putNumber(
+    //     "limelightAlign/vxmps",
+    //     linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
+    // SmartDashboard.putNumber(
+    //     "limelightAlign/vymps",
+    //     linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * slowDownMult);
+    // SmartDashboard.putNumber("limelightAlign/omega", omega);
 
     // Convert to field relative speeds & send command
     ChassisSpeeds speeds =
@@ -171,10 +154,7 @@ public class DriveToReefCommand extends Command {
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
-    double dynamicTolerance = (0.03 * (Math.cos(Math.toRadians(reefAngle))));
-    finished =
-        speeds.vxMetersPerSecond <= (dynamicTolerance)
-            && speeds.vyMetersPerSecond <= dynamicTolerance;
+    finished = speeds.vxMetersPerSecond <= 0.03 && speeds.vyMetersPerSecond <= 0.03;
   }
 
   // Called once the command ends or is interrupted.
@@ -184,7 +164,7 @@ public class DriveToReefCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return finished || isStalling;
+    return finished;
     // targetLimelight.withinTolerance(2.5, 2.5, llName) || finished;
   }
 }

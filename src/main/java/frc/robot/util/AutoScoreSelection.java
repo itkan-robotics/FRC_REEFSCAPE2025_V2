@@ -80,7 +80,7 @@ public class AutoScoreSelection {
    * 0.0
    */
   public void setOperatorReefAngle(DoubleSupplier rJoystickX, DoubleSupplier rJoystickY) {
-    double DEADBAND = 0.1;
+    double DEADBAND = 0.2;
     double xDeadband = MathUtil.applyDeadband(rJoystickX.getAsDouble(), DEADBAND);
     double yDeadband = MathUtil.applyDeadband(rJoystickY.getAsDouble(), DEADBAND);
 
