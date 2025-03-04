@@ -627,7 +627,7 @@ public final class Constants {
     public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
     public static final double ELEVATOR_ACCELERATION = 300.0;
     public static final double ELEVATOR_JERK = 750.0;
-    
+
     public static final boolean elevatorMotorInverted = true;
   }
 
@@ -779,7 +779,7 @@ public final class Constants {
 
     public static final double VELOCITY_DEADBAND = 0.025;
 
-    public static final double MAX_AREA = 15.0; // Must be tuned once field is built
+    public static final double MAX_AREA = 16.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
     public static final LoggedTunableNumber DRIVE_KP =
         new LoggedTunableNumber("drivePID/Drive_kP", 0.05);

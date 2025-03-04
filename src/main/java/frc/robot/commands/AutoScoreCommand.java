@@ -46,7 +46,7 @@ public class AutoScoreCommand extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         // new BufferedStateMachineCommand(elevator, actuator, stateMachine, storedState),
-        new DriveToReefCommand(drive, lLimelight, rLimelight, storedState, elevator),
+        new DriveToReefCommand(drive, storedState, elevator),
         // new WaitCommand(0.5),
         score.setSpeedAndState(-0.75, false).withTimeout(0.5));
   }

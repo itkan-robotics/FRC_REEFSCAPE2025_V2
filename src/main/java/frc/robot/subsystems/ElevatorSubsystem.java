@@ -45,8 +45,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftElevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     leftElevatorConfig.CurrentLimits.StatorCurrentLimit = 100;
     leftElevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    
-    if(elevatorMotorInverted){
+
+    if (elevatorMotorInverted) {
       leftElevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     }
 
