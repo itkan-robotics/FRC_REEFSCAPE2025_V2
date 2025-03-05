@@ -16,18 +16,6 @@
     },
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceLToB.path
-        "x": 3.2108522727272732,
-        "y": 3.8006392045454542
-      },
-      "prevControl": {
-        "x": 2.9615625,
-        "y": 5.5562499999999995
-      },
-      "nextControl": null,
-      "isLocked": false,
-      "linkedName": "B"
-========
         "x": 4.017,
         "y": 4.22
       },
@@ -38,7 +26,6 @@
       "nextControl": null,
       "isLocked": false,
       "linkedName": "firstStop"
->>>>>>>> main:src/main/deploy/pathplanner/paths/LeftSideAutoPart1.path
     }
   ],
   "rotationTargets": [],
@@ -46,21 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceLToB.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
-    "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/LeftSideAutoPart1.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 90.0,
+    "maxAngularAcceleration": 45.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 128.480198248343
+    "rotation": 122.41230661835118
   },
   "reversed": false,
   "folder": "justtestin",

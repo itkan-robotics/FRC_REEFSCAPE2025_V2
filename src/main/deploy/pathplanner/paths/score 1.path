@@ -25,11 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/leftToI.path
-      "linkedName": "I"
-========
       "linkedName": "1"
->>>>>>>> main:src/main/deploy/pathplanner/paths/score 1.path
     }
   ],
   "rotationTargets": [],
@@ -37,15 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/leftToI.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
-    "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/score 1.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 90.0,
+    "maxAngularAcceleration": 45.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

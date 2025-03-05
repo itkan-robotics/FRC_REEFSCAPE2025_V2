@@ -38,7 +38,7 @@ public class LimelightSubsystem extends SubsystemBase {
   public boolean limelightHeadingGood = true;
   private PIDController m_aTagSpeedContoller;
   private PIDController m_aTagDirController;
-  private HashMap<Integer, Double> reefIDsToAngles = new HashMap<Integer, Double>();
+  private static HashMap<Integer, Double> reefIDsToAngles = new HashMap<Integer, Double>();
   public double[] tagPose = {0, 0, 0, 0};
 
   public LimelightSubsystem(String name) {
@@ -163,7 +163,7 @@ public class LimelightSubsystem extends SubsystemBase {
     return reefIDsToAngles.get(getID(getPrimaryLimelight()));
   }
 
-  public double getLLReefAngle(String limelightName) {
+  public static double getLLReefAngle(String limelightName) {
     return reefIDsToAngles.get((int) LimelightHelpers.getFiducialID(limelightName));
   }
 

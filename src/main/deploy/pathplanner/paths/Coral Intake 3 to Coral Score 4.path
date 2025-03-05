@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1975708502024291,
-        "y": 7.039676113360324
+        "x": 1.60875,
+        "y": 0.7489999999999998
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.966971745875279,
-        "y": 6.34041905604283
+        "x": 2.6087499999999997,
+        "y": 0.7489999999999997
       },
       "isLocked": false,
-      "linkedName": "sourceLeft"
+      "linkedName": "Coral Intake 1 000"
     },
     {
       "anchor": {
-        "x": 3.5698295454545454,
-        "y": 5.39609375
+        "x": 3.1492500000000003,
+        "y": 3.8689999999999993
       },
       "prevControl": {
-        "x": 2.72808022042354,
-        "y": 6.170056484276561
+        "x": 1.5405000000000002,
+        "y": 3.8689999999999993
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "L"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -18.765209047131638
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "2 Coral Auton",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 55.261374717234375
   },
   "useDefaultConstraints": true
 }

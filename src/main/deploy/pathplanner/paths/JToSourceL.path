@@ -3,40 +3,88 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.135369318181818,
-        "y": 5.575582386363636
+        "x": 4.991997235524206,
+        "y": 5.213116275041539
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.776392045454545,
-        "y": 6.213764204545455
+        "x": 4.547717460117265,
+        "y": 5.498973326634474
       },
       "isLocked": false,
       "linkedName": "J"
     },
     {
       "anchor": {
-        "x": 1.6153977272727271,
-        "y": 7.240838068181818
+        "x": 1.1975708502024291,
+        "y": 7.039676113360324
       },
       "prevControl": {
-        "x": 1.9843465909090907,
-        "y": 7.2109232954545455
+        "x": 1.406364919707102,
+        "y": 6.899467166654336
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "sourceLeft"
     }
   ],
-  "rotationTargets": [],
-  "constraintZones": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.32622601279317615,
+      "rotationDegrees": -119.99999999999999
+    },
+    {
+      "waypointRelativePos": 0.61,
+      "rotationDegrees": -54.00090189223539
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6076975016880465,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.5,
+        "maxAngularVelocity": 90.0,
+        "maxAngularAcceleration": 45.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "HOME",
+      "waypointRelativePos": 0.2754895340985834,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "deadline",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "HOME"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.75
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 5.0,
-    "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 75.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 90.0,
+    "maxAngularAcceleration": 45.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

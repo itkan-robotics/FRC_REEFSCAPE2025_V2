@@ -28,8 +28,6 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -69,10 +67,10 @@ public final class Constants {
   public static final boolean tuningMode = true;
 
   // PathPlanner config constants (wrong values)
-  public static final double ROBOT_MASS_KG = 47.627;
+  public static final double ROBOT_MASS_KG = 61.23;
   public static final double ROBOT_MOI = 6.429;
   public static final double WHEEL_COF = 1.2;
-  public static final double translationalAutoP = 6.25;
+  public static final double translationalAutoP = 5.0;
   public static final double rotationalAutoP = 10.0;
 
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
@@ -80,6 +78,7 @@ public final class Constants {
 
   public static final int SCORE_MOTOR_PORT = 12;
   public static final int INTAKE_MOTOR_PORT = 17;
+  public static final int CLIMB_MOTOR_PORT = 16;
 
   public class FieldConstants {
 
@@ -301,12 +300,12 @@ public final class Constants {
 
     private static final Slot0Configs driveGains =
         new Slot0Configs()
-            .withKP(2.0)
+            .withKP(2.25)
             .withKI(0)
-            .withKD(0.0025)
-            .withKS(0.146)
-            .withKV(0.741)
-            .withKA(0.00001);
+            .withKD(0.0)
+            .withKS(0.156571914641674)
+            .withKV(0.765254407501612)
+            .withKA(0.0);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -366,15 +365,15 @@ public final class Constants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.0);
+    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.0);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5;
 
-    private static final double kDriveGearRatio = 6.23;
-    private static final double kSteerGearRatio = 25.0 * 12 / 13;
-    private static final Distance kWheelRadius = Inches.of(2.167);
+    private static final double kDriveGearRatio = 6.75;
+    private static final double kSteerGearRatio = 25.0;
+    private static final Distance kWheelRadius = Inches.of(1.953036686729617 * 0.95);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = false;
@@ -423,10 +422,10 @@ public final class Constants {
     // + rotation is counterclockwise if looking at swerve from below
 
     // Front Left
-    private static final int kFrontLeftDriveMotorId = 5;
-    private static final int kFrontLeftSteerMotorId = 6;
+    private static final int kFrontLeftDriveMotorId = 1;
+    private static final int kFrontLeftSteerMotorId = 2;
     private static final int kFrontLeftEncoderId = 0;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.19); // TO DO: TUNE
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.055); // TO DO: TUNE
     private static final boolean kFrontLeftSteerMotorInverted = false;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -436,8 +435,8 @@ public final class Constants {
     // Front Right
     private static final int kFrontRightDriveMotorId = 3;
     private static final int kFrontRightSteerMotorId = 4;
-    private static final int kFrontRightEncoderId = 3;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.79 + 0.5);
+    private static final int kFrontRightEncoderId = 1;
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.83);
     private static final boolean kFrontRightSteerMotorInverted = false;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -445,10 +444,10 @@ public final class Constants {
     private static final Distance kFrontRightYPos = Inches.of(-12.5);
 
     // Back Left
-    private static final int kBackLeftDriveMotorId = 1;
-    private static final int kBackLeftSteerMotorId = 2;
+    private static final int kBackLeftDriveMotorId = 5;
+    private static final int kBackLeftSteerMotorId = 6;
     private static final int kBackLeftEncoderId = 2;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.11);
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.625);
     private static final boolean kBackLeftSteerMotorInverted = false;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -458,8 +457,8 @@ public final class Constants {
     // Back Right
     private static final int kBackRightDriveMotorId = 7;
     private static final int kBackRightSteerMotorId = 8;
-    private static final int kBackRightEncoderId = 1;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(0.07 + 0.5);
+    private static final int kBackRightEncoderId = 3;
+    private static final Angle kBackRightEncoderOffset = Rotations.of(0.68 + 0.03);
     private static final boolean kBackRightSteerMotorInverted = false;
     private static final boolean kBackRightEncoderInverted = false;
 
@@ -609,8 +608,8 @@ public final class Constants {
   }
 
   public static class ActuatorConstants {
-    public static final int RIGHT_ACTUATOR_MOTOR_PORT = 9;
-    public static final int LEFT_ACTUATOR_MOTOR_PORT = 10;
+    public static final int RIGHT_ACTUATOR_MOTOR_PORT = 10;
+    public static final int LEFT_ACTUATOR_MOTOR_PORT = 9;
     public static final double ACTUATOR_KP = 28.0;
     public static final double ACTUATOR_KS = 4.0;
     public static final double ACTUATOR_CRUISE_VELOCITY = 65.0;
@@ -627,24 +626,24 @@ public final class Constants {
     public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
     public static final double ELEVATOR_ACCELERATION = 300.0;
     public static final double ELEVATOR_JERK = 750.0;
-    
-    public static final boolean elevatorMotorInverted = true;
+
+    public static final boolean elevatorMotorInverted = false;
   }
 
   /** The different elevator and pivot states our robot can do, all in one enum! */
   public static enum BotState {
     RESET(5.0, 0.25),
-    CORALINTAKE(12.5, 0.25),
+    CORALINTAKE(6.0, 0.25),
     L1(28.0, 3.0),
     L2(32.5, 15.5),
     L3(25.5, 23.5),
-    L4(20.0, 38),
-    HOME(19.0, 0.25),
-    LOWALGAE(32.5, 10.0),
-    HIGHALGAE(25.0, 18.5),
+    L4(20.0, 39.9),
+    HOME(19.0, 0.75),
+    LOWALGAE(18, 10.0),
+    HIGHALGAE(15, 18.5),
     GROUNDALGAE(43, 6.0), // 53
-    BARGE(12.5, 39.90),
-    CLIMB(0, 10),
+    BARGE(5, 39.90),
+    CLIMB(0, 12),
     PROCESSOR(40, 5.0); // TO-DO: Test and tune
 
     private final double pivotSetpoint;
@@ -782,18 +781,19 @@ public final class Constants {
     public static final double MAX_AREA = 15.0; // Must be tuned once field is built
     public static final double MIN_AREA = 0.01;
     public static final LoggedTunableNumber DRIVE_KP =
-        new LoggedTunableNumber("drivePID/Drive_kP", 0.05);
+        new LoggedTunableNumber(
+            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
     public static final LoggedTunableNumber DRIVE_KD =
-        new LoggedTunableNumber("drivePID/Drive_kD", 0.0);
-    // Formerly 0.15// Must be tuned once field is built
+        new LoggedTunableNumber(
+            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
     // Must be tuned once field is built
 
     public static final double TURN_KP = 0.15;
     public static final double TURN_KD = 0.00;
 
-    public static final double ALIGN_KS = 0.075;
-    public static final double ALIGN_KP = 4.5;
-    public static final double ALIGN_KD = 0.0;
+    public static final double ALIGN_KS = 0.05;
+    public static final double ALIGN_KP = 2.5;
+    public static final double ALIGN_KD = 0.005;
     public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 

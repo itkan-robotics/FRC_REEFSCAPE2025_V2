@@ -3,15 +3,6 @@
   "waypoints": [
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToB.path
-        "x": 1.3262215909090906,
-        "y": 0.9188494318181825
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 2.029403409090909,
-        "y": 1.71596590909091
-========
         "x": 4.329,
         "y": 4.317499999999999
       },
@@ -19,25 +10,12 @@
       "nextControl": {
         "x": 4.738499999999998,
         "y": 1.6752499999999992
->>>>>>>> main:src/main/deploy/pathplanner/paths/Intake 1 V2.path
       },
       "isLocked": false,
       "linkedName": "1V2"
     },
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToB.path
-        "x": 3.2108522727272732,
-        "y": 3.8006392045454542
-      },
-      "prevControl": {
-        "x": 3.027229566116193,
-        "y": 3.330916524427236
-      },
-      "nextControl": null,
-      "isLocked": false,
-      "linkedName": "B"
-========
         "x": 0.05,
         "y": 1.6
       },
@@ -48,7 +26,6 @@
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
->>>>>>>> main:src/main/deploy/pathplanner/paths/Intake 1 V2.path
     }
   ],
   "rotationTargets": [],
@@ -56,15 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToB.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
-    "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/Intake 1 V2.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 90.0,
+    "maxAngularAcceleration": 45.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -76,11 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/sourceRToB.path
-    "rotation": 54.01
-========
     "rotation": 104.323
->>>>>>>> main:src/main/deploy/pathplanner/paths/Intake 1 V2.path
   },
   "useDefaultConstraints": true
 }

@@ -45,8 +45,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftElevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     leftElevatorConfig.CurrentLimits.StatorCurrentLimit = 100;
     leftElevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    
-    if(elevatorMotorInverted){
+
+    if (elevatorMotorInverted) {
       leftElevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     }
 
@@ -112,7 +112,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public double getSlowDownMult(double elevatorPos) {
     LoggedTunableNumber slowdown = new LoggedTunableNumber("slowdownM", 0.008);
-    return 1.0 - (elevatorPos * slowdown.getAsDouble());
+    return 1.0
+    // - (elevatorPos * slowdown.getAsDouble())
+    ;
   }
 
   public boolean setpointReached() {

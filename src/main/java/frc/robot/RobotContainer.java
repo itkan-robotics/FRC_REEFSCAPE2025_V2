@@ -44,6 +44,7 @@ import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.subsystems.ActuatorSubsystem;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -77,6 +78,7 @@ public class RobotContainer {
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
   public static final AutoScoreSelection storedState = new AutoScoreSelection();
+  public static final ClimbSubsystem climb = new ClimbSubsystem();
 
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
@@ -310,6 +312,11 @@ public class RobotContainer {
                 () -> {
                   storedState.setLimelightPipeLine("RIGHT");
                 }));
+
+    operator.povUp().onTrue(climb.setGoal(-130.0));
+    operator.povDown().onTrue(climb.setGoal(0.0).alongWith(elevator.setGoal(7.5)));
+    // Comment pt 9
+
     // operator
     //     .L2()
     //     .and(operator.povUp())

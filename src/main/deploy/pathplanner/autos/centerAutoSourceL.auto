@@ -13,13 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "centerToH"
+            "pathName": "UPtoJ"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HToSourceL"
+            "pathName": "JToSourceL"
           }
         },
         {
@@ -32,30 +38,6 @@
           "type": "path",
           "data": {
             "pathName": "KToSourceL"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sourceLToL"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LToSourceL"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "sourceLToA"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "AToSourceL"
           }
         }
       ]
