@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1975708502024291,
-        "y": 7.039676113360324
+        "x": 1.55,
+        "y": 6.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9740735172412784,
-        "y": 6.4685860774793404
+        "x": 2.3265026670388496,
+        "y": 6.328909964119017
       },
       "isLocked": false,
       "linkedName": "sourceLeft"
     },
     {
       "anchor": {
-        "x": 4.261133603238866,
-        "y": 5.116801619433199
+        "x": 3.35655737704918,
+        "y": 5.643340163934426
       },
       "prevControl": {
-        "x": 3.576835746174759,
-        "y": 5.622234866175193
+        "x": 2.6722595199850727,
+        "y": 6.14877341067642
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,20 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "stopIntake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "GoToHome",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 4.5,

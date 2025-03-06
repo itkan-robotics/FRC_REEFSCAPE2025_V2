@@ -49,6 +49,9 @@ public class DriveToReefCommand extends Command {
 
   boolean finished = false;
 
+  int tagID;
+  double targetReefAngle;
+
   /** Creates a new DriveToReefCommand. */
   public DriveToReefCommand(Drive d, AutoScoreSelection storedState, ElevatorSubsystem e) {
     this.drive = d;
@@ -56,17 +59,49 @@ public class DriveToReefCommand extends Command {
     elevator = e;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
+
+    // Log the slow down multiplier found from the elevator's height
+    BotState storedBotState = Constants.toBotState(storedState.getBotStateInt());
+    slowDownMult = elevator.getSlowDownMult(storedBotState.getElevatorSetpoint());
+    SmartDashboard.putNumber("slowdownmult", slowDownMult);
+    /* Get the target pipeline as an integer
+     * If equal to the left branch, use the right limelight (b/c that's the one that
+     * will be in view of the AprilTag). Vice-versa for the right branch
+     */
+    double targetLimelightInt = storedState.getLimelightTargetPipeline();
+
+    if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
+      llName = LimelightConstants.rightLimelightName;
+      // SmartDashboard.putNumber("limelightAlign/int", LEFT_BRANCH_PIPELINE);
+    } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
+      llName = LimelightConstants.leftLimelightName;
+      // SmartDashboard.putNumber("limelightAlign/int", RIGHT_BRANCH_PIPELINE);
+    }
+
+    // Log the target angle for the robot based on the AprilTag ID
+    SmartDashboard.putNumber("simpleReefAlignment/Reef Angle", reefAngle);
+
+    tagID = storedState.getTargetAprilTag();
+    targetReefAngle = storedState.getTargetReefAngle();
+  }
+
+  /** Creates a new DriveToReefCommand. */
+  public DriveToReefCommand(Drive d, ElevatorSubsystem e, String llName, int tagID) {
+    this.drive = d;
+    elevator = e;
+    // Use addRequirements() here to declare subsystem dependencies.
+
+    this.llName = llName;
+    this.tagID = tagID;
+    this.targetReefAngle = LimelightSubsystem.getLLReefAngle(llName);
+    SmartDashboard.putNumber("simpleReefAlignment/Status", 0);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
 
-    // Log the slow down multiplier found from the elevator's height
-    BotState storedBotState = Constants.toBotState(storedState.getBotStateInt());
-    slowDownMult = elevator.getSlowDownMult(storedBotState.getElevatorSetpoint());
-    SmartDashboard.putNumber("slowdownmult", slowDownMult);
-
+    reefAngle = LimelightSubsystem.getLLReefAngle(llName);
     // Create PID controller for angle, horizontal, and range
     angleController = new PIDController(TURN_KP, 0.0, 0.0);
     angleController.enableContinuousInput(-180, 180);
@@ -86,23 +121,7 @@ public class DriveToReefCommand extends Command {
     rangeFFController =
         new TuneableFFPID("simpleReefAlignment/rangeController", 0.0, 0.0, 0.0, 0.0);
 
-    /* Get the target pipeline as an integer
-     * If equal to the left branch, use the right limelight (b/c that's the one that
-     * will be in view of the AprilTag). Vice-versa for the right branch
-     */
-    double targetLimelightInt = storedState.getLimelightTargetPipeline();
-
-    if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
-      llName = LimelightConstants.rightLimelightName;
-      // SmartDashboard.putNumber("limelightAlign/int", LEFT_BRANCH_PIPELINE);
-    } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
-      llName = LimelightConstants.leftLimelightName;
-      // SmartDashboard.putNumber("limelightAlign/int", RIGHT_BRANCH_PIPELINE);
-    }
-
-    // Log the target angle for the robot based on the AprilTag ID
-    reefAngle = LimelightSubsystem.getLLReefAngle(llName);
-    SmartDashboard.putNumber("simpleReefAlignment/Reef Angle", reefAngle);
+    // SmartDashboard.putNumber("simpleReefAlignment/Status", 1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -122,11 +141,11 @@ public class DriveToReefCommand extends Command {
      * reef's angle continue onwards!
      */
     if (LimelightHelpers.getTV(llName)
-        && (LimelightHelpers.getFiducialID(llName) == storedState.getTargetAprilTag()
-            || LimelightHelpers.getFiducialID(llName) == storedState.getTargetAprilTag() + 11)
+        && (LimelightHelpers.getFiducialID(llName) == tagID
+            || LimelightHelpers.getFiducialID(llName) == tagID + 11)
         && Math.abs(drive.getRotation().getDegrees() - reefAngle) < 10.0) {
 
-      // SmartDashboard.putString("limelightAlign/target", "can see");
+      SmartDashboard.putString("limelightAlign/target", "can see");
 
       // Calculate angular speed
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
@@ -152,8 +171,7 @@ public class DriveToReefCommand extends Command {
               horizontalFFController.calculateWithFF(LimelightHelpers.getTX(llName), 0.0),
               rangeFFController.calculateWithFF(LimelightHelpers.getTA(llName), MAX_AREA));
 
-      simpleLinearVelocity.rotateBy(
-          new Rotation2d(Math.toRadians(storedState.getTargetReefAngle())));
+      simpleLinearVelocity.rotateBy(new Rotation2d(Math.toRadians(targetReefAngle)));
 
       /**
        * Log the values of TX and TA (should be viewed as a graph in Elastic) This should be used to
@@ -164,7 +182,7 @@ public class DriveToReefCommand extends Command {
       SmartDashboard.putNumber("simpleReefAlignment/TA", LimelightHelpers.getTA(llName));
 
       // Correct angle once location reached or can't see AprilTag yet or angle too sharp
-    } else if (reefAngle == storedState.getTargetReefAngle()) {
+    } else if (reefAngle == targetReefAngle) {
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
     }
 
@@ -215,6 +233,6 @@ public class DriveToReefCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return finished;
+    return false;
   }
 }

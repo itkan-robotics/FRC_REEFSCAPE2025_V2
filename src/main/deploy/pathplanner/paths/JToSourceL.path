@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.1975708502024291,
-        "y": 7.039676113360324
+        "x": 1.55,
+        "y": 6.9
       },
       "prevControl": {
-        "x": 1.406364919707102,
-        "y": 6.899467166654336
+        "x": 1.7587940695046727,
+        "y": 6.759791053294013
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
     },
     {
       "waypointRelativePos": 0.61,
-      "rotationDegrees": -54.00090189223539
+      "rotationDegrees": -54.0009018922354
     }
   ],
   "constraintZones": [
@@ -44,7 +44,7 @@
       "minWaypointRelativePos": 0.6076975016880465,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 2.0,
         "maxAcceleration": 4.5,
         "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 45.0,
@@ -56,23 +56,23 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "HOME",
-      "waypointRelativePos": 0.2754895340985834,
+      "name": "GoToHome",
+      "waypointRelativePos": 0.12694125590816607,
       "endWaypointRelativePos": null,
       "command": {
         "type": "deadline",
         "data": {
           "commands": [
             {
-              "type": "named",
+              "type": "wait",
               "data": {
-                "name": "HOME"
+                "waitTime": 0.5
               }
             },
             {
-              "type": "wait",
+              "type": "named",
               "data": {
-                "waitTime": 0.75
+                "name": "HOME"
               }
             }
           ]

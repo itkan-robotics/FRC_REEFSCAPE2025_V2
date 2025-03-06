@@ -3,40 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.55,
-        "y": 6.9
+        "x": 7.204610655737704,
+        "y": 7.51342213114754
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3194008956728505,
-        "y": 6.200742942682506
+        "x": 6.844979508196721,
+        "y": 6.985963114754099
       },
       "isLocked": false,
-      "linkedName": "sourceLeft"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.5698295454545454,
-        "y": 5.39609375
+        "x": 5.514344262295082,
+        "y": 5.907069672131147
       },
       "prevControl": {
-        "x": 2.72808022042354,
-        "y": 6.170056484276561
+        "x": 5.638378996884289,
+        "y": 6.124130457662263
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "L"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.545842217484018,
+      "rotationDegrees": -119.99999999999999
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "outtakeDefaultCommand",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "outtakeDefault"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -48,14 +58,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -59.99999999999999
+    "velocity": 0.0,
+    "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "LL_Test",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

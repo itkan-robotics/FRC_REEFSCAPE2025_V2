@@ -40,7 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.AutoScoreCommand;
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.subsystems.ActuatorSubsystem;
@@ -123,6 +123,10 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
+
+    // Register named commands for Pathplanner autonomous routines
+    registerNamedCommands();
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -144,9 +148,6 @@ public class RobotContainer {
 
     // Set default commands for all subsystems
     setDefaultCommands();
-
-    // Register named commands for Pathplanner autonomous routines
-    registerNamedCommands();
 
     // Configure the button bindings
     configureButtonBindings();
@@ -239,29 +240,27 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
-    base.create()
-        .onTrue(
-            new AutoScoreCommand(
-                drive,
-                actuators,
-                elevator,
-                score,
-                storedState,
-                leftLimelight,
-                rightLimelight,
-                currState))
-        .onFalse(new InstantCommand());
-
     // base.create()
     //     .onTrue(
-    //         new DriveToReefCommand(
+    //         new AutoScoreCommand(
     //             drive,
-    //             rightLimelight,
-    //             leftLimelight,
+    //             actuators,
+    //             elevator,
+    //             score,
     //             storedState,
-    //             () -> elevator.getSlowDownMult()));
+    //             leftLimelight,
+    //             rightLimelight,
+    //             currState))
+    //     .onFalse(new InstantCommand());
 
-    // Operator selection options for level, branch, and reef face
+    // base.create()
+    //     .onTrue(new DriveToReefCommand(drive, elevator, LimelightConstants.rightLimelightName,
+    // 11))
+    //     .onFalse(new InstantCommand());
+
+    base.create()
+        .whileTrue(new AutoAlignCommand(drive, leftLimelight, -120))
+        .onFalse(new InstantCommand());
 
     base.R3()
         .toggleOnTrue(
@@ -359,13 +358,31 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
 
+    NamedCommands.registerCommand("outtake", score.setSpeedAndState(-1, false));
+
     NamedCommands.registerCommand("stopIntake", intake.getDefaultCommand());
+
+    NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
+
+    NamedCommands.registerCommand("goToReef", new AutoAlignCommand(drive, leftLimelight, -120));
+
+    NamedCommands.registerCommand(
+        "reHome",
+        Commands.runOnce(
+                () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                drive)
+            .ignoringDisable(true));
 
     NamedCommands.registerCommand(
         "L4", new StateMachineCommand(elevator, actuators, currState, L4));
 
     NamedCommands.registerCommand(
         "HOME", new StateMachineCommand(elevator, actuators, currState, HOME));
+
+    NamedCommands.registerCommand(
+        "CoralIntakePos", new StateMachineCommand(elevator, actuators, currState, CORALINTAKE));
+
+    NamedCommands.registerCommand("outtakeDefault", score.setSpeedAndState(0.0075, false));
   }
 
   /*********************************************************
