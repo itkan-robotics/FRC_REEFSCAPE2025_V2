@@ -41,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.AutoAlignCommand;
+import frc.robot.commands.AutoScoreCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.subsystems.ActuatorSubsystem;
@@ -190,7 +191,7 @@ public class RobotContainer {
     // Scoring Coral
     base.R1()
         // .or(operator.L2())
-        .whileTrue(score.setSpeedAndState(-1.0, false));
+        .whileTrue(score.setSpeedAndState(-.8, false));
 
     // Intaking algae
     base.L2().whileTrue(score.setSpeedAndState(1, false));
@@ -244,29 +245,29 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
-    // base.create()
-    //     .onTrue(
-    //         new AutoScoreCommand(
-    //             drive,
-    //             actuators,
-    //             elevator,
-    //             score,
-    //             storedState,
-    //             leftLimelight,
-    //             rightLimelight,
-    //             currState))
-    //     .onFalse(new InstantCommand());
+    base.create()
+        .whileTrue(
+            new AutoScoreCommand(
+                drive,
+                actuators,
+                elevator,
+                score,
+                storedState,
+                leftLimelight,
+                rightLimelight,
+                currState))
+        .onFalse(new InstantCommand());
 
     // base.create()
     //     .onTrue(new DriveToReefCommand(drive, elevator, LimelightConstants.rightLimelightName,
     // 11))
     //     .onFalse(new InstantCommand());
 
-    base.create()
-        .whileTrue(
-            new AutoAlignCommand(
-                drive, rightLimelight, -120, LimelightConstants.rightLimelightName))
-        .onFalse(new InstantCommand());
+    // base.create()
+    //     .whileTrue(
+    //         new AutoAlignCommand(
+    //             drive, rightLimelight, -120, LimelightConstants.rightLimelightName))
+    //     .onFalse(new InstantCommand());
 
     base.R3()
         .toggleOnTrue(
@@ -320,7 +321,7 @@ public class RobotContainer {
 
     operator
         .povUp()
-        .onTrue(climb.setClimbServoOneWay().withTimeout(0.5).andThen(climb.setGoal(-35)));
+        .onTrue(climb.setClimbServoOneWay().withTimeout(0.).andThen(climb.setGoal(-35)));
 
     operator
         .povDown()
