@@ -68,10 +68,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final LimelightSubsystem rightLimelight =
-      new LimelightSubsystem(LimelightConstants.rightLimelightName);
   private final LimelightSubsystem leftLimelight =
       new LimelightSubsystem(LimelightConstants.leftLimelightName);
+  private final LimelightSubsystem rightLimelight =
+      new LimelightSubsystem(LimelightConstants.rightLimelightName);
   private final ScoringSubsystem score = new ScoringSubsystem();
   private final ActuatorSubsystem actuators = new ActuatorSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
@@ -259,7 +259,9 @@ public class RobotContainer {
     //     .onFalse(new InstantCommand());
 
     base.create()
-        .whileTrue(new AutoAlignCommand(drive, leftLimelight, -120))
+        .whileTrue(
+            new AutoAlignCommand(
+                drive, rightLimelight, -120, LimelightConstants.rightLimelightName))
         .onFalse(new InstantCommand());
 
     base.R3()
@@ -364,7 +366,13 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
 
-    NamedCommands.registerCommand("goToReef", new AutoAlignCommand(drive, leftLimelight, -120));
+    NamedCommands.registerCommand(
+        "goToReef",
+        new AutoAlignCommand(drive, leftLimelight, -120, LimelightConstants.leftLimelightName));
+
+    NamedCommands.registerCommand(
+        "goToReefRight",
+        new AutoAlignCommand(drive, rightLimelight, -120, LimelightConstants.rightLimelightName));
 
     NamedCommands.registerCommand(
         "reHome",

@@ -56,7 +56,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    table = NetworkTableInstance.getDefault().getTable(leftLimelightName);
+    table = NetworkTableInstance.getDefault().getTable(limelightName);
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("tv", table.getEntry("tv").getDouble(0.0));
     if (table.getEntry("tv").getDouble(0.0) == 1) {
@@ -80,7 +80,7 @@ public class LimelightSubsystem extends SubsystemBase {
   public Pose2d getTagEstimatedPosition(Drive drive) {
     double[] targetPose =
         NetworkTableInstance.getDefault()
-            .getTable(leftLimelightName)
+            .getTable(limelightName)
             .getEntry("targetpose_robotspace")
             .getDoubleArray(new double[6]);
     ;
@@ -91,7 +91,7 @@ public class LimelightSubsystem extends SubsystemBase {
     Rotation2d tAngleToRobot = Rotation2d.fromRadians(Math.atan2(targetTX, targetTZ));
     // System.out.println("targetRotation: " + tAngleToRobot.getDegrees());
     double distanceToTarget =
-        getPrimaryFiducial(LimelightHelpers.getRawFiducials(leftLimelightName)).distToRobot;
+        getPrimaryFiducial(LimelightHelpers.getRawFiducials(limelightName)).distToRobot;
     double absRotation = -1.0 * drive.getHeadingDegrees() - getReefAngle();
 
     // System.out.println("absRotation: " + absRotation);
@@ -105,7 +105,7 @@ public class LimelightSubsystem extends SubsystemBase {
    *     ambiguity)
    */
   public static String getPrimaryLimelight(ArrayList<String> limelightNames) {
-    String primaryLimelight = leftLimelightName;
+    String primaryLimelight = "limelight-right";
     double minAmbiguity = Double.POSITIVE_INFINITY;
     for (int i = 0; i < limelightNames.size(); i++) {
       RawFiducial primaryFiducial =
@@ -241,7 +241,7 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public double getX(String limelightName) {
-    return getLimelightTable(limelightName).getEntry("tx").getDouble(0.0);
+    return NetworkTableInstance.getDefault().getTable(limelightName).getEntry("tx").getDouble(0.0);
   }
 
   public double getLatency() {
@@ -249,7 +249,7 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public double getY() {
-    return table.getEntry("ty").getDouble(0.0);
+    return NetworkTableInstance.getDefault().getTable(limelightName).getEntry("ty").getDouble(0.0);
   }
 
   public double getArea() {
@@ -257,11 +257,16 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public double getArea(String limelightName) {
-    return table.getEntry("ta").getDouble(0.0);
+    return NetworkTableInstance.getDefault().getTable(limelightName).getEntry("ta").getDouble(0.0);
   }
 
   public boolean hasTarget() {
     return table.getEntry("tv").getDouble(0.0) == 1;
+  }
+
+  public boolean hasTarget(String limelightName) {
+    return NetworkTableInstance.getDefault().getTable(limelightName).getEntry("tv").getDouble(0.0)
+        == 1;
   }
 
   public double getTV() {

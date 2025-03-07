@@ -15,6 +15,7 @@ import frc.robot.subsystems.drive.Drive;
 public class AutoAlignCommand extends Command {
   Drive m_drive;
   LimelightSubsystem m_limelight;
+  private String limelightName;
   PIDController m_pidControllerY, m_pidControllerX;
   boolean m_end;
   double xTrans = 0.0;
@@ -24,9 +25,11 @@ public class AutoAlignCommand extends Command {
   double rotationVal;
   private PIDController m_thetaController;
 
-  public AutoAlignCommand(Drive drive, LimelightSubsystem limelight, double angle) {
+  public AutoAlignCommand(
+      Drive drive, LimelightSubsystem limelight, double angle, String limelightName) {
     this.m_drive = drive;
     this.m_limelight = limelight;
+    this.limelightName = limelightName;
     this.angle = angle;
     // addRequirements(this.m_drive);
   }
@@ -53,7 +56,7 @@ public class AutoAlignCommand extends Command {
   public void execute() {
     System.out.println(m_drive.getHeadingDegrees());
     System.out.println("In Execute");
-    if (!m_limelight.hasTarget()) {
+    if (!m_limelight.hasTarget(limelightName)) {
       m_end = true;
       System.out.println("No target");
     }
@@ -66,11 +69,11 @@ public class AutoAlignCommand extends Command {
     // rotationVal = MathUtil.clamp(rotationVal, -0.3, 0.3);
 
     m_pidControllerX.setSetpoint(0);
-    xTrans = m_pidControllerX.calculate(m_limelight.getX());
+    xTrans = m_pidControllerX.calculate(m_limelight.getX(limelightName));
     xTrans = MathUtil.clamp(xTrans, -5, 5);
 
     m_pidControllerY.setSetpoint(19);
-    yTrans = m_pidControllerY.calculate(m_limelight.getArea());
+    yTrans = m_pidControllerY.calculate(m_limelight.getArea(limelightName));
     yTrans = MathUtil.clamp(yTrans, -5, 5);
 
     // y x theta
