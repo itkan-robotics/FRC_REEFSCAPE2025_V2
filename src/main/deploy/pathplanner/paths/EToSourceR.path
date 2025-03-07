@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.985795454545454,
-        "y": 2.853338068181819
+        "x": 4.992000000000001,
+        "y": 2.8257499999999993
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.218622364448126,
-        "y": 2.3633604227410197
+        "x": 4.2248269099026725,
+        "y": 2.3357723545592
       },
       "isLocked": false,
       "linkedName": "E"
     },
     {
       "anchor": {
-        "x": 1.0569886363636365,
-        "y": 1.1182812499999988
+        "x": 1.51125,
+        "y": 0.9244999999999993
       },
       "prevControl": {
-        "x": 1.4162018279000501,
-        "y": 1.3197255469840146
+        "x": 1.8704631915364136,
+        "y": 1.1259442969840148
       },
       "nextControl": null,
       "isLocked": false,
@@ -54,7 +54,32 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "GoToHome",
+      "waypointRelativePos": 0.18560794044664397,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "deadline",
+        "data": {
+          "commands": [
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.5
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "HOME"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 4.5,
@@ -65,7 +90,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 54.01
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": null,

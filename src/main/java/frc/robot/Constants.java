@@ -78,7 +78,6 @@ public final class Constants {
 
   public static final int SCORE_MOTOR_PORT = 12;
   public static final int INTAKE_MOTOR_PORT = 17;
-  public static final int CLIMB_MOTOR_PORT = 16;
 
   public class FieldConstants {
 
@@ -630,6 +629,19 @@ public final class Constants {
     public static final boolean elevatorMotorInverted = false;
   }
 
+  public static class ClimbConstants {
+    public static final int CLIMB_MOTOR_PORT = 16;
+    public static final int CLIMB_SERVO_PORT = 1;
+    public static final double CLIMB_SERVO_TWO_WAY_POS = 0.22;
+    public static final double CLIMB_SERVO_ONE_WAY_POS = 0.4;
+  }
+
+  public static class FingerConstants {
+    public static final int FINGER_SERVO_PORT = 1;
+    public static final int FINGER_IN_POS = 0;
+    public static final int FINGER_OUT_POS = 1;
+  }
+
   /** The different elevator and pivot states our robot can do, all in one enum! */
   public static enum BotState {
     RESET(5.0, 0.25),
@@ -643,7 +655,7 @@ public final class Constants {
     HIGHALGAE(15, 18.5),
     GROUNDALGAE(43, 6.0), // 53
     BARGE(5, 39.90),
-    CLIMB(0, 12),
+    CLIMB(0, 0),
     PROCESSOR(40, 5.0); // TO-DO: Test and tune
 
     private final double pivotSetpoint;

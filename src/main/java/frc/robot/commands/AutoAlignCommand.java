@@ -54,11 +54,8 @@ public class AutoAlignCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    System.out.println(m_drive.getHeadingDegrees());
-    System.out.println("In Execute");
     if (!m_limelight.hasTarget(limelightName)) {
       m_end = true;
-      System.out.println("No target");
     }
 
     m_thetaController.setSetpoint(angle);

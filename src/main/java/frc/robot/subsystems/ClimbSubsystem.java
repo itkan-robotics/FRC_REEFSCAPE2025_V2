@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.CLIMB_MOTOR_PORT;
+import static frc.robot.Constants.ClimbConstants;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -12,12 +12,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimbConstants;
+import frc.robot.util.LoggedTunableNumber;
 
 public class ClimbSubsystem extends SubsystemBase {
   /** Creates a new ClimbSubsystem. */
-  private final TalonFX Climb = new TalonFX(CLIMB_MOTOR_PORT);
+  private final TalonFX Climb = new TalonFX(ClimbConstants.CLIMB_MOTOR_PORT);
 
-  private Servo climblock = new Servo(0);
+  private LoggedTunableNumber tunableAngle;
+
+  private Servo climbServo = new Servo(ClimbConstants.CLIMB_SERVO_PORT);
   private double climbSetpoint = 0.0;
 
   final MotionMagicVoltage m_Request;
@@ -43,12 +47,15 @@ public class ClimbSubsystem extends SubsystemBase {
 
     Climb.getConfigurator().apply(ClimbConfigs);
     m_Request = new MotionMagicVoltage(0);
+
+    tunableAngle = new LoggedTunableNumber("servoPos", 0);
+
+    climbServo.set(ClimbConstants.CLIMB_SERVO_TWO_WAY_POS);
   }
 
   public Command setGoal(double setpoint) {
     return run(
         () -> {
-          // setSetpoint(tunableHeight.get());
           setSetpoint(setpoint);
         });
   }
@@ -58,11 +65,17 @@ public class ClimbSubsystem extends SubsystemBase {
     Climb.setControl(m_Request.withPosition(setpoint).withSlot(0));
   }
 
-  public Command setServoPosition(double position) {
+  public Command setClimbServoTwoWay() {
     return run(
         () -> {
-          // setSetpoint(tunableHeight.get());
-          climblock.set(position);
+          climbServo.set(ClimbConstants.CLIMB_SERVO_TWO_WAY_POS);
+        });
+  }
+
+  public Command setClimbServoOneWay() {
+    return run(
+        () -> {
+          climbServo.set(ClimbConstants.CLIMB_SERVO_ONE_WAY_POS);
         });
   }
 
@@ -72,6 +85,7 @@ public class ClimbSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // climbServo.set(tunableAngle.get());
     // This method will be called once per scheduler run
   }
 }

@@ -46,6 +46,7 @@ import frc.robot.commands.StateMachineCommand;
 import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.FingerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ScoringSubsystem;
@@ -79,6 +80,7 @@ public class RobotContainer {
   private final StateMachine currState = new StateMachine();
   public static final AutoScoreSelection storedState = new AutoScoreSelection();
   public static final ClimbSubsystem climb = new ClimbSubsystem();
+  public static final FingerSubsystem finger = new FingerSubsystem();
 
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
@@ -200,7 +202,9 @@ public class RobotContainer {
 
     base.cross()
         // .or(operator.cross())
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, HOME));
+        .onTrue(
+            new StateMachineCommand(elevator, actuators, currState, HOME)
+                .alongWith(finger.setFingerIn()));
 
     // Coral Positioning Commands
 
@@ -314,8 +318,19 @@ public class RobotContainer {
                   storedState.setLimelightPipeLine("RIGHT");
                 }));
 
-    operator.povUp().onTrue(climb.setGoal(-130.0));
-    operator.povDown().onTrue(climb.setGoal(0.0).alongWith(elevator.setGoal(7.5)));
+    operator
+        .povUp()
+        .onTrue(climb.setClimbServoOneWay().withTimeout(0.5).andThen(climb.setGoal(-35)));
+
+    operator
+        .povDown()
+        .onTrue(
+            (climb.setClimbServoTwoWay().withTimeout(0.5))
+                .andThen(
+                    climb
+                        .setGoal(-160)
+                        .alongWith(new StateMachineCommand(elevator, actuators, currState, CLIMB))
+                        .alongWith(finger.setFingerOut())));
     // Comment pt 9
 
     // operator
