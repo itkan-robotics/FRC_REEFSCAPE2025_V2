@@ -141,8 +141,8 @@ public class LimelightSubsystem extends SubsystemBase {
     reefIDsToAngles.put(6, -60.0); // 17
     reefIDsToAngles.put(7, 0.0); // 18
     reefIDsToAngles.put(8, 60.0); // 19
-    reefIDsToAngles.put(9, 120.0); // 20
-    reefIDsToAngles.put(10, 180.0); // 21
+    reefIDsToAngles.put(9, -240.0); // 20
+    reefIDsToAngles.put(10, -180.0); // 21
     reefIDsToAngles.put(11, -120.0); // 22
   }
 

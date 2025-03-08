@@ -23,11 +23,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
@@ -391,11 +389,12 @@ public class DriveCommands {
                   double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
                   NumberFormat formatter = new DecimalFormat("#0.00000");
-                  System.out.println("********** Drive FF Characterization Results **********");
-                  System.out.println("\tkS: " + formatter.format(kS));
-                  System.out.println("\tkV: " + formatter.format(kV));
-                  SmartDashboard.putNumber("Drive FF Characterization Results/kS", kS);
-                  SmartDashboard.putNumber("Drive FF Characterization Results/kV", kV);
+                  //   System.out.println("********** Drive FF Characterization Results
+                  // **********");
+                  //   System.out.println("\tkS: " + formatter.format(kS));
+                  //   System.out.println("\tkV: " + formatter.format(kV));
+                  //   SmartDashboard.putNumber("Drive FF Characterization Results/kS", kS);
+                  //   SmartDashboard.putNumber("Drive FF Characterization Results/kV", kV);
                 }));
   }
 
@@ -453,23 +452,23 @@ public class DriveCommands {
                       double wheelRadius = (state.gyroDelta * Drive.DRIVE_BASE_RADIUS) / wheelDelta;
 
                       NumberFormat formatter = new DecimalFormat("#0.000");
-                      System.out.println(
-                          "********** Wheel Radius Characterization Results **********");
-                      System.out.println(
-                          "\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
-                      System.out.println(
-                          "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
-                      System.out.println(
-                          "\tWheel Radius: "
-                              + formatter.format(wheelRadius)
-                              + " meters, "
-                              + formatter.format(Units.metersToInches(wheelRadius))
-                              + " inches");
-                      SmartDashboard.putNumber(
-                          "Wheel Radius Characterization/Wheel radius inches",
-                          Units.metersToInches(wheelRadius));
-                      SmartDashboard.putNumber(
-                          "Wheel Radius Characterization/Wheel radius meters", (wheelRadius));
+                      //   System.out.println(
+                      //       "********** Wheel Radius Characterization Results **********");
+                      //   System.out.println(
+                      //       "\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
+                      //   System.out.println(
+                      //       "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
+                      //   System.out.println(
+                      //       "\tWheel Radius: "
+                      //           + formatter.format(wheelRadius)
+                      //           + " meters, "
+                      //           + formatter.format(Units.metersToInches(wheelRadius))
+                      //           + " inches");
+                      //   SmartDashboard.putNumber(
+                      //       "Wheel Radius Characterization/Wheel radius inches",
+                      //       Units.metersToInches(wheelRadius));
+                      //   SmartDashboard.putNumber(
+                      //       "Wheel Radius Characterization/Wheel radius meters", (wheelRadius));
                     })));
   }
 

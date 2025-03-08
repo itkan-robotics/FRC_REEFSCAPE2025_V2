@@ -18,7 +18,6 @@ import static frc.robot.Constants.BotState.CLIMB;
 import static frc.robot.Constants.BotState.CORALINTAKE;
 import static frc.robot.Constants.BotState.HIGHALGAE;
 import static frc.robot.Constants.BotState.HOME;
-import static frc.robot.Constants.BotState.L1;
 import static frc.robot.Constants.BotState.L2;
 import static frc.robot.Constants.BotState.L3;
 import static frc.robot.Constants.BotState.L4;
@@ -178,20 +177,20 @@ public class RobotContainer {
 
     // Intaking coral
     base.R2()
-        // .or(operator.L2())
         .whileTrue(
             score
                 .setSpeedAndState(0.002, false)
                 .alongWith(intake.setSpeed(0.75))
-                .alongWith(new StateMachineCommand(elevator, actuators, currState, CORALINTAKE)))
+                .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)))
         .onFalse(
             new StateMachineCommand(elevator, actuators, currState, HOME)
                 .alongWith(score.setSpeedAndState(0.0075, false)));
 
     // Scoring Coral
-    base.R1()
-        // .or(operator.L2())
-        .whileTrue(score.setSpeedAndState(-.8, false));
+    // base.R1()
+    //     // .or(operator.L2())
+    //     .or
+    (operator.R2()).whileTrue(score.setSpeedAndState(-.8, false));
 
     // Intaking algae
     base.L2().whileTrue(score.setSpeedAndState(1, false));
@@ -213,9 +212,9 @@ public class RobotContainer {
         .or(operator.triangle().and(operator.R2()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
 
-    base.touchpad()
-        .or(operator.touchpad().and(operator.R2()))
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
+    // base.touchpad()
+    //     .or(operator.touchpad().and(operator.R2()))
+    //     .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
 
     base.square()
         .or(operator.square().and(operator.R2()))
@@ -245,7 +244,7 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
-    base.create()
+    base.R1()
         .whileTrue(
             new AutoScoreCommand(
                 drive,
@@ -276,42 +275,42 @@ public class RobotContainer {
                   storedState.invertAutoTurn();
                 }));
 
-    (operator.L2().or(operator.R2()))
+    (operator.L2())
         .and(operator.triangle())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(4);
                 }));
-    (operator.L2().or(operator.R2()))
+    (operator.L2())
         .and(operator.circle())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(3);
                 }));
-    (operator.L2().or(operator.R2()))
+    (operator.L2())
         .and(operator.square())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(2);
                 }));
-    (operator.L2().or(operator.R2()))
+    (operator.L2())
         .and(operator.touchpad())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotStateInt(1);
                 }));
-    (operator.L2().or(operator.R2()))
+    (operator.L2())
         .and(operator.L1())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setLimelightPipeLine("LEFT");
                 }));
-    (operator.L2().or(operator.R2()))
+    (operator.L2())
         .and(operator.R1())
         .onTrue(
             new InstantCommand(
@@ -321,7 +320,7 @@ public class RobotContainer {
 
     operator
         .povUp()
-        .onTrue(climb.setClimbServoOneWay().withTimeout(0.).andThen(climb.setGoal(-35)));
+        .onTrue(climb.setClimbServoOneWay().withTimeout(0.).andThen(climb.setGoal(-30)));
 
     operator
         .povDown()

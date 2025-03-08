@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.BotState;
@@ -63,7 +62,7 @@ public class DriveToReefCommand extends Command {
     // Log the slow down multiplier found from the elevator's height
     BotState storedBotState = Constants.toBotState(storedState.getBotStateInt());
     slowDownMult = elevator.getSlowDownMult(storedBotState.getElevatorSetpoint());
-    SmartDashboard.putNumber("slowdownmult", slowDownMult);
+    // SmartDashboard.putNumber("slowdownmult", slowDownMult);
     /* Get the target pipeline as an integer
      * If equal to the left branch, use the right limelight (b/c that's the one that
      * will be in view of the AprilTag). Vice-versa for the right branch
@@ -79,7 +78,7 @@ public class DriveToReefCommand extends Command {
     }
 
     // Log the target angle for the robot based on the AprilTag ID
-    SmartDashboard.putNumber("simpleReefAlignment/Reef Angle", reefAngle);
+    // SmartDashboard.putNumber("simpleReefAlignment/Reef Angle", reefAngle);
 
     tagID = storedState.getTargetAprilTag();
     targetReefAngle = storedState.getTargetReefAngle();
@@ -94,7 +93,7 @@ public class DriveToReefCommand extends Command {
     this.llName = llName;
     this.tagID = tagID;
     this.targetReefAngle = LimelightSubsystem.getLLReefAngle(llName);
-    SmartDashboard.putNumber("simpleReefAlignment/Status", 0);
+    // SmartDashboard.putNumber("simpleReefAlignment/Status", 0);
   }
 
   // Called when the command is initially scheduled.
@@ -133,7 +132,7 @@ public class DriveToReefCommand extends Command {
 
     // Log the target angle for the robot based on the AprilTag ID
     reefAngle = LimelightSubsystem.getLLReefAngle(llName);
-    SmartDashboard.putNumber("simpleReefAlignment/Reef Angle", reefAngle);
+    // SmartDashboard.putNumber("simpleReefAlignment/Reef Angle", reefAngle);
 
     /**
      * If a. The limelight sees a target b. The primary target ID of the limelight is the same as
@@ -145,7 +144,7 @@ public class DriveToReefCommand extends Command {
             || LimelightHelpers.getFiducialID(llName) == tagID + 11)
         && Math.abs(drive.getRotation().getDegrees() - reefAngle) < 10.0) {
 
-      SmartDashboard.putString("limelightAlign/target", "can see");
+      // SmartDashboard.putString("limelightAlign/target", "can see");
 
       // Calculate angular speed
       omega = angleController.calculate(drive.getRotation().getDegrees(), reefAngle);
@@ -178,8 +177,8 @@ public class DriveToReefCommand extends Command {
        * tune the horizontal and range PIDF values
        */
       // TO-DO: Tune values
-      SmartDashboard.putNumber("simpleReefAlignment/TX", LimelightHelpers.getTX(llName));
-      SmartDashboard.putNumber("simpleReefAlignment/TA", LimelightHelpers.getTA(llName));
+      // SmartDashboard.putNumber("simpleReefAlignment/TX", LimelightHelpers.getTX(llName));
+      // SmartDashboard.putNumber("simpleReefAlignment/TA", LimelightHelpers.getTA(llName));
 
       // Correct angle once location reached or can't see AprilTag yet or angle too sharp
     } else if (reefAngle == targetReefAngle) {
@@ -206,10 +205,11 @@ public class DriveToReefCommand extends Command {
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
-    // Log the speeds of the robot
-    SmartDashboard.putNumber("simpleReefAlignment/speeds/vxMPS", speeds.vxMetersPerSecond);
-    SmartDashboard.putNumber("simpleReefAlignment/speeds/vyMPS", speeds.vyMetersPerSecond);
-    SmartDashboard.putNumber("simpleReefAlignment/speeds/omegaRPS", speeds.omegaRadiansPerSecond);
+    // // Log the speeds of the robot
+    // SmartDashboard.putNumber("simpleReefAlignment/speeds/vxMPS", speeds.vxMetersPerSecond);
+    // SmartDashboard.putNumber("simpleReefAlignment/speeds/vyMPS", speeds.vyMetersPerSecond);
+    // SmartDashboard.putNumber("simpleReefAlignment/speeds/omegaRPS",
+    // speeds.omegaRadiansPerSecond);
 
     // Potential dynamic tolerance that changes based on the angle of the reef (b/c math)
     // double dynamicTolerance = (0.03 * (Math.cos(Math.toRadians(reefAngle))));
@@ -223,7 +223,7 @@ public class DriveToReefCommand extends Command {
         speeds.vxMetersPerSecond <= staticTolerance.get()
             && speeds.vyMetersPerSecond <= staticTolerance.get();
 
-    SmartDashboard.putBoolean("simpleReefAlignment/isFinished", finished);
+    // SmartDashboard.putBoolean("simpleReefAlignment/isFinished", finished);
   }
 
   // Called once the command ends or is interrupted.

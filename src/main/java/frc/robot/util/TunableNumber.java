@@ -4,7 +4,6 @@
 
 package frc.robot.util;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 /**
@@ -48,7 +47,7 @@ public class TunableNumber {
       m_hasDefault = true;
       this.m_defaultValue = defaultValue;
       if (Constants.kIsTuningMode) {
-        SmartDashboard.putNumber(m_key, SmartDashboard.getNumber(m_key, defaultValue));
+        // SmartDashboard.putNumber(m_key, SmartDashboard.getNumber(m_key, defaultValue));
       }
     }
   }
@@ -68,7 +67,7 @@ public class TunableNumber {
    */
   public void set(double value) {
     if (Constants.kIsTuningMode) {
-      SmartDashboard.putNumber(m_key, value);
+      // SmartDashboard.putNumber(m_key, value);
     } else {
       m_defaultValue = value;
     }
@@ -83,9 +82,9 @@ public class TunableNumber {
     if (!m_hasDefault) {
       return 0.0;
     } else {
-      return Constants.kIsTuningMode
-          ? SmartDashboard.getNumber(m_key, m_defaultValue)
-          : m_defaultValue;
+      return m_defaultValue; // Constants.kIsTuningMode
+      // ? //SmartDashboard.getNumber(m_key, m_defaultValue)
+      // : m_defaultValue;
     }
   }
 }

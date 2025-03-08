@@ -17,9 +17,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
 
 public class ActuatorSubsystem extends SubsystemBase {
+  private static NeutralModeValue currNeutralModeValue = NeutralModeValue.Brake;
 
-  private final TalonFX leftActuatorMotor = new TalonFX(LEFT_ACTUATOR_MOTOR_PORT, "static");
-  private final TalonFX rightActuatorMotor = new TalonFX(RIGHT_ACTUATOR_MOTOR_PORT, "static");
+  private static final TalonFX leftActuatorMotor = new TalonFX(LEFT_ACTUATOR_MOTOR_PORT, "static");
+  private static final TalonFX rightActuatorMotor =
+      new TalonFX(RIGHT_ACTUATOR_MOTOR_PORT, "static");
   final MotionMagicVoltage m_lRequest;
   private LoggedTunableNumber tunableAngle;
   private double actuatorSetpoint;
@@ -100,6 +102,14 @@ public class ActuatorSubsystem extends SubsystemBase {
 
   public double getPositionRequest() {
     return actuatorSetpoint;
+  }
+
+  public static void setBrakeMode(NeutralModeValue neutralMode) {
+    if (currNeutralModeValue != neutralMode) {
+      currNeutralModeValue = neutralMode;
+      leftActuatorMotor.setNeutralMode(neutralMode);
+      rightActuatorMotor.setNeutralMode(neutralMode);
+    }
   }
 
   public boolean setpointReached() {

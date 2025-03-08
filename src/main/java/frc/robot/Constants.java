@@ -59,7 +59,7 @@ import java.util.Map;
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
  * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
- * (log replay from a file).
+ * (log replay from a file). 9128 Constants
  */
 public final class Constants {
 
@@ -649,13 +649,13 @@ public final class Constants {
     L1(28.0, 3.0),
     L2(32.5, 15.5),
     L3(25.5, 23.5),
-    L4(20.0, 39.9),
+    L4(20.0, 39),
     HOME(19.0, 0.75),
-    LOWALGAE(18, 10.0),
-    HIGHALGAE(15, 18.5),
+    LOWALGAE(34.0, 10.0),
+    HIGHALGAE(25, 18.5),
     GROUNDALGAE(43, 6.0), // 53
     BARGE(5, 39.90),
-    CLIMB(0, 0),
+    CLIMB(0, 5),
     PROCESSOR(40, 5.0); // TO-DO: Test and tune
 
     private final double pivotSetpoint;

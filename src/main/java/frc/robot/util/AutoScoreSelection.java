@@ -42,8 +42,8 @@ public class AutoScoreSelection {
     reefAnglesToIDs.put(-60.0, 6); // 17
     reefAnglesToIDs.put(0.0, 7); // 18
     reefAnglesToIDs.put(60.0, 8); // 19
-    reefAnglesToIDs.put(120.0, 9); // 20
-    reefAnglesToIDs.put(180.0, 10); // 21
+    reefAnglesToIDs.put(-240.0, 9); // 20
+    reefAnglesToIDs.put(-180.0, 10); // 21
     reefAnglesToIDs.put(-120.0, 11); // 22
   }
 

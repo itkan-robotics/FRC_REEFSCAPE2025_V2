@@ -60,7 +60,7 @@ public class AutoAlignTeleop extends Command {
     m_end = false;
 
     double targetLimelightInt = storedState.getLimelightTargetPipeline();
-    SmartDashboard.putNumber("autoAlignTeleop/targetLimelightInt", targetLimelightInt);
+    // SmartDashboard.putNumber("autoAlignTeleop/targetLimelightInt", targetLimelightInt);
 
     if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
       limelightName = LimelightConstants.rightLimelightName;
@@ -72,17 +72,26 @@ public class AutoAlignTeleop extends Command {
     targetReefAngle = storedState.getTargetReefAngle();
     reefAngle = LimelightSubsystem.getLLReefAngle(limelightName);
 
-    SmartDashboard.putNumber("autoAlignTeleop/tagID", tagID);
+    // SmartDashboard.putNumber("autoAlignTeleop/tagID", tagID);
     SmartDashboard.putNumber("autoAlignTeleop/reefAngle", reefAngle);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putNumber("autoAlignTeleop/targetReefAngle", targetReefAngle);
+
+    SmartDashboard.putBoolean("autoAlignTeleop/getTV", LimelightHelpers.getTV(limelightName));
+
+    SmartDashboard.putNumber(
+        "autoAlignTeleop/getFiducialID", LimelightHelpers.getFiducialID(limelightName));
+    SmartDashboard.putNumber("autoAlignTeleop/tagID", tagID);
+
     if (LimelightHelpers.getTV(limelightName)
         && (LimelightHelpers.getFiducialID(limelightName) == tagID
-            || LimelightHelpers.getFiducialID(limelightName) == tagID + 11)
-        && Math.abs(m_drive.getRotation().getDegrees() - reefAngle) < 10.0) {
+            || LimelightHelpers.getFiducialID(limelightName) == tagID + 11)) {
+
+      // && Math.abs(m_drive.getRotation().getDegrees() - reefAngle) < 10.0
       if (!m_limelight.hasTarget(limelightName)) {
         m_end = true;
       }
@@ -106,17 +115,6 @@ public class AutoAlignTeleop extends Command {
       }
 
       count++;
-
-    } else if (reefAngle == targetReefAngle) {
-      m_thetaController.setSetpoint(reefAngle);
-
-      rotationVal = m_thetaController.calculate(m_drive.getRotation().getDegrees(), reefAngle);
-      m_thetaController.calculate(
-          (MathUtil.inputModulus(m_drive.getHeadingDegrees(), -180, 180)), reefAngle);
-      rotationVal = MathUtil.clamp(rotationVal, -0.3, 0.3);
-
-      ChassisSpeeds speeds = new ChassisSpeeds(0, 0, rotationVal);
-      m_drive.runVelocity(speeds);
     }
   }
 
