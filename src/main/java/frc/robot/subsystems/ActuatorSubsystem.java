@@ -104,7 +104,7 @@ public class ActuatorSubsystem extends SubsystemBase {
     return actuatorSetpoint;
   }
 
-  public static void setBrakeMode(NeutralModeValue neutralMode) {
+  public void setBrakeMode(NeutralModeValue neutralMode) {
     if (currNeutralModeValue != neutralMode) {
       currNeutralModeValue = neutralMode;
       leftActuatorMotor.setNeutralMode(neutralMode);

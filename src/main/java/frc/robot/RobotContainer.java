@@ -74,7 +74,7 @@ public class RobotContainer {
   private final LimelightSubsystem rightLimelight =
       new LimelightSubsystem(LimelightConstants.rightLimelightName);
   private final ScoringSubsystem score = new ScoringSubsystem();
-  private final ActuatorSubsystem actuators = new ActuatorSubsystem();
+  public static final ActuatorSubsystem actuators = new ActuatorSubsystem();
   private final ElevatorSubsystem elevator = new ElevatorSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final StateMachine currState = new StateMachine();
@@ -187,18 +187,15 @@ public class RobotContainer {
                 .alongWith(score.setSpeedAndState(0.0075, false)));
 
     // Scoring Coral
-    // base.R1()
-    //     // .or(operator.L2())
-    //     .or
-    (operator.R2()).whileTrue(score.setSpeedAndState(-.8, false));
+    base.R1().or(operator.R2()).whileTrue(score.setSpeedAndState(-.8, false));
 
     // Intaking algae
-    base.L2().whileTrue(score.setSpeedAndState(1, false));
+    base.touchpad().whileTrue(score.setSpeedAndState(1.0, true));
 
     // Outtake algae
     base.L1()
         .whileTrue(score.setSpeedAndState(-0.75, true))
-        .onFalse(score.setSpeedAndState(-0.1, true));
+        .onFalse(score.setSpeedAndState(-0.5, true));
 
     base.cross()
         // .or(operator.cross())
@@ -209,7 +206,7 @@ public class RobotContainer {
     // Coral Positioning Commands
 
     base.triangle()
-        .or(operator.triangle().and(operator.R2()))
+        .or(operator.triangle().and(operator.touchpad()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
 
     // base.touchpad()
@@ -217,11 +214,11 @@ public class RobotContainer {
     //     .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
 
     base.square()
-        .or(operator.square().and(operator.R2()))
+        .or(operator.square().and(operator.touchpad()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
 
     base.circle()
-        .or(operator.circle().and(operator.R2()))
+        .or(operator.circle().and(operator.touchpad()))
         .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
 
     // Algae Positioning Commands
@@ -244,7 +241,7 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
 
-    base.R1()
+    base.L2()
         .whileTrue(
             new AutoScoreCommand(
                 drive,
@@ -311,16 +308,14 @@ public class RobotContainer {
                   storedState.setLimelightPipeLine("LEFT");
                 }));
     (operator.L2())
-        .and(operator.R1())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setLimelightPipeLine("RIGHT");
                 }));
 
-    operator
-        .povUp()
-        .onTrue(climb.setClimbServoOneWay().withTimeout(0.).andThen(climb.setGoal(-30)));
+    // Old setpoint =30 with white strechy
+    operator.povUp().onTrue(climb.setClimbServoOneWay().withTimeout(0.).andThen(climb.setGoal(30)));
 
     operator
         .povDown()
@@ -328,7 +323,7 @@ public class RobotContainer {
             (climb.setClimbServoTwoWay().withTimeout(0.5))
                 .andThen(
                     climb
-                        .setGoal(-160)
+                        .setGoal(-112) // -175 on white strechy
                         .alongWith(new StateMachineCommand(elevator, actuators, currState, CLIMB))
                         .alongWith(finger.setFingerOut())));
     // Comment pt 9
@@ -375,7 +370,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
 
-    NamedCommands.registerCommand("outtake", score.setSpeedAndState(-1, false));
+    NamedCommands.registerCommand("outtake", score.setSpeedAndState(-0.9, false));
 
     NamedCommands.registerCommand("stopIntake", intake.getDefaultCommand());
 

@@ -130,6 +130,10 @@ public class DriveCommands {
           // Calculate angular speed
           double omega = 0.0;
 
+          boolean isFlipped =
+              DriverStation.getAlliance().isPresent()
+                  && DriverStation.getAlliance().get() == Alliance.Red;
+
           if (storedState.getAutoTurn()) {
             omega =
                 fieldPIDController.calculate(
@@ -137,7 +141,8 @@ public class DriveCommands {
           } else if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
             omega =
                 fieldPIDController.calculate(
-                    getDriveHeading(drive), getRightStickAngle(jwxSupplier, jwySupplier));
+                    getDriveHeading(drive),
+                    getRightStickAngle(jwxSupplier, jwySupplier) + (isFlipped ? 180 : 0));
           }
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
@@ -145,9 +150,6 @@ public class DriveCommands {
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                   linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                   omega);
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
 
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(

@@ -9,7 +9,6 @@ import static frc.robot.Constants.LimelightConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -58,7 +57,6 @@ public class AutoAlignTeleop extends Command {
     m_thetaController.enableContinuousInput(-180, 180);
 
     m_end = false;
-
     double targetLimelightInt = storedState.getLimelightTargetPipeline();
     // SmartDashboard.putNumber("autoAlignTeleop/targetLimelightInt", targetLimelightInt);
 
@@ -67,29 +65,27 @@ public class AutoAlignTeleop extends Command {
     } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
       limelightName = LimelightConstants.leftLimelightName;
     }
-
     tagID = storedState.getTargetAprilTag();
     targetReefAngle = storedState.getTargetReefAngle();
     reefAngle = LimelightSubsystem.getLLReefAngle(limelightName);
-
     // SmartDashboard.putNumber("autoAlignTeleop/tagID", tagID);
-    SmartDashboard.putNumber("autoAlignTeleop/reefAngle", reefAngle);
+    // SmartDashboard.putNumber("autoAlignTeleop/reefAngle", reefAngle);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putNumber("autoAlignTeleop/targetReefAngle", targetReefAngle);
+    // SmartDashboard.putNumber("autoAlignTeleop/targetReefAngle", targetReefAngle);
 
-    SmartDashboard.putBoolean("autoAlignTeleop/getTV", LimelightHelpers.getTV(limelightName));
+    // SmartDashboard.putBoolean("autoAlignTeleop/getTV", LimelightHelpers.getTV(limelightName));
 
-    SmartDashboard.putNumber(
-        "autoAlignTeleop/getFiducialID", LimelightHelpers.getFiducialID(limelightName));
-    SmartDashboard.putNumber("autoAlignTeleop/tagID", tagID);
-
-    if (LimelightHelpers.getTV(limelightName)
-        && (LimelightHelpers.getFiducialID(limelightName) == tagID
-            || LimelightHelpers.getFiducialID(limelightName) == tagID + 11)) {
+    // SmartDashboard.putNumber(
+    //     "autoAlignTeleop/getFiducialID", LimelightHelpers.getFiducialID(limelightName));
+    // SmartDashboard.putNumber("autoAlignTeleop/tagID", tagID);
+    // SmartDashboard.putNumber("autoAlignTeleop/tagIDBlue", tagID + 11);
+    // && (LimelightHelpers.getFiducialID(limelightName) == tagID ||
+    // LimelightHelpers.getFiducialID(limelightName) == (tagID + 11))
+    if (LimelightHelpers.getTV(limelightName)) {
 
       // && Math.abs(m_drive.getRotation().getDegrees() - reefAngle) < 10.0
       if (!m_limelight.hasTarget(limelightName)) {

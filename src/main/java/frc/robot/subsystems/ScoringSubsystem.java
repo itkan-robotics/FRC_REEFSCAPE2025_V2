@@ -71,7 +71,7 @@ public class ScoringSubsystem extends SubsystemBase {
             currentScoringState = ScoreState.OUTTAKECORAL;
           }
 
-          scoreMotor.set(getCurrentSpike() ? 0.01 : -speed);
+          scoreMotor.set(-speed);
         });
   }
 
