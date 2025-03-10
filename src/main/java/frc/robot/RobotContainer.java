@@ -180,7 +180,7 @@ public class RobotContainer {
         .whileTrue(
             score
                 .setSpeedAndState(0.002, false)
-                .alongWith(intake.setSpeed(0.75))
+                .alongWith(intake.setSpeed(0.8))
                 .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)))
         .onFalse(
             new StateMachineCommand(elevator, actuators, currState, HOME)
@@ -308,6 +308,7 @@ public class RobotContainer {
                   storedState.setLimelightPipeLine("LEFT");
                 }));
     (operator.L2())
+        .and(operator.R1())
         .onTrue(
             new InstantCommand(
                 () -> {
@@ -315,7 +316,9 @@ public class RobotContainer {
                 }));
 
     // Old setpoint =30 with white strechy
-    operator.povUp().onTrue(climb.setClimbServoOneWay().withTimeout(0.).andThen(climb.setGoal(30)));
+    operator
+        .povUp()
+        .onTrue(climb.setClimbServoOneWay().withTimeout(0.1).andThen(climb.setGoal(-40.0)));
 
     operator
         .povDown()
@@ -323,7 +326,7 @@ public class RobotContainer {
             (climb.setClimbServoTwoWay().withTimeout(0.5))
                 .andThen(
                     climb
-                        .setGoal(-112) // -175 on white strechy
+                        .setGoal(-170.0) // -175 on white strechy
                         .alongWith(new StateMachineCommand(elevator, actuators, currState, CLIMB))
                         .alongWith(finger.setFingerOut())));
     // Comment pt 9
@@ -425,7 +428,7 @@ public class RobotContainer {
     elevator.setGoal(currState.getState().getElevatorSetpoint());
 
     score.setDefaultCommand(score.setSpeedAndState(0.000, false));
-    intake.setDefaultCommand(intake.setSpeed(0.1));
+    intake.setDefaultCommand(intake.setSpeed(0.4));
   }
 
   /**
