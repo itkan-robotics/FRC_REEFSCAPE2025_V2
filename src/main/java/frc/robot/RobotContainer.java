@@ -347,7 +347,7 @@ public class RobotContainer {
     // Old setpoint =30 with white strechy
     operator
         .povUp()
-        .onTrue(climb.setClimbServoOneWay().withTimeout(0.1).andThen(climb.setGoal(-40.0)));
+        .onTrue(climb.setClimbServoOneWay().withTimeout(0.1).andThen(climb.setGoal(-43.0)));
 
     operator
         .povDown()
