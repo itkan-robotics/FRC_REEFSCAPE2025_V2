@@ -299,7 +299,7 @@ public final class Constants {
 
     private static final Slot0Configs driveGains =
         new Slot0Configs()
-            .withKP(2.1)
+            .withKP(2.2)
             .withKI(0)
             .withKD(0.0)
             .withKS(0.156571914641674)
@@ -649,7 +649,7 @@ public final class Constants {
     L1(28.0, 3.0),
     L2(32.5, 15.5),
     L3(25.5, 23.5),
-    L4(20.0, 38.5),
+    L4(20.0, 39),
     HOME(19.0, 0.75),
     LOWALGAE(34.0, 10.0),
     HIGHALGAE(25, 18.5),

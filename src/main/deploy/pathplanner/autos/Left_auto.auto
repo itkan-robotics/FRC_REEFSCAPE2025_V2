@@ -48,7 +48,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.4
+                  "waitTime": 0.5
                 }
               },
               {
@@ -104,7 +104,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "goToReef"
+                  "name": "goToReefRight"
                 }
               },
               {
@@ -123,7 +123,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.4
+                  "waitTime": 0.75
                 }
               },
               {
@@ -179,7 +179,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "goToReefRight"
+                  "name": "goToReef"
                 }
               },
               {
@@ -198,7 +198,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.4
+                  "waitTime": 0.75
                 }
               },
               {
@@ -211,9 +211,28 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "LToSourceL"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "LToSourceL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "outtakeDefault"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "HOME"
+                }
+              }
+            ]
           }
         }
       ]
