@@ -299,7 +299,7 @@ public final class Constants {
 
     private static final Slot0Configs driveGains =
         new Slot0Configs()
-            .withKP(2.25)
+            .withKP(2.1)
             .withKI(0)
             .withKD(0.0)
             .withKS(0.156571914641674)

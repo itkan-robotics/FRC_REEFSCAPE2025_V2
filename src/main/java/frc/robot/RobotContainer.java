@@ -40,8 +40,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.AutoAlignCommand;
-import frc.robot.commands.AutoScoreCommand;
+import frc.robot.commands.AutoBallPlusScoreCommand;
+import frc.robot.commands.AutoScorePlusBallLowCommand;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.SmartAlign;
 import frc.robot.commands.StateMachineCommand;
 import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
@@ -243,7 +245,7 @@ public class RobotContainer {
 
     base.L2()
         .whileTrue(
-            new AutoScoreCommand(
+            new SmartAlign(
                 drive,
                 actuators,
                 elevator,
@@ -254,6 +256,33 @@ public class RobotContainer {
                 currState))
         .onFalse(new InstantCommand());
 
+    operator
+        .create()
+        .whileTrue(
+            new AutoBallPlusScoreCommand(
+                drive,
+                actuators,
+                elevator,
+                score,
+                storedState,
+                leftLimelight,
+                rightLimelight,
+                currState))
+        .onFalse(new InstantCommand().alongWith(score.setSpeedAndState(-0.25, true)));
+
+    operator
+        .options()
+        .whileTrue(
+            new AutoScorePlusBallLowCommand(
+                drive,
+                actuators,
+                elevator,
+                score,
+                storedState,
+                leftLimelight,
+                rightLimelight,
+                currState))
+        .onFalse(new InstantCommand().alongWith(score.setSpeedAndState(-0.25, true)));
     // base.create()
     //     .onTrue(new DriveToReefCommand(drive, elevator, LimelightConstants.rightLimelightName,
     // 11))

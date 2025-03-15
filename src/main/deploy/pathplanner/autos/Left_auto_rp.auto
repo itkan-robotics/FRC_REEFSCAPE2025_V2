@@ -7,6 +7,12 @@
         {
           "type": "path",
           "data": {
+            "pathName": "PushPathL"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
             "pathName": "LL_path"
           }
         },
@@ -30,12 +36,6 @@
                 "type": "named",
                 "data": {
                   "name": "outtakeDefault"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
                 }
               }
             ]
@@ -106,12 +106,6 @@
                 "data": {
                   "name": "goToReef"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
               }
             ]
           }
@@ -163,7 +157,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "sourceLToL"
+            "pathName": "sourceLToK"
           }
         },
         {
@@ -180,12 +174,6 @@
                 "type": "named",
                 "data": {
                   "name": "goToReefRight"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
                 }
               }
             ]
@@ -208,12 +196,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LToSourceL"
           }
         }
       ]

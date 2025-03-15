@@ -27,10 +27,15 @@ public class AutoScoreSelection {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putString("storedState/RobotState", "L" + operatorStateInt);
-    SmartDashboard.putNumber("storedState/Pipeline", operatorLimelight);
-    SmartDashboard.putNumber("storedState/TargetAngle", operatorReefAngle);
-    SmartDashboard.putBoolean("storedState/ShouldAutoTurn", baseAutoTurn);
+    SmartDashboard.putString("storedState/RobotState", "L" + getBotStateInt());
+    SmartDashboard.putNumber("storedState/Pipeline", getLimelightTargetPipeline());
+    SmartDashboard.putNumber("storedState/TargetAngle", getTargetReefAngle());
+    SmartDashboard.putBoolean("storedState/ShouldAutoTurn", getAutoTurn());
+
+    // SmartDashboard.putString("storedState/RobotState", "L" + operatorStateInt);
+    // SmartDashboard.putNumber("storedState/Pipeline", operatorLimelight);
+    // SmartDashboard.putNumber("storedState/TargetAngle", operatorReefAngle);
+    // SmartDashboard.putBoolean("storedState/ShouldAutoTurn", baseAutoTurn);
   }
 
   /**
@@ -142,7 +147,7 @@ public class AutoScoreSelection {
    * @return The stored target angle of the reef
    */
   public double getTargetReefAngle() {
-    return operatorReefAngle;
+    return (operatorReefAngle == -240) ? 120 : operatorReefAngle;
   }
 
   /** Takes in an angle and returns the corresponding AprilTag ID, relative to the alliance */

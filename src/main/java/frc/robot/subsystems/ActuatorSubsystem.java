@@ -75,8 +75,8 @@ public class ActuatorSubsystem extends SubsystemBase {
   public Command setGoal(double setpoint) {
     return run(
         () -> {
-          setSetpoint(tunableAngle.get());
-          // setSetpoint(setpoint);
+          //  setSetpoint(tunableAngle.get());
+          setSetpoint(setpoint);
         });
   }
 
