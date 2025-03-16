@@ -54,10 +54,10 @@
     "rotation": 55.261374717234375
   },
   "reversed": false,
-  "folder": "2 Coral Auton",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.97696981133214
+    "rotation": 117.51200262385144
   },
   "useDefaultConstraints": true
 }
