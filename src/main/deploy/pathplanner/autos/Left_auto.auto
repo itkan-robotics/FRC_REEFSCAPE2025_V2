@@ -48,7 +48,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.5
+                  "waitTime": 0.4
                 }
               },
               {
@@ -104,7 +104,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "goToReefRight"
+                  "name": "goToReef"
                 }
               },
               {
@@ -123,7 +123,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.75
+                  "waitTime": 0.4
                 }
               },
               {
@@ -163,7 +163,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "sourceLToL"
+            "pathName": "sourceLToK"
           }
         },
         {
@@ -179,7 +179,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "goToReef"
+                  "name": "goToReefRight"
                 }
               },
               {
@@ -198,38 +198,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.75
+                  "waitTime": 0.4
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "outtake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "LToSourceL"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "outtakeDefault"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "HOME"
                 }
               }
             ]
