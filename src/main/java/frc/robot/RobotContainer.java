@@ -402,7 +402,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
 
-    NamedCommands.registerCommand("outtake", score.setSpeedAndState(-0.85, false));
+    NamedCommands.registerCommand("outtake", score.setSpeedAndState(-0.8, false));
 
     NamedCommands.registerCommand("stopIntake", intake.getDefaultCommand());
 

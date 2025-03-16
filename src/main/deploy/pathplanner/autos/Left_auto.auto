@@ -209,6 +209,12 @@
               }
             ]
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "EVACUATE"
+          }
         }
       ]
     }
