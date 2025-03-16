@@ -9,6 +9,8 @@ import static frc.robot.Constants.LimelightConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Constants.BotState;
@@ -39,7 +41,7 @@ public class SmartAlign extends Command {
 
   PIDController m_pidControllerY, m_pidControllerX;
 
-  boolean isAngleReached = false;
+  boolean isAngleReached = true;
   boolean isStrafeReached = false;
 
   double targetReefAngle = 0.0;
@@ -54,6 +56,8 @@ public class SmartAlign extends Command {
   boolean rotationReached = false;
   int tagID = 10;
   double reefAngle = 0.0;
+
+  boolean isFlipped;
 
   public SmartAlign(
       Drive d,
@@ -77,6 +81,10 @@ public class SmartAlign extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    isFlipped =
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red;
+
     // System.out.println("0");
     currentState = Constants.toBotState(storedState.getBotStateInt());
 
@@ -89,64 +97,67 @@ public class SmartAlign extends Command {
     } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
       limelightName = LimelightConstants.leftLimelightName;
     }
-    m_pidControllerY = new PIDController(0.1, 0, 0);
+    m_pidControllerY = new PIDController(0.075, 0, 0);
     m_pidControllerY.setTolerance(0.5);
 
-    m_pidControllerX = new PIDController(0.06, 0, 0);
+    m_pidControllerX = new PIDController(0.045, 0, 0);
     m_pidControllerX.setTolerance(0.5);
 
     m_thetaController = new PIDController(0.12, 0.0, 0.0);
     m_thetaController.enableContinuousInput(-180, 180);
     m_thetaController.setTolerance(3);
 
-    targetReefAngle = storedState.getTargetReefAngle();
+    targetReefAngle =
+        MathUtil.inputModulus(storedState.getTargetReefAngle() + (isFlipped ? 180 : 0), -180, 180);
+    // targetReefAngle = storedState.getTargetReefAngle();
     // targetReefAngle = 180.0;
     // System.out.println("1");
     reefAngle = LimelightSubsystem.getLLReefAngle(limelightName);
     // System.out.println("2");
 
-    isAngleReached = false;
+    // isAngleReached = true;
     isStrafeReached = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+
     // System.out.println("3");
-    if (!isAngleReached) {
-      // System.out.println("5");
-      // System.out.println(m_drive.getRotation().getDegrees());
-      if ((Math.abs(targetReefAngle) == 180.0
-              ? Math.abs(Math.abs(m_drive.getRotation().getDegrees()) - 180)
-              : Math.abs(m_drive.getRotation().getDegrees() - targetReefAngle))
-          < 2.5) {
-        // System.out.println("5.1");
-        isAngleReached = true;
-      }
-      rotationVal =
-          m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
-      // System.out.println("5.2");
-      m_thetaController.calculate(
-          (MathUtil.inputModulus(m_drive.getHeadingDegrees(), -180, 180)), targetReefAngle);
-      // System.out.println("5.4");
-      // rotationVal = MathUtil.clamp(rotationVal, -0.3, 0.3);
-      // //System.out.println("6");
-      // If it is reached, start moving towards the target
-      ChassisSpeeds speeds = new ChassisSpeeds(0.0, 0.0, rotationVal);
-      m_drive.runVelocity(speeds);
-    }
+    // if (!isAngleReached) {
+    //   // System.out.println("5");
+    //   // System.out.println(m_drive.getRotation().getDegrees());
+    //   if ((Math.abs(targetReefAngle) == 180.0
+    //           ? Math.abs(Math.abs(m_drive.getRotation().getDegrees()) - 180)
+    //           : Math.abs(m_drive.getRotation().getDegrees() - targetReefAngle))
+    //       < 2.5) {
+    //     // System.out.println("5.1");
+    //     isAngleReached = true;
+    //   }
+    //   rotationVal =
+    //       m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
+    //   // System.out.println("5.2");
+    //   m_thetaController.calculate(
+    //       (MathUtil.inputModulus(m_drive.getHeadingDegrees(), -180, 180)), targetReefAngle);
+    //   // System.out.println("5.4");
+    //   // rotationVal = MathUtil.clamp(rotationVal, -0.3, 0.3);
+    //   // //System.out.println("6");
+    //   // If it is reached, start moving towards the target
+    //   ChassisSpeeds speeds = new ChassisSpeeds(0.0, 0.0, rotationVal);
+    //   m_drive.runVelocity(speeds);
+    // }
     if (LimelightHelpers.getTV(limelightName)) {
       // System.out.println("4"); // If the angle isn't reached, keep rotating until it does
       if (isAngleReached) {
         // //System.out.println("7");
-        rotationVal =
-            m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
+        // rotationVal =
+        //     m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
         m_pidControllerX.setSetpoint(0);
         // //System.out.println("8");
         xTrans = m_pidControllerX.calculate(LimelightHelpers.getTX(limelightName));
         xTrans = MathUtil.clamp(xTrans, -5, 5);
 
-        m_pidControllerY.setSetpoint(19);
+        m_pidControllerY.setSetpoint(18.5);
         // //System.out.println("9");
         yTrans = m_pidControllerY.calculate(LimelightHelpers.getTA(limelightName));
         // //System.out.println("10");
@@ -164,7 +175,7 @@ public class SmartAlign extends Command {
             isStrafeReached = true;
           }
         }
-        System.out.println(LimelightHelpers.getTX(limelightName));
+        // System.out.println(LimelightHelpers.getTX(limelightName));
       }
 
       // Do all the speeds stuff
@@ -179,7 +190,7 @@ public class SmartAlign extends Command {
         MathUtil.clamp(yTrans, -0.3, 0.3);
       }
 
-      ChassisSpeeds speeds = new ChassisSpeeds(yTrans, xTrans, rotationVal);
+      ChassisSpeeds speeds = new ChassisSpeeds(yTrans, xTrans, 0.0);
 
       m_drive.runVelocity(speeds);
 
