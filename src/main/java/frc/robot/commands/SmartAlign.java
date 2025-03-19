@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import static frc.robot.Constants.LimelightConstants.*;
+import static frc.robot.util.MachineStates.PossibleStates;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -12,34 +13,31 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
-import frc.robot.Constants.BotState;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.StateMachine;
-import frc.robot.subsystems.ActuatorSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ScoringSubsystem;
+import frc.robot.subsystems.arm.ExtensionSubsystem;
+import frc.robot.subsystems.arm.ShoulderSubsystem;
+import frc.robot.subsystems.arm.WristSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.MachineStates.BotState;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SmartAlign extends Command {
   /** Creates a new SmartAlign. */
-  Drive m_drive;
+  Drive drive;
 
-  ActuatorSubsystem actuator;
-  ElevatorSubsystem elevator;
+  ShoulderSubsystem shoulder;
+  ExtensionSubsystem extension;
+  WristSubsystem wrist;
+
+  String limelightName;
   AutoScoreSelection storedState;
-  LimelightSubsystem lLimelight, rLimelight;
-  ScoringSubsystem score;
-  StateMachine stateMachine;
-  private PIDController m_thetaController;
-  private String limelightName;
   BotState currentState;
 
-  PIDController m_pidControllerY, m_pidControllerX;
+  PIDController m_pidControllerY, m_pidControllerX, m_thetaController;
 
   boolean isAngleReached = true;
   boolean isStrafeReached = false;
@@ -53,29 +51,25 @@ public class SmartAlign extends Command {
   double rotationVal = 0.0;
 
   boolean m_end = false;
-  boolean rotationReached = false;
   int tagID = 10;
   double reefAngle = 0.0;
 
   boolean isFlipped;
 
   public SmartAlign(
-      Drive d,
-      ActuatorSubsystem a,
-      ElevatorSubsystem e,
-      ScoringSubsystem s,
-      AutoScoreSelection b,
-      LimelightSubsystem ll,
-      LimelightSubsystem rl,
-      StateMachine sm) {
-    this.m_drive = d;
-    this.elevator = e;
-    this.actuator = a;
-    this.storedState = b;
-    this.stateMachine = sm;
-    this.storedState = b;
+      Drive drive,
+      ShoulderSubsystem shoulder,
+      ExtensionSubsystem e,
+      WristSubsystem wrist,
+      EndEffectorSubsystem s,
+      AutoScoreSelection storedState) {
+    this.drive = drive;
+    this.extension = e;
+    this.shoulder = shoulder;
+    this.wrist = wrist;
+    this.storedState = storedState;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_drive, elevator, actuator);
+    addRequirements(drive, extension, shoulder, wrist);
   }
 
   // Called when the command is initially scheduled.
@@ -86,17 +80,11 @@ public class SmartAlign extends Command {
             && DriverStation.getAlliance().get() == Alliance.Red;
 
     // System.out.println("0");
-    currentState = Constants.toBotState(storedState.getBotStateInt());
+    currentState = PossibleStates[storedState.getBotStateInt()];
 
     m_end = false;
-    double targetLimelightInt = storedState.getLimelightTargetPipeline();
-    // SmartDashboard.putNumber("autoAlignTeleop/targetLimelightInt", targetLimelightInt);
-
-    if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
-      limelightName = LimelightConstants.rightLimelightName;
-    } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
-      limelightName = LimelightConstants.leftLimelightName;
-    }
+    limelightName = storedState.getTargetLimelight();
+    
     m_pidControllerY = new PIDController(0.075, 0, 0);
     m_pidControllerY.setTolerance(0.5);
 
@@ -166,8 +154,8 @@ public class SmartAlign extends Command {
         // If x-values within tolerance, start superstructuring
         if (isStrafeReached) {
           // //System.out.println("11");
-          elevator.setSetpoint(currentState.getElevatorSetpoint());
-          actuator.setSetpoint(currentState.getActuatorSetpoint());
+          extension.setSetpoint(currentState.getExtensionSetpoint());
+          shoulder.setSetpoint(currentState.getShoulderSetpoint());
           // If not reached, check if it is reached
         } else {
           // //System.out.println("12");
@@ -183,16 +171,13 @@ public class SmartAlign extends Command {
       if (isAngleReached) {
         MathUtil.clamp(rotationVal, -0.75, 0.75);
       }
-      // if (isStrafeReached) {
-      //   MathUtil.clamp(xTrans, -1.0, 1.0);
-      // }
       if (LimelightHelpers.getTA(limelightName) > 10.0) {
         MathUtil.clamp(yTrans, -0.3, 0.3);
       }
 
       ChassisSpeeds speeds = new ChassisSpeeds(yTrans, xTrans, 0.0);
 
-      m_drive.runVelocity(speeds);
+      drive.runVelocity(speeds);
 
       if (m_pidControllerX.atSetpoint() && m_pidControllerY.atSetpoint() && count > 25) {
         m_end = true;

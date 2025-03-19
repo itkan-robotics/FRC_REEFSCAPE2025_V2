@@ -4,11 +4,15 @@
 
 package frc.robot.util;
 
+import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
+import static frc.robot.Constants.LimelightConstants.leftLimelightName;
+import static frc.robot.Constants.LimelightConstants.rightLimelightName;
+import static frc.robot.util.MachineStates.PossibleStates;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.Constants.BotState;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.util.MachineStates.BotState;
 import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 
@@ -107,6 +111,10 @@ public class AutoScoreSelection {
     return operatorLimelight; // (int) SmartDashboard.getNumber("storedState/Pipeline", 0);
   }
 
+  public String getTargetLimelight() {
+    return operatorLimelight == LEFT_BRANCH_PIPELINE ? rightLimelightName : leftLimelightName;
+  }
+
   public void setAutoTurn(boolean shouldTurn) {
     baseAutoTurn = shouldTurn;
   }
@@ -139,7 +147,7 @@ public class AutoScoreSelection {
    * @return the store state as a BotState enum, with a default value of RESET.
    */
   public BotState getBotState() {
-    return Constants.toBotState(operatorStateInt); // Constants.toBotState((int)
+    return PossibleStates[operatorStateInt]; // Constants.toBotState((int)
     // SmartDashboard.getNumber("storedState/RobotState", -1));
   }
 

@@ -63,7 +63,6 @@ import java.util.Map;
  */
 public final class Constants {
 
-  public static final boolean kIsTuningMode = true;
   public static final boolean tuningMode = true;
 
   // PathPlanner config constants (wrong values)
@@ -76,210 +75,101 @@ public final class Constants {
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
 
-  public static final int SCORE_MOTOR_PORT = 12;
-  public static final int INTAKE_MOTOR_PORT = 17;
+  public static final int END_EFFECTOR_MOTOR_PORT = 15;
 
-  public class FieldConstants {
+  public static class ArmConstants {
+    public static class ShoulderConstants {
+      public static final int SHOULDER_MOTOR_PORT_A = 9;
+      public static final int SHOULDER_MOTOR_PORT_B = 10;
+      public static final int SHOULDER_MOTOR_PORT_C = 11;
 
-    public static Pose2d transformAtAngle(Pose2d pose, double offset) {
-      double poseX = pose.getX();
-      double poseY = pose.getY();
-      poseX += Math.sin(pose.getRotation().getRadians()) * offset;
-      poseY += Math.cos(pose.getRotation().getRadians()) * offset;
-      return new Pose2d(poseX, poseY, pose.getRotation());
+      public static final double SHOULDER_KP = 0.0;
+      public static final double SHOULDER_KS = 0.0;
+      public static final double SHOULDER_KG = 0.0;
+      public static final double SHOULDER_CRUISE_VELOCITY = 0.0;
+      public static final double SHOULDER_ACCELERATION = 0.0;
+      public static final double SHOULDER_JERK = 0.0;
+
+      public static final double MIN_SHOULDER_ROTATION_POS = 0.0;
+      public static final double MAX_SHOULDER_ROTATION_POS = 0.0;
     }
 
-    public static final double fieldLength = Units.inchesToMeters(690.876);
-    public static final double fieldWidth = Units.inchesToMeters(317);
-    public static final double startingLineX =
-        Units.inchesToMeters(299.438); // Measured from the inside of starting
-    // line
+    public static class ExtensionConstants {
+      public static final int EXTENSION_MOTOR_PORT_A = 12;
+      public static final int EXTENSION_MOTOR_PORT_B = 13;
 
-    public static class Processor {
-      public static final Pose2d centerFace =
-          new Pose2d(Units.inchesToMeters(235.726), 0, Rotation2d.fromDegrees(90));
+      public static final double EXTENSION_KP = 0.0;
+      public static final double EXTENSION_KS = 0.0;
+      public static final double EXTENSION_KG = 0.0;
+      public static final double EXTENSION_CRUISE_VELOCITY = 0.0;
+      public static final double EXTENSION_ACCELERATION = 0.0;
+      public static final double EXTENSION_JERK = 0.0;
+
+      public static final double MIN_EXTENSION_POS = 0.0;
+      public static final double MAX_EXTENSION_POS = 0.0;
     }
 
-    public static class Barge {
-      public static final Translation2d farCage =
-          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(286.779));
-      public static final Translation2d middleCage =
-          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(242.855));
-      public static final Translation2d closeCage =
-          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(199.947));
+    public static class WristConstants {
+      public static final int WRIST_MOTOR_PORT_A = 14;
 
-      // Measured from floor to bottom of cage
-      public static final double deepHeight = Units.inchesToMeters(3.125);
-      public static final double shallowHeight = Units.inchesToMeters(30.125);
+      public static final double WRIST_KP = 0.0;
+      public static final double WRIST_KS = 0.0;
+      public static final double WRIST_KG = 0.0;
+      public static final double WRIST_CRUISE_VELOCITY = 0.0;
+      public static final double WRIST_ACCELERATION = 0.0;
+      public static final double WRIST_JERK = 0.0;
+
+      public static final double MIN_WRIST_ROTATION_POS = 0.0;
+      public static final double MAX_WRIST_ROTATION_POS = 0.0;
     }
+  }
 
-    public static class CoralStation {
-      public static final Pose2d leftCenterFace =
-          new Pose2d(
-              Units.inchesToMeters(33.526),
-              Units.inchesToMeters(291.176),
-              Rotation2d.fromDegrees(90 - 144.011));
-      public static final Pose2d rightCenterFace =
-          new Pose2d(
-              Units.inchesToMeters(33.526),
-              Units.inchesToMeters(25.824),
-              Rotation2d.fromDegrees(144.011 - 90));
-    }
+  public static class ClimbConstants {
+    public static final int CLIMB_MOTOR_PORT = 16;
+    public static final int CLIMB_SERVO_PORT = 1;
+    public static final double CLIMB_SERVO_TWO_WAY_POS = 0.22;
+    public static final double CLIMB_SERVO_ONE_WAY_POS = 0.4;
+  }
 
-    public static class Reef {
-      public static final Translation2d center =
-          new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
-      public static final double faceToZoneLine =
-          Units.inchesToMeters(12); // Side of the reef to the inside of the
-      // reef zone line
+  public static class LimelightConstants {
 
-      public static final Pose2d[] centerFaces =
-          new Pose2d[6]; // Starting facing the driver station in clockwise
-      // order
-      public static final List<Map<ReefHeight, Pose3d>> branchPositions =
-          new ArrayList<>(); // Starting at the right
-      // branch facing the
-      // driver station in
-      // clockwise
+    public static final String singleLimelightName = "limelight";
+    public static final String leftLimelightName = "limelight-left";
+    public static final String rightLimelightName = "limelight-right";
+    public static final boolean multipleLimelights = true;
 
-      static {
-        // Initialize faces
-        centerFaces[0] =
-            new Pose2d(
-                Units.inchesToMeters(144.003),
-                Units.inchesToMeters(158.500),
-                Rotation2d.fromDegrees(180));
-        centerFaces[1] =
-            new Pose2d(
-                Units.inchesToMeters(160.373),
-                Units.inchesToMeters(186.857),
-                Rotation2d.fromDegrees(120));
-        centerFaces[2] =
-            new Pose2d(
-                Units.inchesToMeters(193.116),
-                Units.inchesToMeters(186.858),
-                Rotation2d.fromDegrees(60));
-        centerFaces[3] =
-            new Pose2d(
-                Units.inchesToMeters(209.489),
-                Units.inchesToMeters(158.502),
-                Rotation2d.fromDegrees(0));
-        centerFaces[4] =
-            new Pose2d(
-                Units.inchesToMeters(193.118),
-                Units.inchesToMeters(130.145),
-                Rotation2d.fromDegrees(-60));
-        centerFaces[5] =
-            new Pose2d(
-                Units.inchesToMeters(160.375),
-                Units.inchesToMeters(130.144),
-                Rotation2d.fromDegrees(-120));
+    /**
+     * The desired offset from the limelight to the reef in meters (negative since we want to be
+     * farther away, not closer up)
+     */
+    public static final double kReefOffset = -0.35;
 
-        // Initialize branch positions
-        for (int face = 0; face < 6; face++) {
-          Map<ReefHeight, Pose3d> fillRight = new HashMap<>();
-          Map<ReefHeight, Pose3d> fillLeft = new HashMap<>();
-          for (var level : ReefHeight.values()) {
-            Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
-            double adjustX = Units.inchesToMeters(30.738);
-            double adjustY = Units.inchesToMeters(6.469);
+    public static final int LEFT_BRANCH_PIPELINE = 1;
+    public static final int RIGHT_BRANCH_PIPELINE = 2;
 
-            fillRight.put(
-                level,
-                new Pose3d(
-                    new Translation3d(
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                            .getX(),
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                            .getY(),
-                        level.height),
-                    new Rotation3d(
-                        0,
-                        Units.degreesToRadians(level.pitch),
-                        poseDirection.getRotation().getRadians())));
-            fillLeft.put(
-                level,
-                new Pose3d(
-                    new Translation3d(
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                            .getX(),
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                            .getY(),
-                        level.height),
-                    new Rotation3d(
-                        0,
-                        Units.degreesToRadians(level.pitch),
-                        poseDirection.getRotation().getRadians())));
-          }
-          branchPositions.add(fillRight);
-          branchPositions.add(fillLeft);
-        }
-      }
-    }
+    public static final double kLeftBranchXOffset = -0.33 / 2;
+    public static final double kRightBranchXOffset = 0.33 / 2;
+    public static final double kDefaultXOffset = 0.0;
 
-    public static class StagingPositions {
-      // Measured from the center of the ice cream
-      public static final Pose2d leftLollipop =
-          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(230.5), new Rotation2d());
-      public static final Pose2d middleLollipop =
-          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(158.5), new Rotation2d());
-      public static final Pose2d rightLollipop =
-          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(86.5), new Rotation2d());
-    }
+    public static final double VELOCITY_DEADBAND = 0.025;
 
-    public enum ReefHeight {
-      L4(Units.inchesToMeters(72), -90),
-      L3(Units.inchesToMeters(47.625), -35),
-      L2(Units.inchesToMeters(31.875), -35),
-      L1(Units.inchesToMeters(18), 0);
+    public static final double MAX_AREA = 15.0; // Must be tuned once field is built
+    public static final double MIN_AREA = 0.01;
+    public static final LoggedTunableNumber DRIVE_KP =
+        new LoggedTunableNumber(
+            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
+    public static final LoggedTunableNumber DRIVE_KD =
+        new LoggedTunableNumber(
+            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
+    // Must be tuned once field is built
 
-      ReefHeight(double height, double pitch) {
-        this.height = height;
-        this.pitch = pitch; // in degrees
-      }
+    public static final double TURN_KP = 0.15;
+    public static final double TURN_KD = 0.00;
 
-      public final double height;
-      public final double pitch;
-    }
-
-    public static Pose2d getNearestReefFace(Pose2d currentPose) {
-      return currentPose.nearest(List.of(FieldConstants.Reef.centerFaces));
-    }
-
-    public enum ReefSide {
-      LEFT,
-      RIGHT
-    }
-
-    public static Pose2d getNearestReefBranch(Pose2d currentPose, ReefSide side) {
-      return FieldConstants.Reef.branchPositions
-          .get(
-              List.of(FieldConstants.Reef.centerFaces).indexOf(getNearestReefFace(currentPose)) * 2
-                  + (side == ReefSide.LEFT ? 1 : 0))
-          .get(FieldConstants.ReefHeight.L1)
-          .toPose2d();
-    }
-
-    public static Pose2d getNearestCoralStation(Pose2d currentPose) {
-      double distanceToLeftStation =
-          currentPose
-              .getTranslation()
-              .getDistance(FieldConstants.CoralStation.leftCenterFace.getTranslation());
-      double distanceToRightStation =
-          currentPose
-              .getTranslation()
-              .getDistance(FieldConstants.CoralStation.rightCenterFace.getTranslation());
-
-      if (distanceToLeftStation > distanceToRightStation) {
-        return FieldConstants.CoralStation.rightCenterFace;
-      } else {
-        return FieldConstants.CoralStation.leftCenterFace;
-      }
-    }
+    public static final double ALIGN_KS = 0.05;
+    public static final double ALIGN_KP = 2.5;
+    public static final double ALIGN_KD = 0.005;
+    public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
   }
 
   public class TunerConstants {
@@ -606,207 +496,207 @@ public final class Constants {
     }
   }
 
-  public static class ActuatorConstants {
-    public static final int RIGHT_ACTUATOR_MOTOR_PORT = 10;
-    public static final int LEFT_ACTUATOR_MOTOR_PORT = 9;
-    public static final double ACTUATOR_KP = 28.0;
-    public static final double ACTUATOR_KS = 4.0;
-    public static final double ACTUATOR_CRUISE_VELOCITY = 65.0;
-    public static final double ACTUATOR_ACCELERATION = 80.0;
-  }
+  public class FieldConstants {
 
-  public static class ElevatorConstants {
-    public static final int ELEVATOR_MOTOR_PORT_LEFT = 13;
-    public static final int ELEVATOR_MOTOR_PORT_RIGHT = 14;
-
-    public static final double ELEVATOR_KP = 10.0;
-    public static final double ELEVATOR_KS = 3.0;
-    public static final double ELEVATOR_KG = 1.0;
-    public static final double ELEVATOR_CRUISE_VELOCITY = 60.0;
-    public static final double ELEVATOR_ACCELERATION = 300.0;
-    public static final double ELEVATOR_JERK = 750.0;
-
-    public static final boolean elevatorMotorInverted = false;
-  }
-
-  public static class ClimbConstants {
-    public static final int CLIMB_MOTOR_PORT = 16;
-    public static final int CLIMB_SERVO_PORT = 1;
-    public static final double CLIMB_SERVO_TWO_WAY_POS = 0.22;
-    public static final double CLIMB_SERVO_ONE_WAY_POS = 0.4;
-  }
-
-  public static class FingerConstants {
-    public static final int FINGER_SERVO_PORT = 1;
-    public static final int FINGER_IN_POS = 0;
-    public static final int FINGER_OUT_POS = 1;
-  }
-
-  /** The different elevator and pivot states our robot can do, all in one enum! */
-  public static enum BotState {
-    RESET(5.0, 0.25),
-    CORALINTAKE(6.0, 0.25),
-    L1(28.0, 3.0),
-    L2(32.5, 15.5),
-    L3(25.5, 23.5),
-    L4(20.0, 38.5),
-    HOME(19.0, 0.75),
-    LOWALGAE(34.0, 10.0),
-    HIGHALGAE(25, 18.5),
-    GROUNDALGAE(43, 6.0), // 53
-    BARGE(16.0, 40.0),
-    CLIMB(0, 5),
-    PROCESSOR(40, 5.0); // TO-DO: Test and tune
-
-    private final double pivotSetpoint;
-    private final double elevatorSetpoint;
-
-    BotState(double actuatorSetpoint, double elevatorSetpoint) {
-      this.pivotSetpoint = actuatorSetpoint;
-      this.elevatorSetpoint = elevatorSetpoint;
+    public static Pose2d transformAtAngle(Pose2d pose, double offset) {
+      double poseX = pose.getX();
+      double poseY = pose.getY();
+      poseX += Math.sin(pose.getRotation().getRadians()) * offset;
+      poseY += Math.cos(pose.getRotation().getRadians()) * offset;
+      return new Pose2d(poseX, poseY, pose.getRotation());
     }
 
-    public double getActuatorSetpoint() {
-      return pivotSetpoint;
+    public static final double fieldLength = Units.inchesToMeters(690.876);
+    public static final double fieldWidth = Units.inchesToMeters(317);
+    public static final double startingLineX =
+        Units.inchesToMeters(299.438); // Measured from the inside of starting
+    // line
+
+    public static class Processor {
+      public static final Pose2d centerFace =
+          new Pose2d(Units.inchesToMeters(235.726), 0, Rotation2d.fromDegrees(90));
     }
 
-    public double getElevatorSetpoint() {
-      return elevatorSetpoint;
+    public static class Barge {
+      public static final Translation2d farCage =
+          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(286.779));
+      public static final Translation2d middleCage =
+          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(242.855));
+      public static final Translation2d closeCage =
+          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(199.947));
+
+      // Measured from floor to bottom of cage
+      public static final double deepHeight = Units.inchesToMeters(3.125);
+      public static final double shallowHeight = Units.inchesToMeters(30.125);
     }
-  }
 
-  public static String toString(BotState botState) {
-    switch (botState) {
-      case BARGE:
-        return "BARGE";
-      case CORALINTAKE:
-        return "CORALINTAKE";
-      case GROUNDALGAE:
-        return "GROUNDALGAE";
-      case HIGHALGAE:
-        return "HIGHALGAE";
-      case HOME:
-        return "HOME";
-      case L1:
-        return "L1";
-      case L2:
-        return "L2";
-      case L3:
-        return "L3";
-      case L4:
-        return "L4";
-      case LOWALGAE:
-        return "LOWALGAE";
-      case PROCESSOR:
-        return "PROCESSOR";
-      case RESET:
-        return "RESET";
-      default:
-        return "HOW DID WE GET HERE?";
+    public static class CoralStation {
+      public static final Pose2d leftCenterFace =
+          new Pose2d(
+              Units.inchesToMeters(33.526),
+              Units.inchesToMeters(291.176),
+              Rotation2d.fromDegrees(90 - 144.011));
+      public static final Pose2d rightCenterFace =
+          new Pose2d(
+              Units.inchesToMeters(33.526),
+              Units.inchesToMeters(25.824),
+              Rotation2d.fromDegrees(144.011 - 90));
     }
-  }
 
-  public static BotState toBotState(String botState) {
-    switch (botState.toUpperCase()) {
-      case "BARGE":
-        return BotState.BARGE;
-      case "CORALINTAKE":
-        return BotState.CORALINTAKE;
-      case "GROUNDALGAE":
-        return BotState.GROUNDALGAE;
-      case "HIGHALGAE":
-        return BotState.HIGHALGAE;
-      case "HOME":
-        return BotState.HOME;
-      case "L1":
-        return BotState.L1;
-      case "L2":
-        return BotState.L2;
-      case "L3":
-        return BotState.L3;
-      case "L4":
-        return BotState.L4;
-      case "LOWALGAE":
-        return BotState.LOWALGAE;
-      case "PROCESSOR":
-        return BotState.PROCESSOR;
-      case "RESET":
-        return BotState.RESET;
-      default:
-        return BotState.RESET;
+    public static class Reef {
+      public static final Translation2d center =
+          new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
+      public static final double faceToZoneLine =
+          Units.inchesToMeters(12); // Side of the reef to the inside of the
+      // reef zone line
+
+      public static final Pose2d[] centerFaces =
+          new Pose2d[6]; // Starting facing the driver station in clockwise
+      // order
+      public static final List<Map<ReefHeight, Pose3d>> branchPositions =
+          new ArrayList<>(); // Starting at the right
+      // branch facing the
+      // driver station in
+      // clockwise
+
+      static {
+        // Initialize faces
+        centerFaces[0] =
+            new Pose2d(
+                Units.inchesToMeters(144.003),
+                Units.inchesToMeters(158.500),
+                Rotation2d.fromDegrees(180));
+        centerFaces[1] =
+            new Pose2d(
+                Units.inchesToMeters(160.373),
+                Units.inchesToMeters(186.857),
+                Rotation2d.fromDegrees(120));
+        centerFaces[2] =
+            new Pose2d(
+                Units.inchesToMeters(193.116),
+                Units.inchesToMeters(186.858),
+                Rotation2d.fromDegrees(60));
+        centerFaces[3] =
+            new Pose2d(
+                Units.inchesToMeters(209.489),
+                Units.inchesToMeters(158.502),
+                Rotation2d.fromDegrees(0));
+        centerFaces[4] =
+            new Pose2d(
+                Units.inchesToMeters(193.118),
+                Units.inchesToMeters(130.145),
+                Rotation2d.fromDegrees(-60));
+        centerFaces[5] =
+            new Pose2d(
+                Units.inchesToMeters(160.375),
+                Units.inchesToMeters(130.144),
+                Rotation2d.fromDegrees(-120));
+
+        // Initialize branch positions
+        for (int face = 0; face < 6; face++) {
+          Map<ReefHeight, Pose3d> fillRight = new HashMap<>();
+          Map<ReefHeight, Pose3d> fillLeft = new HashMap<>();
+          for (var level : ReefHeight.values()) {
+            Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
+            double adjustX = Units.inchesToMeters(30.738);
+            double adjustY = Units.inchesToMeters(6.469);
+
+            fillRight.put(
+                level,
+                new Pose3d(
+                    new Translation3d(
+                        poseDirection
+                            .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
+                            .getX(),
+                        poseDirection
+                            .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
+                            .getY(),
+                        level.height),
+                    new Rotation3d(
+                        0,
+                        Units.degreesToRadians(level.pitch),
+                        poseDirection.getRotation().getRadians())));
+            fillLeft.put(
+                level,
+                new Pose3d(
+                    new Translation3d(
+                        poseDirection
+                            .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
+                            .getX(),
+                        poseDirection
+                            .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
+                            .getY(),
+                        level.height),
+                    new Rotation3d(
+                        0,
+                        Units.degreesToRadians(level.pitch),
+                        poseDirection.getRotation().getRadians())));
+          }
+          branchPositions.add(fillRight);
+          branchPositions.add(fillLeft);
+        }
+      }
     }
-  }
 
-  public static BotState toBotState(int botState) {
-    switch (botState) {
-      case 0:
-        return BotState.HOME;
-      case 1:
-        return BotState.L1;
-      case 2:
-        return BotState.L2;
-      case 3:
-        return BotState.L3;
-      case 4:
-        return BotState.L4;
-      case 5:
-        return BotState.BARGE;
-      case 6:
-        return BotState.CORALINTAKE;
-      case 7:
-        return BotState.GROUNDALGAE;
-      case 8:
-        return BotState.HIGHALGAE;
-      case 9:
-        return BotState.LOWALGAE;
-      case 10:
-        return BotState.PROCESSOR;
-      case -1:
-        return BotState.RESET;
-      default:
-        return BotState.RESET;
+    public static class StagingPositions {
+      // Measured from the center of the ice cream
+      public static final Pose2d leftLollipop =
+          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(230.5), new Rotation2d());
+      public static final Pose2d middleLollipop =
+          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(158.5), new Rotation2d());
+      public static final Pose2d rightLollipop =
+          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(86.5), new Rotation2d());
     }
-  }
 
-  public static class LimelightConstants {
+    public enum ReefHeight {
+      L4(Units.inchesToMeters(72), -90),
+      L3(Units.inchesToMeters(47.625), -35),
+      L2(Units.inchesToMeters(31.875), -35),
+      L1(Units.inchesToMeters(18), 0);
 
-    public static final String singleLimelightName = "limelight";
-    public static final String leftLimelightName = "limelight-left";
-    public static final String rightLimelightName = "limelight-right";
-    public static final boolean multipleLimelights = true;
+      ReefHeight(double height, double pitch) {
+        this.height = height;
+        this.pitch = pitch; // in degrees
+      }
 
-    /**
-     * The desired offset from the limelight to the reef in meters (negative since we want to be
-     * farther away, not closer up)
-     */
-    public static final double kReefOffset = -0.35;
+      public final double height;
+      public final double pitch;
+    }
 
-    public static final int LEFT_BRANCH_PIPELINE = 1;
-    public static final int RIGHT_BRANCH_PIPELINE = 2;
+    public static Pose2d getNearestReefFace(Pose2d currentPose) {
+      return currentPose.nearest(List.of(FieldConstants.Reef.centerFaces));
+    }
 
-    public static final double kLeftBranchXOffset = -0.33 / 2;
-    public static final double kRightBranchXOffset = 0.33 / 2;
-    public static final double kDefaultXOffset = 0.0;
+    public enum ReefSide {
+      LEFT,
+      RIGHT
+    }
 
-    public static final double VELOCITY_DEADBAND = 0.025;
+    public static Pose2d getNearestReefBranch(Pose2d currentPose, ReefSide side) {
+      return FieldConstants.Reef.branchPositions
+          .get(
+              List.of(FieldConstants.Reef.centerFaces).indexOf(getNearestReefFace(currentPose)) * 2
+                  + (side == ReefSide.LEFT ? 1 : 0))
+          .get(FieldConstants.ReefHeight.L1)
+          .toPose2d();
+    }
 
-    public static final double MAX_AREA = 15.0; // Must be tuned once field is built
-    public static final double MIN_AREA = 0.01;
-    public static final LoggedTunableNumber DRIVE_KP =
-        new LoggedTunableNumber(
-            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
-    public static final LoggedTunableNumber DRIVE_KD =
-        new LoggedTunableNumber(
-            "interpolation/Drive_kP", 0.055); // Formerly 0.15// Must be tuned once field is built
-    // Must be tuned once field is built
+    public static Pose2d getNearestCoralStation(Pose2d currentPose) {
+      double distanceToLeftStation =
+          currentPose
+              .getTranslation()
+              .getDistance(FieldConstants.CoralStation.leftCenterFace.getTranslation());
+      double distanceToRightStation =
+          currentPose
+              .getTranslation()
+              .getDistance(FieldConstants.CoralStation.rightCenterFace.getTranslation());
 
-    public static final double TURN_KP = 0.15;
-    public static final double TURN_KD = 0.00;
-
-    public static final double ALIGN_KS = 0.05;
-    public static final double ALIGN_KP = 2.5;
-    public static final double ALIGN_KD = 0.005;
-    public static final double BRANCH_OFFSET = 10.0; // Must be tuned once field is built
+      if (distanceToLeftStation > distanceToRightStation) {
+        return FieldConstants.CoralStation.rightCenterFace;
+      } else {
+        return FieldConstants.CoralStation.leftCenterFace;
+      }
+    }
   }
 
   // Simulation stuff we aren't using this season

@@ -12,38 +12,48 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class ScoringSubsystem extends SubsystemBase {
+public class EndEffectorSubsystem extends SubsystemBase {
   /** Creates a new CoralItake. */
   // private final TalonFX left_coral = new TalonFX(4);
   private enum ScoreState {
-    INTAKEALGAE,
-    OUTTAKEALGAE,
-    OUTTAKECORAL,
-    STORECORAL,
-    NONE
+    INTAKEALGAE("INTAKEALGAE"),
+    OUTTAKEALGAE("OUTTAKEALGAE"),
+    OUTTAKECORAL("OUTTAKECORAL"),
+    STORECORAL("STORECORAL"),
+    NONE("NONE");
+
+    private String name;
+
+    ScoreState(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 
   private ScoreState currentScoringState = ScoreState.NONE;
 
-  private final TalonFX scoreMotor = new TalonFX(SCORE_MOTOR_PORT);
+  private final TalonFX endEffectorMotor = new TalonFX(END_EFFECTOR_MOTOR_PORT);
 
-  public ScoringSubsystem() {
+  public EndEffectorSubsystem() {
     // in init function
-    var scoringConfig = new TalonFXConfiguration();
-    scoringConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    scoringConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    scoringConfig.CurrentLimits.StatorCurrentLimit = 40;
-    scoringConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    var endEffectorConfig = new TalonFXConfiguration();
+    endEffectorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    endEffectorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    endEffectorConfig.CurrentLimits.StatorCurrentLimit = 40;
+    endEffectorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    tryUntilOk(5, () -> scoreMotor.getConfigurator().apply(scoringConfig, 0.25));
+    tryUntilOk(5, () -> endEffectorMotor.getConfigurator().apply(endEffectorConfig, 0.25));
 
-    this.setDefaultCommand(setSpeedAndState(0.005, false));
+    this.setDefaultCommand(setSpeedAndState(0.0, false));
   }
 
   public Command DefaultCommand() {
     return run(
         () -> {
-          scoreMotor.set(-0.01);
+          endEffectorMotor.set(-0.01);
         });
   }
 
@@ -71,46 +81,23 @@ public class ScoringSubsystem extends SubsystemBase {
             currentScoringState = ScoreState.OUTTAKECORAL;
           }
 
-          scoreMotor.set(-speed);
+          endEffectorMotor.set(-speed);
         });
   }
 
-  // public Command intakeAlgae(double speed) {
-  //   return run(
-  //       () -> {
-  //         scoreMotor.set(getCurrentSpike() ? 0.05 : speed);
-  //         intakingAlgae = true;
-  //       });
-  // }
-
-  // public Command intakeCoral(double speed) {
-  //   return run(
-  //       () -> {
-  //         // left_coral.set(speed);
-  //         scoreMotor.set(speed);
-  //         intakingAlgae = false;
-  //       });
-  // }
+  public Command setSpeed(double speed) {
+    return run(
+        () -> {
+          endEffectorMotor.set(speed);
+        });
+  }
 
   public boolean getCurrentSpike() {
-    return scoreMotor.getStatorCurrent().getValueAsDouble() > 100;
+    return endEffectorMotor.getStatorCurrent().getValueAsDouble() > 100;
   }
 
   public String getCurrentScoringState() {
-    switch (currentScoringState) {
-      case NONE:
-        return "NONE";
-      case INTAKEALGAE:
-        return "INTAKING ALGAE";
-      case OUTTAKEALGAE:
-        return "OUTTAKING ALGAE";
-      case OUTTAKECORAL:
-        return "OUTTAKING ALGAE";
-      case STORECORAL:
-        return "STORING CORAL";
-      default:
-        return "HOW DID WE GET HERE";
-    }
+    return currentScoringState.getName();
   }
 
   @Override

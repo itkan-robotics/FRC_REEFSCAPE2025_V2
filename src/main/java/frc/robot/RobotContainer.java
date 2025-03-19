@@ -13,19 +13,9 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.BotState.BARGE;
-import static frc.robot.Constants.BotState.CLIMB;
-import static frc.robot.Constants.BotState.CORALINTAKE;
-import static frc.robot.Constants.BotState.HIGHALGAE;
-import static frc.robot.Constants.BotState.HOME;
-import static frc.robot.Constants.BotState.L2;
-import static frc.robot.Constants.BotState.L3;
-import static frc.robot.Constants.BotState.L4;
-import static frc.robot.Constants.BotState.LOWALGAE;
-import static frc.robot.Constants.BotState.RESET;
+import static frc.robot.util.MachineStates.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -37,21 +27,15 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.AutoAlignCommand;
-import frc.robot.commands.AutoBallPlusScoreCommand;
-import frc.robot.commands.AutoScorePlusBallLowCommand;
+import frc.robot.commands.ArmCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlign;
-import frc.robot.commands.StateMachineCommand;
-import frc.robot.subsystems.ActuatorSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.FingerSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ScoringSubsystem;
+import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.arm.ExtensionSubsystem;
+import frc.robot.subsystems.arm.ShoulderSubsystem;
+import frc.robot.subsystems.arm.WristSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -59,6 +43,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.AutoScoreSelection;
+import frc.robot.util.MachineStates;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -71,18 +56,14 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final LimelightSubsystem leftLimelight =
-      new LimelightSubsystem(LimelightConstants.leftLimelightName);
-  private final LimelightSubsystem rightLimelight =
-      new LimelightSubsystem(LimelightConstants.rightLimelightName);
-  private final ScoringSubsystem score = new ScoringSubsystem();
-  public static final ActuatorSubsystem actuators = new ActuatorSubsystem();
-  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-  private final IntakeSubsystem intake = new IntakeSubsystem();
-  private final StateMachine currState = new StateMachine();
-  public static final AutoScoreSelection storedState = new AutoScoreSelection();
+  private final EndEffectorSubsystem score = new EndEffectorSubsystem();
+  public static final ShoulderSubsystem shoulder = new ShoulderSubsystem();
+  private final ExtensionSubsystem extension = new ExtensionSubsystem();
+  private final WristSubsystem wrist = new WristSubsystem();
   public static final ClimbSubsystem climb = new ClimbSubsystem();
-  public static final FingerSubsystem finger = new FingerSubsystem();
+
+  private final BotState currState = MachineStates.RESET;
+  public static final AutoScoreSelection storedState = new AutoScoreSelection();
 
   // Controller
   private final CommandPS5Controller base = new CommandPS5Controller(0);
@@ -179,14 +160,8 @@ public class RobotContainer {
 
     // Intaking coral
     base.R2()
-        .whileTrue(
-            score
-                .setSpeedAndState(0.002, false)
-                .alongWith(intake.setSpeed(0.8))
-                .alongWith(new StateMachineCommand(elevator, actuators, currState, HOME)))
-        .onFalse(
-            new StateMachineCommand(elevator, actuators, currState, HOME)
-                .alongWith(score.setSpeedAndState(0.0075, false)));
+        .whileTrue(score.setSpeedAndState(0.002, false).alongWith(score.setSpeed(0.8)))
+        .onFalse(score.setSpeedAndState(0.0075, false));
 
     // Scoring Coral
     base.R1().or(operator.R2()).whileTrue(score.setSpeedAndState(-.8, false));
@@ -199,101 +174,64 @@ public class RobotContainer {
         .whileTrue(score.setSpeedAndState(-0.75, true))
         .onFalse(score.setSpeedAndState(-0.5, true));
 
+    // HOME
     base.cross()
         // .or(operator.cross())
-        .onTrue(
-            new StateMachineCommand(elevator, actuators, currState, HOME)
-                .alongWith(finger.setFingerIn()));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
 
     // Coral Positioning Commands
 
-    base.triangle()
-        .or(operator.triangle().and(operator.touchpad()))
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, L4));
+    // L1
+    base.touchpad()
+        .or(operator.touchpad().and(operator.R2()))
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L1));
 
-    // base.touchpad()
-    //     .or(operator.touchpad().and(operator.R2()))
-    //     .onTrue(new StateMachineCommand(elevator, actuators, currState, L1));
-
+    // L2
     base.square()
         .or(operator.square().and(operator.touchpad()))
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, L2));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L2));
 
+    // L3
     base.circle()
         .or(operator.circle().and(operator.touchpad()))
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, L3));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L3));
+
+    // L4
+    base.triangle()
+        .or(operator.triangle().and(operator.touchpad()))
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L4));
 
     // Algae Positioning Commands
 
+    // L2-3 Algae
     base.povDown()
         // .or(operator.povDown())
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, LOWALGAE));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, LOWALGAE));
 
+    // L3-4 Algae
     base.povUp()
         // .or(operator.povUp())
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, HIGHALGAE));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HIGHALGAE));
 
-    base.PS().onTrue(new StateMachineCommand(elevator, actuators, currState, BARGE));
+    // Barge/Net
+    base.PS().onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, NET));
 
+    // Reset
     base.povLeft()
         // .or(operator.povLeft())
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, RESET));
-
-    base.povRight()
-        // .or(operator.povLeft())
-        .onTrue(new StateMachineCommand(elevator, actuators, currState, CLIMB));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, RESET));
 
     base.L2()
-        .whileTrue(
-            new SmartAlign(
-                drive,
-                actuators,
-                elevator,
-                score,
-                storedState,
-                leftLimelight,
-                rightLimelight,
-                currState))
+        .whileTrue(new SmartAlign(drive, shoulder, extension, wrist, score, storedState))
         .onFalse(new InstantCommand());
 
-    operator
-        .create()
-        .whileTrue(
-            new AutoBallPlusScoreCommand(
-                drive,
-                actuators,
-                elevator,
-                score,
-                storedState,
-                leftLimelight,
-                rightLimelight,
-                currState))
-        .onFalse(new InstantCommand().alongWith(score.setSpeedAndState(-0.25, true)));
+    // Algae Net Dropoff
+    operator.create();
 
-    operator
-        .options()
-        .whileTrue(
-            new AutoScorePlusBallLowCommand(
-                drive,
-                actuators,
-                elevator,
-                score,
-                storedState,
-                leftLimelight,
-                rightLimelight,
-                currState))
-        .onFalse(new InstantCommand().alongWith(score.setSpeedAndState(-0.25, true)));
-    // base.create()
-    //     .onTrue(new DriveToReefCommand(drive, elevator, LimelightConstants.rightLimelightName,
-    // 11))
-    //     .onFalse(new InstantCommand());
+    // Algae Pickup
+    operator.options();
 
-    // base.create()
-    //     .whileTrue(
-    //         new AutoAlignCommand(
-    //             drive, rightLimelight, -120, LimelightConstants.rightLimelightName))
-    //     .onFalse(new InstantCommand());
-
+    // Auto Turn to Reef Face
     base.R3()
         .toggleOnTrue(
             new InstantCommand(
@@ -344,31 +282,14 @@ public class RobotContainer {
                   storedState.setLimelightPipeLine("RIGHT");
                 }));
 
-    // Old setpoint =30 with white strechy
-    operator
-        .povUp()
-        .onTrue(climb.setClimbServoOneWay().withTimeout(0.1).andThen(climb.setGoal(-43.0)));
+    // Climb final
+    operator.povUp().onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, CLIMB));
 
+    // Climb setup
     operator
         .povDown()
-        .onTrue(
-            (climb.setClimbServoTwoWay().withTimeout(0.5))
-                .andThen(
-                    climb
-                        .setGoal(-170.0) // -175 on white strechy
-                        .alongWith(new StateMachineCommand(elevator, actuators, currState, CLIMB))
-                        .alongWith(finger.setFingerOut())));
-    // Comment pt 9
-
-    // operator
-    //     .L2()
-    //     .and(operator.povUp())
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               storedState.setLimelightPipeLine("CENTER");
-    //             }));
-
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, PRECLIMB));
+    // Set reef angle
     operator
         .L2()
         .whileTrue(
@@ -390,49 +311,59 @@ public class RobotContainer {
 
   public void registerNamedCommands() {
 
-    NamedCommands.registerCommand(
-        "setGyroTo180",
-        Commands.runOnce(
-                () ->
-                    drive.setPose(
-                        new Pose2d(
-                            drive.getPose().getTranslation(), new Rotation2d(Math.toRadians(180)))),
-                drive)
-            .ignoringDisable(true));
+    // NamedCommands.registerCommand(
+    //     "setGyroTo180",
+    //     Commands.runOnce(
+    //             () ->
+    //                 drive.setPose(
+    //                     new Pose2d(
+    //                         drive.getPose().getTranslation(), new
+    // Rotation2d(Math.toRadians(180)))),
+    //             drive)
+    //         .ignoringDisable(true));
 
-    NamedCommands.registerCommand("intake", intake.setSpeed(0.5));
+    // NamedCommands.registerCommand("intake", score.setSpeed(0.5));
 
-    NamedCommands.registerCommand("outtake", score.setSpeedAndState(-0.8, false));
+    // NamedCommands.registerCommand("outtake", score.setSpeedAndState(-0.8, false));
 
-    NamedCommands.registerCommand("stopIntake", intake.getDefaultCommand());
+    // NamedCommands.registerCommand("stopIntake", score.getDefaultCommand());
 
-    NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
+    // NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
 
-    NamedCommands.registerCommand(
-        "goToReef",
-        new AutoAlignCommand(drive, leftLimelight, -120, LimelightConstants.leftLimelightName));
+    // NamedCommands.registerCommand(
+    //     "goToReef",
+    //     new AutoAlignCommand(
+    //         drive,
+    //         new LimelightSubsystem(leftLimelightName),
+    //         -120,
+    //         LimelightConstants.leftLimelightName));
 
-    NamedCommands.registerCommand(
-        "goToReefRight",
-        new AutoAlignCommand(drive, rightLimelight, -120, LimelightConstants.rightLimelightName));
+    // NamedCommands.registerCommand(
+    //     "goToReefRight",
+    //     new AutoAlignCommand(
+    //         drive,
+    //         new LimelightSubsystem(rightLimelightName),
+    //         -120,
+    //         LimelightConstants.rightLimelightName));
 
-    NamedCommands.registerCommand(
-        "reHome",
-        Commands.runOnce(
-                () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                drive)
-            .ignoringDisable(true));
+    // NamedCommands.registerCommand(
+    //     "reHome",
+    //     Commands.runOnce(
+    //             () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new
+    // Rotation2d())),
+    //             drive)
+    //         .ignoringDisable(true));
 
-    NamedCommands.registerCommand(
-        "L4", new StateMachineCommand(elevator, actuators, currState, L4));
+    // NamedCommands.registerCommand(
+    //     "L4", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L4));
 
-    NamedCommands.registerCommand(
-        "HOME", new StateMachineCommand(elevator, actuators, currState, HOME));
+    // NamedCommands.registerCommand(
+    //     "HOME", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
 
-    NamedCommands.registerCommand(
-        "CoralIntakePos", new StateMachineCommand(elevator, actuators, currState, CORALINTAKE));
+    // NamedCommands.registerCommand(
+    //     "CoralIntakePos", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));
 
-    NamedCommands.registerCommand("outtakeDefault", score.setSpeedAndState(0.0075, false));
+    // NamedCommands.registerCommand("outtakeDefault", score.setSpeedAndState(0.0075, false));
   }
 
   /*********************************************************
@@ -449,15 +380,9 @@ public class RobotContainer {
             () -> -base.getLeftX(),
             () -> -base.getRightY(),
             () -> base.getRightX(),
-            () -> elevator.getSlowDownMult()));
+            () -> extension.getSlowDownMult()));
 
-    // Set the robot to the RESET position
-    currState.setState(RESET);
-    actuators.setGoal(currState.getState().getActuatorSetpoint());
-    elevator.setGoal(currState.getState().getElevatorSetpoint());
-
-    score.setDefaultCommand(score.setSpeedAndState(0.000, false));
-    intake.setDefaultCommand(intake.setSpeed(0.4));
+    score.setDefaultCommand(score.setSpeedAndState(0.0, false));
   }
 
   /**
