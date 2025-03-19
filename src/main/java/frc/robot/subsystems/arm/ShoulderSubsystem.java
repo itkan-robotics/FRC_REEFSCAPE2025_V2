@@ -16,7 +16,11 @@ package frc.robot.subsystems.arm;
 import static frc.robot.Constants.ArmConstants.ShoulderConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -29,10 +33,10 @@ import frc.robot.util.LoggedTunableNumber;
 public class ShoulderSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
   private final TalonFX shoulderMotorA = new TalonFX(SHOULDER_MOTOR_PORT_A);
-  // private final TalonFX shoulderMotorB = new TalonFX(SHOULDER_MOTOR_PORT_B);
-  // private final TalonFX shoulderMotorC = new TalonFX(SHOULDER_MOTOR_PORT_C);
+  private final TalonFX shoulderMotorB = new TalonFX(SHOULDER_MOTOR_PORT_B);
+  private final TalonFX shoulderMotorC = new TalonFX(SHOULDER_MOTOR_PORT_C);
   private double shoulderSetpoint;
-  private final String name = "shoulder";
+  private final String name = "Shoulder/";
 
   final MotionMagicVoltage m_lRequest;
 
@@ -72,17 +76,29 @@ public class ShoulderSubsystem extends SubsystemBase {
 
     // in init function
     tryUntilOk(5, () -> shoulderMotorA.getConfigurator().apply(shoulderConfig, 0.25));
-    // tryUntilOk(5, () -> shoulderMotorB.getConfigurator().apply(shoulderConfig, 0.25));
-    // tryUntilOk(5, () -> shoulderMotorC.getConfigurator().apply(shoulderConfig, 0.25));
+    tryUntilOk(5, () -> shoulderMotorB.getConfigurator().apply(shoulderConfig, 0.25));
+    tryUntilOk(5, () -> shoulderMotorC.getConfigurator().apply(shoulderConfig, 0.25));
+
+    shoulderMotorB.setControl(new Follower(SHOULDER_MOTOR_PORT_A, false));
+    shoulderMotorC.setControl(new Follower(SHOULDER_MOTOR_PORT_A, false));
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 
-    tuneablePosition = new LoggedTunableNumber(name + "/desiredPos", 0.0);
+    tuneablePosition = new LoggedTunableNumber(name + "desiredPos", 0.0);
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    Logger.recordOutput(name + "setpoint", shoulderMotorA.getClosedLoopReference().getValueAsDouble());
+    Logger.recordOutput(name + "position", shoulderMotorA.getPosition().getValueAsDouble());
+    Logger.recordOutput(name + "velocity", shoulderMotorA.getVelocity().getValueAsDouble());
+    Logger.recordOutput(name + "acceleration", shoulderMotorA.getAcceleration().getValueAsDouble());
+    Logger.recordOutput(name + "duty cycle", shoulderMotorA.getDutyCycle().getValueAsDouble());
+    Logger.recordOutput(name + "voltage", shoulderMotorA.getMotorVoltage().getValueAsDouble());
+    Logger.recordOutput(name + "PID Reference", shoulderMotorA.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(name + "temperature ºC", shoulderMotorA.getDeviceTemp().getValueAsDouble());
+  }
 
   public Command setGoal(double setpoint) {
     return run(

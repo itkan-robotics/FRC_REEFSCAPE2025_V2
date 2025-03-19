@@ -16,7 +16,10 @@ package frc.robot.subsystems.arm;
 import static frc.robot.Constants.ArmConstants.ExtensionConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -28,9 +31,10 @@ import frc.robot.util.LoggedTunableNumber;
 
 public class ExtensionSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
-  private final TalonFX extensionMotor = new TalonFX(EXTENSION_MOTOR_PORT_A);
+  private final TalonFX extensionMotorA = new TalonFX(EXTENSION_MOTOR_PORT_A);
+  private final TalonFX extensionMotorB = new TalonFX(EXTENSION_MOTOR_PORT_B);
   private double elevatorSetpoint;
-  private final String name = "extension";
+  private final String name = "Extension/";
 
   final MotionMagicVoltage m_lRequest;
 
@@ -70,17 +74,28 @@ public class ExtensionSubsystem extends SubsystemBase {
     extensionMMConfig.MotionMagicJerk = EXTENSION_JERK; // Target jerk of EXTENSION_JERK rps/s/s
 
     // in init function
-    tryUntilOk(5, () -> extensionMotor.getConfigurator().apply(extensionConfig, 0.25));
+    tryUntilOk(5, () -> extensionMotorA.getConfigurator().apply(extensionConfig, 0.25));
+    tryUntilOk(5, () -> extensionMotorB.getConfigurator().apply(extensionConfig, 0.25));
 
+    extensionMotorB.setControl(new Follower(EXTENSION_MOTOR_PORT_A, false));
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 
-    tuneablePosition = new LoggedTunableNumber(name + "/desiredPos", 0.0);
+    tuneablePosition = new LoggedTunableNumber(name + "desiredPos", 0.0);
   }
 
   @Override
   public void periodic() {
     // System.out.println(tunableHeight.get());
+    Logger.recordOutput(name + "setpoint", extensionMotorA.getClosedLoopReference().getValueAsDouble());
+    Logger.recordOutput(name + "position", extensionMotorA.getPosition().getValueAsDouble());
+    Logger.recordOutput(name + "velocity", extensionMotorA.getVelocity().getValueAsDouble());
+    Logger.recordOutput(name + "acceleration", extensionMotorA.getAcceleration().getValueAsDouble());
+    Logger.recordOutput(name + "duty cycle", extensionMotorA.getDutyCycle().getValueAsDouble());
+    Logger.recordOutput(name + "voltage", extensionMotorA.getMotorVoltage().getValueAsDouble());
+    Logger.recordOutput(name + "PID Reference", extensionMotorA.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(name + "temperature ºC", extensionMotorA.getDeviceTemp().getValueAsDouble());
+
   }
 
   public Command setGoal(double setpoint) {
@@ -92,14 +107,14 @@ public class ExtensionSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
-    extensionMotor.setControl(
+    extensionMotorA.setControl(
         m_lRequest
             .withPosition(Constants.tuningMode ? tuneablePosition.get() : setpoint)
             .withSlot(0));
   }
 
   public double getPosition() {
-    return extensionMotor.getPosition().getValueAsDouble();
+    return extensionMotorA.getPosition().getValueAsDouble();
   }
 
   public double getPositionRequest() {
@@ -114,6 +129,6 @@ public class ExtensionSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber(
     //     "/SetPointReached/Elevator",
     //     Math.abs(leftElevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint));
-    return Math.abs(extensionMotor.getPosition().getValueAsDouble() - elevatorSetpoint) <= 0.10;
+    return Math.abs(extensionMotorA.getPosition().getValueAsDouble() - elevatorSetpoint) <= 0.10;
   }
 }

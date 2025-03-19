@@ -46,6 +46,7 @@ public class ArmCommands {
       WristSubsystem wrist,
       BotState currentState,
       BotState requestedState) {
+        
     Subsystem[] requirements = new Subsystem[] {shoulder, extension, wrist};
 
     return Commands.run(
@@ -58,10 +59,13 @@ public class ArmCommands {
             //     requestedState.getWristSetpoint());
 
             shoulder.setGoal(clampedBotState.getShoulderSetpoint());
+            while (Math.abs(shoulder.getPosition() - clampedBotState.getShoulderSetpoint()) > 3.0) {}
             extension.setGoal(clampedBotState.getExtensionSetpoint());
             wrist.setGoal(clampedBotState.getWristSetpoint());
           }
         },
         requirements);
+
+    
   }
 }

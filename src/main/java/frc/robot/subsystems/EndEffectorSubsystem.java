@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.*;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class EndEffectorSubsystem extends SubsystemBase {
   /** Creates a new CoralItake. */
   // private final TalonFX left_coral = new TalonFX(4);
+  private String name = "End Effector/";
   private enum ScoreState {
     INTAKEALGAE("INTAKEALGAE"),
     OUTTAKEALGAE("OUTTAKEALGAE"),
@@ -103,5 +106,13 @@ public class EndEffectorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    Logger.recordOutput(name + "setpoint", endEffectorMotor.getClosedLoopReference().getValueAsDouble());
+    Logger.recordOutput(name + "position", endEffectorMotor.getPosition().getValueAsDouble());
+    Logger.recordOutput(name + "velocity", endEffectorMotor.getVelocity().getValueAsDouble());
+    Logger.recordOutput(name + "acceleration", endEffectorMotor.getAcceleration().getValueAsDouble());
+    Logger.recordOutput(name + "duty cycle", endEffectorMotor.getDutyCycle().getValueAsDouble());
+    Logger.recordOutput(name + "voltage", endEffectorMotor.getMotorVoltage().getValueAsDouble());
+    Logger.recordOutput(name + "PID Reference", endEffectorMotor.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(name + "temperature ºC", endEffectorMotor.getDeviceTemp().getValueAsDouble());
   }
 }

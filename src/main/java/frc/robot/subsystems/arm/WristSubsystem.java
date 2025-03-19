@@ -16,6 +16,8 @@ package frc.robot.subsystems.arm;
 import static frc.robot.Constants.ArmConstants.WristConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -30,7 +32,7 @@ public class WristSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
   private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT_A);
   private double shoulderSetpoint;
-  private final String name = "wrist";
+  private final String name = "Wrist/";
 
   final MotionMagicVoltage m_lRequest;
 
@@ -74,11 +76,20 @@ public class WristSubsystem extends SubsystemBase {
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 
-    tuneablePosition = new LoggedTunableNumber(name + "/desiredPos", 0.0);
+    tuneablePosition = new LoggedTunableNumber(name + "desiredPos", 0.0);
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    Logger.recordOutput(name + "setpoint", wristMotor.getClosedLoopReference().getValueAsDouble());
+    Logger.recordOutput(name + "position", wristMotor.getPosition().getValueAsDouble());
+    Logger.recordOutput(name + "velocity", wristMotor.getVelocity().getValueAsDouble());
+    Logger.recordOutput(name + "acceleration", wristMotor.getAcceleration().getValueAsDouble());
+    Logger.recordOutput(name + "duty cycle", wristMotor.getDutyCycle().getValueAsDouble());
+    Logger.recordOutput(name + "voltage", wristMotor.getMotorVoltage().getValueAsDouble());
+    Logger.recordOutput(name + "PID Reference", wristMotor.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(name + "temperature ºC", wristMotor.getDeviceTemp().getValueAsDouble());
+  }
 
   public Command setGoal(double setpoint) {
     return run(
