@@ -18,20 +18,19 @@ public class ArmCommands {
       double shoulderPos, double extensionPos, double wristPos) {
     return new BotState(
         "CLAMPED",
-      MathUtil.clamp(
-          shoulderPos,
-          ArmConstants.ShoulderConstants.MIN_SHOULDER_ROTATION_POS,
-          ArmConstants.ShoulderConstants.MAX_SHOULDER_ROTATION_POS),
-      MathUtil.clamp(
-          extensionPos,
-          ArmConstants.ExtensionConstants.MIN_EXTENSION_POS,
-          ArmConstants.ExtensionConstants.MAX_EXTENSION_POS),
-      MathUtil.clamp(
-          wristPos,
-          ArmConstants.WristConstants.MIN_WRIST_ROTATION_POS,
-          ArmConstants.WristConstants.MAX_WRIST_ROTATION_POS),
-          100
-    );
+        MathUtil.clamp(
+            shoulderPos,
+            ArmConstants.ShoulderConstants.MIN_SHOULDER_ROTATION_POS,
+            ArmConstants.ShoulderConstants.MAX_SHOULDER_ROTATION_POS),
+        MathUtil.clamp(
+            extensionPos,
+            ArmConstants.ExtensionConstants.MIN_EXTENSION_POS,
+            ArmConstants.ExtensionConstants.MAX_EXTENSION_POS),
+        MathUtil.clamp(
+            wristPos,
+            ArmConstants.WristConstants.MIN_WRIST_ROTATION_POS,
+            ArmConstants.WristConstants.MAX_WRIST_ROTATION_POS),
+        100);
   }
 
   private static boolean validState(BotState stateA, BotState stateB) {
@@ -52,12 +51,11 @@ public class ArmCommands {
     return Commands.run(
         () -> {
           if (validState(currentState, requestedState)) {
-            BotState clampedBotState =
-                requestedState;
-                // clampArmSetpoints(
-                //     requestedState.getShoulderSetpoint(),
-                //     requestedState.getExtensionSetpoint(),
-                //     requestedState.getWristSetpoint());
+            BotState clampedBotState = requestedState;
+            // clampArmSetpoints(
+            //     requestedState.getShoulderSetpoint(),
+            //     requestedState.getExtensionSetpoint(),
+            //     requestedState.getWristSetpoint());
 
             shoulder.setGoal(clampedBotState.getShoulderSetpoint());
             extension.setGoal(clampedBotState.getExtensionSetpoint());

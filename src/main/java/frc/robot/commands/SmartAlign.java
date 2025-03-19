@@ -13,7 +13,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.arm.ExtensionSubsystem;
@@ -84,7 +83,7 @@ public class SmartAlign extends Command {
 
     m_end = false;
     limelightName = storedState.getTargetLimelight();
-    
+
     m_pidControllerY = new PIDController(0.075, 0, 0);
     m_pidControllerY.setTolerance(0.5);
 
