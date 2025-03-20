@@ -16,8 +16,6 @@ package frc.robot.subsystems.arm;
 import static frc.robot.Constants.ArmConstants.WristConstants.*;
 import static frc.robot.util.PhoenixUtil.*;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -27,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class WristSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
@@ -40,13 +39,13 @@ public class WristSubsystem extends SubsystemBase {
     // in init function
     var wristConfig = new TalonFXConfiguration();
     wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
-    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.75;
-    wristConfig.CurrentLimits.SupplyCurrentLimit = 100;
+    // wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    // wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    // wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
+    // wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.75;
+    wristConfig.CurrentLimits.SupplyCurrentLimit = 30;
     wristConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    wristConfig.CurrentLimits.StatorCurrentLimit = 100;
+    wristConfig.CurrentLimits.StatorCurrentLimit = 30;
     wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     wristConfig.MotorOutput.Inverted = wristConfig.MotorOutput.Inverted;
 
@@ -54,21 +53,24 @@ public class WristSubsystem extends SubsystemBase {
 
     // set slot 0 gains
     shoulderSlot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
-    shoulderSlot0Configs.kS = WRIST_KS; // Add WRIST_KS V output to overcome static friction
+    // shoulderSlot0Configs.kS = WRIST_KS; // Add WRIST_KS V output to overcome static friction
     shoulderSlot0Configs.kG = WRIST_KG;
+    shoulderSlot0Configs.kV = WRIST_KV;
     shoulderSlot0Configs.kP =
         WRIST_KP; // A position error of WRIST_KP rotations results in 12 V output
-
-    shoulderSlot0Configs.kI = 0.0; // no output for integrated error
-    shoulderSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
 
     // set Motion Magic settings
     var extensionMMConfig = wristConfig.MotionMagic;
     extensionMMConfig.MotionMagicCruiseVelocity =
         WRIST_CRUISE_VELOCITY; // Target cruise velocity of WRIST_CRUISE_VELOCITY rps
     extensionMMConfig.MotionMagicAcceleration =
-        WRIST_ACCELERATION; // Target acceleration of WRIST_ACCELERATION rps/s
-    extensionMMConfig.MotionMagicJerk = WRIST_JERK; // Target jerk of WRIST_JERK rps/s/s
+    WRIST_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
+
+    // shoulderSlot0Configs.kI = 0.0; // no output for integrated error
+    // shoulderSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
+
+    
+    // extensionMMConfig.MotionMagicJerk = WRIST_JERK; // Target jerk of WRIST_JERK rps/s/s
 
     // in init function
     tryUntilOk(5, () -> wristMotor.getConfigurator().apply(wristConfig, 0.25));
@@ -87,7 +89,8 @@ public class WristSubsystem extends SubsystemBase {
     Logger.recordOutput(name + "acceleration", wristMotor.getAcceleration().getValueAsDouble());
     Logger.recordOutput(name + "duty cycle", wristMotor.getDutyCycle().getValueAsDouble());
     Logger.recordOutput(name + "voltage", wristMotor.getMotorVoltage().getValueAsDouble());
-    Logger.recordOutput(name + "PID Reference", wristMotor.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(
+        name + "PID Reference", wristMotor.getClosedLoopOutput().getValueAsDouble());
     Logger.recordOutput(name + "temperature ºC", wristMotor.getDeviceTemp().getValueAsDouble());
   }
 

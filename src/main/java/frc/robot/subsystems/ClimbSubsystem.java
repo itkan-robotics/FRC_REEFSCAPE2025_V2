@@ -5,82 +5,37 @@
 package frc.robot.subsystems;
 
 import static frc.robot.Constants.ClimbConstants;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj.Servo;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
-import frc.robot.util.LoggedTunableNumber;
 
 public class ClimbSubsystem extends SubsystemBase {
   /** Creates a new ClimbSubsystem. */
-  private final TalonFX Climb = new TalonFX(ClimbConstants.CLIMB_MOTOR_PORT);
-
-  private LoggedTunableNumber tunableAngle;
-
-  private Servo climbServo = new Servo(ClimbConstants.CLIMB_SERVO_PORT);
-  private double climbSetpoint = 0.0;
-
-  final MotionMagicVoltage m_Request;
+  private final TalonFX climbMotor = new TalonFX(ClimbConstants.CLIMB_MOTOR_PORT);
 
   public ClimbSubsystem() {
-    var ClimbConfigs = new TalonFXConfiguration();
+    // in init function
+    var climbConfig = new TalonFXConfiguration();
+    climbConfig.CurrentLimits.SupplyCurrentLimit = 40;
+    climbConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    climbConfig.CurrentLimits.StatorCurrentLimit = 40;
+    climbConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    climbConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    // set slot 0 gains
-    var Climbslot0Configs = ClimbConfigs.Slot0;
-    Climbslot0Configs.kS = 0.25; // Add 0.25 V output to overcome static friction
-    Climbslot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-    Climbslot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
-    Climbslot0Configs.kP = 4.8; // A position error of 2.5 rotations results in 12 V output
-    Climbslot0Configs.kI = 0; // no output for integrated error
-    Climbslot0Configs.kD = 0.1; // A velocity error of 1 rps results in 0.1 V output
-
-    // set Motion Magic settings
-    var ClimbmotionMagicConfigs = ClimbConfigs.MotionMagic;
-    ClimbmotionMagicConfigs.MotionMagicCruiseVelocity = 80; // Target cruise velocity of 80 rps
-    ClimbmotionMagicConfigs.MotionMagicAcceleration =
-        160; // Target acceleration of 160 rps/s (0.5 seconds)
-    ClimbmotionMagicConfigs.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)
-
-    Climb.getConfigurator().apply(ClimbConfigs);
-    m_Request = new MotionMagicVoltage(0);
-
-    tunableAngle = new LoggedTunableNumber("servoPos", 0);
-
-    climbServo.set(ClimbConstants.CLIMB_SERVO_TWO_WAY_POS);
+    tryUntilOk(5, () -> climbMotor.getConfigurator().apply(climbConfig, 0.25));
   }
 
-  public Command setGoal(double setpoint) {
-    return run(
+  public Command setSpeed(double speed) {
+    return Commands.run(
         () -> {
-          setSetpoint(setpoint);
+          climbMotor.set(speed);
         });
-  }
-
-  public void setSetpoint(double setpoint) {
-    climbSetpoint = setpoint;
-    Climb.setControl(m_Request.withPosition(setpoint).withSlot(0));
-  }
-
-  public Command setClimbServoTwoWay() {
-    return run(
-        () -> {
-          climbServo.set(ClimbConstants.CLIMB_SERVO_TWO_WAY_POS);
-        });
-  }
-
-  public Command setClimbServoOneWay() {
-    return run(
-        () -> {
-          climbServo.set(ClimbConstants.CLIMB_SERVO_ONE_WAY_POS);
-        });
-  }
-
-  public double getSetpoint() {
-    return climbSetpoint;
   }
 
   @Override

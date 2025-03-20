@@ -9,6 +9,7 @@ import frc.robot.subsystems.arm.ExtensionSubsystem;
 import frc.robot.subsystems.arm.ShoulderSubsystem;
 import frc.robot.subsystems.arm.WristSubsystem;
 import frc.robot.util.MachineStates.BotState;
+import frc.robot.util.Util;
 
 public class ArmCommands {
 
@@ -46,7 +47,7 @@ public class ArmCommands {
       WristSubsystem wrist,
       BotState currentState,
       BotState requestedState) {
-        
+
     Subsystem[] requirements = new Subsystem[] {shoulder, extension, wrist};
 
     return Commands.run(
@@ -58,14 +59,29 @@ public class ArmCommands {
             //     requestedState.getExtensionSetpoint(),
             //     requestedState.getWristSetpoint());
 
-            shoulder.setGoal(clampedBotState.getShoulderSetpoint());
-            while (Math.abs(shoulder.getPosition() - clampedBotState.getShoulderSetpoint()) > 3.0) {}
-            extension.setGoal(clampedBotState.getExtensionSetpoint());
-            wrist.setGoal(clampedBotState.getWristSetpoint());
+            // If the requested position's extension is higher than the current state, pivot >>
+            // extend
+            if (requestedState.getExtensionSetpoint() > currentState.getExtensionSetpoint()) {
+
+              shoulder.setGoal(clampedBotState.getShoulderSetpoint());
+              while (Util.withinTolerance(
+                  shoulder.getPosition(), clampedBotState.getShoulderSetpoint(), 3.0)) {
+                // Wait for shoulder to get within tolerance
+              }
+              extension.setGoal(clampedBotState.getExtensionSetpoint());
+              wrist.setGoal(clampedBotState.getWristSetpoint());
+            } else {
+
+              extension.setGoal(clampedBotState.getExtensionSetpoint());
+              wrist.setGoal(clampedBotState.getWristSetpoint());
+              while (Util.withinTolerance(
+                  extension.getPosition(), clampedBotState.getExtensionSetpoint(), 3.0)) {
+                // Wait for shoulder to get within tolerance
+              }
+              shoulder.setGoal(clampedBotState.getShoulderSetpoint());
+            }
           }
         },
         requirements);
-
-    
   }
 }

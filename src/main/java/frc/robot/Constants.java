@@ -79,13 +79,14 @@ public final class Constants {
 
   public static class ArmConstants {
     public static class ShoulderConstants {
-      public static final int SHOULDER_MOTOR_PORT_A = 9;
-      public static final int SHOULDER_MOTOR_PORT_B = 10;
+      public static final int LEFT_SHOULDER_MOTOR_PORT = 9;
+      public static final int SHOULDER_MOTOR_PORT = 10;
       public static final int SHOULDER_MOTOR_PORT_C = 11;
 
       public static final double SHOULDER_KP = 0.0;
       public static final double SHOULDER_KS = 0.0;
       public static final double SHOULDER_KG = 0.0;
+      public static final double SHOULDER_KV = 0.0;
       public static final double SHOULDER_CRUISE_VELOCITY = 0.0;
       public static final double SHOULDER_ACCELERATION = 0.0;
       public static final double SHOULDER_JERK = 0.0;
@@ -100,13 +101,14 @@ public final class Constants {
 
       public static final double EXTENSION_KP = 0.0;
       public static final double EXTENSION_KS = 0.0;
-      public static final double EXTENSION_KG = 0.0;
-      public static final double EXTENSION_CRUISE_VELOCITY = 0.0;
+      public static final double EXTENSION_KG = 0.25;
+      public static final double EXTENSION_KV = 0.1;
+      public static final double EXTENSION_CRUISE_VELOCITY = 100.0;
       public static final double EXTENSION_ACCELERATION = 0.0;
       public static final double EXTENSION_JERK = 0.0;
 
-      public static final double MIN_EXTENSION_POS = 0.0;
-      public static final double MAX_EXTENSION_POS = 0.0;
+      public static final double MIN_EXTENSION_POS = 0.05;
+      public static final double MAX_EXTENSION_POS = 39.95;
     }
 
     public static class WristConstants {
@@ -115,6 +117,7 @@ public final class Constants {
       public static final double WRIST_KP = 0.0;
       public static final double WRIST_KS = 0.0;
       public static final double WRIST_KG = 0.0;
+      public static final double WRIST_KV = 0.0;
       public static final double WRIST_CRUISE_VELOCITY = 0.0;
       public static final double WRIST_ACCELERATION = 0.0;
       public static final double WRIST_JERK = 0.0;
@@ -125,10 +128,7 @@ public final class Constants {
   }
 
   public static class ClimbConstants {
-    public static final int CLIMB_MOTOR_PORT = 16;
-    public static final int CLIMB_SERVO_PORT = 1;
-    public static final double CLIMB_SERVO_TWO_WAY_POS = 0.22;
-    public static final double CLIMB_SERVO_ONE_WAY_POS = 0.4;
+    public static final int CLIMB_MOTOR_PORT = 15;
   }
 
   public static class LimelightConstants {

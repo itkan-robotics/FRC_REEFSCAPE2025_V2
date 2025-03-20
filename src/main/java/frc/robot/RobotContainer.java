@@ -160,14 +160,15 @@ public class RobotContainer {
 
     // Intaking coral
     base.R2()
-        .whileTrue(score.setSpeedAndState(0.002, false).alongWith(score.setSpeed(0.8)))
-        .onFalse(score.setSpeedAndState(0.0075, false));
+        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE))
+        .whileTrue(score.setSpeed(0.8))
+        .onFalse(score.setSpeed(0.1));
 
     // Scoring Coral
-    base.R1().or(operator.R2()).whileTrue(score.setSpeedAndState(-.8, false));
+    base.R1().or(operator.R2()).whileTrue(score.setSpeed(-0.8));
 
     // Intaking algae
-    base.touchpad().whileTrue(score.setSpeedAndState(1.0, true));
+    // base.touchpad().whileTrue(score.setSpeedAndState(1.0, true));
 
     // Outtake algae
     base.L1()
@@ -283,12 +284,18 @@ public class RobotContainer {
                 }));
 
     // Climb final
-    operator.povUp().onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, CLIMB));
+    operator
+        .povUp()
+        .onTrue(
+            ArmCommands.setArmGoal(shoulder, extension, wrist, currState, CLIMB)
+                .alongWith(climb.setSpeed(0.0)));
 
     // Climb setup
     operator
         .povDown()
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, PRECLIMB));
+        .onTrue(
+            ArmCommands.setArmGoal(shoulder, extension, wrist, currState, PRECLIMB)
+                .alongWith(climb.setSpeed(1.0)));
     // Set reef angle
     operator
         .L2()
