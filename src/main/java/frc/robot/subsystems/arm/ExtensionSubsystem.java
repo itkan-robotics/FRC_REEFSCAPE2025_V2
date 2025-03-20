@@ -26,14 +26,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.util.LoggingUtil;
 
 public class ExtensionSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
   private final TalonFX extensionMotorA = new TalonFX(EXTENSION_MOTOR_PORT_A);
   private final TalonFX extensionMotorB = new TalonFX(EXTENSION_MOTOR_PORT_B);
   private double elevatorSetpoint;
-  private final String name = "Extension/";
+  private final String name = "Extension";
 
   final MotionMagicVoltage m_lRequest;
 
@@ -65,14 +65,13 @@ public class ExtensionSubsystem extends SubsystemBase {
 
     extensionMMConfig.MotionMagicCruiseVelocity =
         EXTENSION_CRUISE_VELOCITY; // Target cruise velocity of EXTENSION_CRUISE_VELOCITY rps
-        //Position 0 --> 40 in 40 / EXTENSION_CRUISE_VELOCITY seconds
+    // Position 0 --> 40 in 40 / EXTENSION_CRUISE_VELOCITY seconds
     extensionMMConfig.MotionMagicAcceleration =
-    EXTENSION_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
+        EXTENSION_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
 
     // extensionSlot0Configs.kI = 0.0; // no output for integrated error
     // extensionSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
     // extensionMMConfig.MotionMagicJerk = 0.0; //Optional jerk
-
 
     // in init function
     tryUntilOk(5, () -> extensionMotorA.getConfigurator().apply(extensionConfig, 0.25));
@@ -82,24 +81,13 @@ public class ExtensionSubsystem extends SubsystemBase {
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 
-    tuneablePosition = new LoggedTunableNumber(name + "desiredPos", 0.0);
+    tuneablePosition = new LoggedTunableNumber(name + "/DesiredPos", 0.0);
   }
 
   @Override
   public void periodic() {
     // System.out.println(tunableHeight.get());
-    Logger.recordOutput(
-        name + "setpoint", extensionMotorA.getClosedLoopReference().getValueAsDouble());
-    Logger.recordOutput(name + "position", extensionMotorA.getPosition().getValueAsDouble());
-    Logger.recordOutput(name + "velocity", extensionMotorA.getVelocity().getValueAsDouble());
-    Logger.recordOutput(
-        name + "acceleration", extensionMotorA.getAcceleration().getValueAsDouble());
-    Logger.recordOutput(name + "duty cycle", extensionMotorA.getDutyCycle().getValueAsDouble());
-    Logger.recordOutput(name + "voltage", extensionMotorA.getMotorVoltage().getValueAsDouble());
-    Logger.recordOutput(
-        name + "PID Reference", extensionMotorA.getClosedLoopOutput().getValueAsDouble());
-    Logger.recordOutput(
-        name + "temperature ºC", extensionMotorA.getDeviceTemp().getValueAsDouble());
+    LoggingUtil.logMotor(name, extensionMotorA);
   }
 
   public Command setGoal(double setpoint) {

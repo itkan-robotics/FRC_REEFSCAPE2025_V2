@@ -27,12 +27,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.ArmCommands;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlign;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.arm.ExtensionSubsystem;
 import frc.robot.subsystems.arm.ShoulderSubsystem;
 import frc.robot.subsystems.arm.WristSubsystem;
@@ -56,11 +58,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final EndEffectorSubsystem score = new EndEffectorSubsystem();
+  private static final EndEffectorSubsystem score = new EndEffectorSubsystem();
   public static final ShoulderSubsystem shoulder = new ShoulderSubsystem();
-  private final ExtensionSubsystem extension = new ExtensionSubsystem();
-  private final WristSubsystem wrist = new WristSubsystem();
+  private static final ExtensionSubsystem extension = new ExtensionSubsystem();
+  private static final WristSubsystem wrist = new WristSubsystem();
   public static final ClimbSubsystem climb = new ClimbSubsystem();
+  private static final LimelightSubsystem limelight =
+      new LimelightSubsystem(LimelightConstants.leftLimelightName);
 
   private final BotState currState = MachineStates.RESET;
   public static final AutoScoreSelection storedState = new AutoScoreSelection();
@@ -390,6 +394,7 @@ public class RobotContainer {
             () -> extension.getSlowDownMult()));
 
     score.setDefaultCommand(score.setSpeedAndState(0.0, false));
+    limelight.setDefaultCommand(limelight.setLimelight());
   }
 
   /**

@@ -26,14 +26,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.util.LoggingUtil;
 
 public class ShoulderSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
   private final TalonFX leftShoulderMotor = new TalonFX(LEFT_SHOULDER_MOTOR_PORT);
   private final TalonFX rightShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT);
   private double shoulderSetpoint;
-  private final String name = "Shoulder/";
+  private final String name = "Shoulder";
 
   final MotionMagicVoltage m_lRequest;
 
@@ -55,7 +55,8 @@ public class ShoulderSubsystem extends SubsystemBase {
 
     // set slot 0 gains
     shoulderSlot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
-    // shoulderSlot0Configs.kS = SHOULDER_KS; // Add SHOULDER_KS V output to overcome static friction
+    // shoulderSlot0Configs.kS = SHOULDER_KS; // Add SHOULDER_KS V output to overcome static
+    // friction
     shoulderSlot0Configs.kG = SHOULDER_KG;
     shoulderSlot0Configs.kV = SHOULDER_KV;
     shoulderSlot0Configs.kP =
@@ -71,7 +72,6 @@ public class ShoulderSubsystem extends SubsystemBase {
     // shoulderSlot0Configs.kI = 0.0; // no output for integrated error
     // shoulderSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
 
-    
     // extensionMMConfig.MotionMagicJerk = SHOULDER_JERK; // Target jerk of SHOULDER_JERK rps/s/s
 
     // in init function
@@ -83,23 +83,12 @@ public class ShoulderSubsystem extends SubsystemBase {
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 
-    tuneablePosition = new LoggedTunableNumber(name + "desiredPos", 0.0);
+    tuneablePosition = new LoggedTunableNumber(name + "/DesiredPos", 0.0);
   }
 
   @Override
   public void periodic() {
-    Logger.recordOutput(
-        name + "setpoint", leftShoulderMotor.getClosedLoopReference().getValueAsDouble());
-    Logger.recordOutput(name + "position", leftShoulderMotor.getPosition().getValueAsDouble());
-    Logger.recordOutput(name + "velocity", leftShoulderMotor.getVelocity().getValueAsDouble());
-    Logger.recordOutput(
-        name + "acceleration", leftShoulderMotor.getAcceleration().getValueAsDouble());
-    Logger.recordOutput(name + "duty cycle", leftShoulderMotor.getDutyCycle().getValueAsDouble());
-    Logger.recordOutput(name + "voltage", leftShoulderMotor.getMotorVoltage().getValueAsDouble());
-    Logger.recordOutput(
-        name + "PID Reference", leftShoulderMotor.getClosedLoopOutput().getValueAsDouble());
-    Logger.recordOutput(
-        name + "temperature ºC", leftShoulderMotor.getDeviceTemp().getValueAsDouble());
+    LoggingUtil.logMotor(name, leftShoulderMotor);
   }
 
   public Command setGoal(double setpoint) {

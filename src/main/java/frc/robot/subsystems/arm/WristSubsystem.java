@@ -25,13 +25,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.util.LoggingUtil;
 
 public class WristSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
   private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT_A);
   private double shoulderSetpoint;
-  private final String name = "Wrist/";
+  private final String name = "Wrist";
 
   final MotionMagicVoltage m_lRequest;
 
@@ -64,12 +64,11 @@ public class WristSubsystem extends SubsystemBase {
     extensionMMConfig.MotionMagicCruiseVelocity =
         WRIST_CRUISE_VELOCITY; // Target cruise velocity of WRIST_CRUISE_VELOCITY rps
     extensionMMConfig.MotionMagicAcceleration =
-    WRIST_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
+        WRIST_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
 
     // shoulderSlot0Configs.kI = 0.0; // no output for integrated error
     // shoulderSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
 
-    
     // extensionMMConfig.MotionMagicJerk = WRIST_JERK; // Target jerk of WRIST_JERK rps/s/s
 
     // in init function
@@ -78,20 +77,12 @@ public class WristSubsystem extends SubsystemBase {
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 
-    tuneablePosition = new LoggedTunableNumber(name + "desiredPos", 0.0);
+    tuneablePosition = new LoggedTunableNumber(name + "/DesiredPos", 0.0);
   }
 
   @Override
   public void periodic() {
-    Logger.recordOutput(name + "setpoint", wristMotor.getClosedLoopReference().getValueAsDouble());
-    Logger.recordOutput(name + "position", wristMotor.getPosition().getValueAsDouble());
-    Logger.recordOutput(name + "velocity", wristMotor.getVelocity().getValueAsDouble());
-    Logger.recordOutput(name + "acceleration", wristMotor.getAcceleration().getValueAsDouble());
-    Logger.recordOutput(name + "duty cycle", wristMotor.getDutyCycle().getValueAsDouble());
-    Logger.recordOutput(name + "voltage", wristMotor.getMotorVoltage().getValueAsDouble());
-    Logger.recordOutput(
-        name + "PID Reference", wristMotor.getClosedLoopOutput().getValueAsDouble());
-    Logger.recordOutput(name + "temperature ºC", wristMotor.getDeviceTemp().getValueAsDouble());
+    LoggingUtil.logMotor(name, wristMotor);
   }
 
   public Command setGoal(double setpoint) {

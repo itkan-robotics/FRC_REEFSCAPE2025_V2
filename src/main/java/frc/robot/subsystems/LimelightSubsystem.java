@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
+import frc.robot.util.LoggingUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -66,6 +67,9 @@ public class LimelightSubsystem extends SubsystemBase {
     if (lastTargetTime.get() > .1) {
       targetSeen = false;
     }
+
+    LoggingUtil.logCamera(leftLimelightName);
+    LoggingUtil.logCamera(rightLimelightName);
   }
 
   /***************************************************************************************
