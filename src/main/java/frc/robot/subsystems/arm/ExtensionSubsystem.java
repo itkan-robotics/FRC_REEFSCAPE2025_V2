@@ -67,7 +67,7 @@ public class ExtensionSubsystem extends SubsystemBase {
         EXTENSION_CRUISE_VELOCITY; // Target cruise velocity of EXTENSION_CRUISE_VELOCITY rps
     // Position 0 --> 40 in 40 / EXTENSION_CRUISE_VELOCITY seconds
     extensionMMConfig.MotionMagicAcceleration =
-        EXTENSION_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
+        EXTENSION_CRUISE_VELOCITY / 0.25; // Reach target cruise velocity in 0.5 s
 
     // extensionSlot0Configs.kI = 0.0; // no output for integrated error
     // extensionSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
@@ -77,7 +77,7 @@ public class ExtensionSubsystem extends SubsystemBase {
     tryUntilOk(5, () -> extensionMotorA.getConfigurator().apply(extensionConfig, 0.25));
     tryUntilOk(5, () -> extensionMotorB.getConfigurator().apply(extensionConfig, 0.25));
 
-    extensionMotorB.setControl(new Follower(EXTENSION_MOTOR_PORT_A, false));
+    extensionMotorB.setControl(new Follower(EXTENSION_MOTOR_PORT_A, true));
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
 

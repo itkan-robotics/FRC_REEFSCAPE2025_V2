@@ -101,11 +101,11 @@ public final class Constants {
 
       public static final double EXTENSION_KP = 0.0;
       public static final double EXTENSION_KS = 0.0;
-      public static final double EXTENSION_KG = 0.25;
-      public static final double EXTENSION_KV = 0.1;
-      public static final double EXTENSION_CRUISE_VELOCITY = 100.0;
-      public static final double EXTENSION_ACCELERATION = 0.0;
-      public static final double EXTENSION_JERK = 0.0;
+      public static final double EXTENSION_KG = 0.0;
+      public static final double EXTENSION_KV = 0.0;
+      public static final double EXTENSION_CRUISE_VELOCITY = 60.0;
+      // public static final double EXTENSION_ACCELERATION = 0.0;
+      // public static final double EXTENSION_JERK = 0.0;
 
       public static final double MIN_EXTENSION_POS = 0.05;
       public static final double MAX_EXTENSION_POS = 39.95;
