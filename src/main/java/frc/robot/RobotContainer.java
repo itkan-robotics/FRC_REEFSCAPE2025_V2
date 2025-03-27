@@ -403,8 +403,9 @@ public class RobotContainer {
     // limelight.setDefaultCommand(limelight.setLimelight());
     // shoulder.setDefaultCommand(shoulder.setGoal(0));
     // extension.setDefaultCommand(extension.setGoal(0));
-    // shoulder.setGoal(0.125);
-    // extension.setGoal(2.1);
+    shoulder.setGoal(0);
+    extension.setGoal(0);
+    wrist.setGoal(0);
   }
 
   /**
