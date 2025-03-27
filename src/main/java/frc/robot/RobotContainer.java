@@ -31,9 +31,7 @@ import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.ArmCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.SmartAlign;
 import frc.robot.subsystems.ClimbSubsystem;
-import frc.robot.subsystems.EndEffectorSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.arm.ExtensionSubsystem;
 import frc.robot.subsystems.arm.ShoulderSubsystem;
@@ -46,6 +44,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.MachineStates;
+import frc.robot.util.MachineStates.BotState;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -56,9 +55,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
   // Subsystems
   private final Drive drive;
-  private static final EndEffectorSubsystem score = new EndEffectorSubsystem();
+  //   private static final EndEffectorSubsystem score = new EndEffectorSubsystem();
   public static final ShoulderSubsystem shoulder = new ShoulderSubsystem();
   private static final ExtensionSubsystem extension = new ExtensionSubsystem();
   private static final WristSubsystem wrist = new WristSubsystem();
@@ -163,48 +163,54 @@ public class RobotContainer {
     // Command for when we are testing different positions
 
     // Intaking coral
-    base.R2()
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE))
-        .whileTrue(score.setSpeed(0.8))
-        .onFalse(score.setSpeed(0.1));
+    // base.R2()
+    //     // .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));
+    //     .onTrue
+    // .whileTrue(score.setSpeed(0.8))
+    // .onFalse(score.setSpeed(0.1));
 
     // Scoring Coral
-    base.R1().or(operator.R2()).whileTrue(score.setSpeed(-0.8));
+    // base.R1().or(operator.R2()).whileTrue(score.setSpeed(-0.8));
 
     // Intaking algae
     // base.touchpad().whileTrue(score.setSpeedAndState(1.0, true));
 
     // Outtake algae
-    base.L1()
-        .whileTrue(score.setSpeedAndState(-0.75, true))
-        .onFalse(score.setSpeedAndState(-0.5, true));
+    // base.L1()
+    //     .whileTrue(score.setSpeedAndState(-0.75, true))
+    //     .onFalse(score.setSpeedAndState(-0.5, true));
 
     // HOME
     base.cross()
         // .or(operator.cross())
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
+        // .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
+        .onTrue(extension.setGoal(14));
+
+    // base.triangle()
+    //     // .or(operator.cross())
+    //     // .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
+    //     .onTrue(shoulder.setGoal(0.2));
 
     // Coral Positioning Commands
+    // // L1
+    // base.touchpad()
+    //     .or(operator.touchpad().and(operator.R2()))
+    //     .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L1));
 
-    // L1
-    base.touchpad()
-        .or(operator.touchpad().and(operator.R2()))
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L1));
+    // // L2
+    // base.square()
+    //     .or(operator.square().and(operator.touchpad()))
+    //     .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L2));
 
-    // L2
-    base.square()
-        .or(operator.square().and(operator.touchpad()))
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L2));
-
-    // L3
-    base.circle()
-        .or(operator.circle().and(operator.touchpad()))
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L3));
+    // // L3
+    // base.circle()
+    //     .or(operator.circle().and(operator.touchpad()))
+    //     .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L3));
 
     // L4
     base.triangle()
         .or(operator.triangle().and(operator.touchpad()))
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L4));
+        .onTrue(ArmCommands.setScoringPosition(shoulder, extension, L4));
 
     // Algae Positioning Commands
 
@@ -226,9 +232,9 @@ public class RobotContainer {
         // .or(operator.povLeft())
         .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, RESET));
 
-    base.L2()
-        .whileTrue(new SmartAlign(drive, shoulder, extension, wrist, score, storedState))
-        .onFalse(new InstantCommand());
+    // base.L2()
+    //     .whileTrue(new SmartAlign(drive, shoulder, extension, wrist, score, storedState))
+    //     .onFalse(new InstantCommand());
 
     // Algae Net Dropoff
     operator.create();
@@ -393,8 +399,12 @@ public class RobotContainer {
             () -> base.getRightX(),
             () -> extension.getSlowDownMult()));
 
-    score.setDefaultCommand(score.setSpeedAndState(0.0, false));
-    limelight.setDefaultCommand(limelight.setLimelight());
+    // score.setDefaultCommand(score.setSpeedAndState(0.0, false));
+    // limelight.setDefaultCommand(limelight.setLimelight());
+    // shoulder.setDefaultCommand(shoulder.setGoal(0));
+    // extension.setDefaultCommand(extension.setGoal(0));
+    // shoulder.setGoal(0.125);
+    // extension.setGoal(2.1);
   }
 
   /**

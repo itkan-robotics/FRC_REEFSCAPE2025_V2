@@ -64,14 +64,14 @@ public class MachineStates {
     }
   }
 
-  public static final BotState HOME = new BotState("HOME", 0.0, 0.0, 0.0, 1);
+  public static final BotState HOME = new BotState("HOME", 0.125, 2.01, 0.0, 1);
 
   // Coral Handling
   public static final BotState L1 = new BotState("L1", 0.0, 0.0, 0.0, 1);
   public static final BotState L2 = new BotState("L2", 0.0, 0.0, 0.0, 2);
   public static final BotState L3 = new BotState("L3", 0.0, 0.0, 0.0, 3);
-  public static final BotState L4 = new BotState("L4", 0.0, 0.0, 0.0, 4);
-  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 0.0, 0.0, 5);
+  public static final BotState L4 = new BotState("L4", 0.295, 22, 0.38, 4);
+  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 2.01, 0.0, 5);
 
   // Algae Handling
   public static final BotState LOWALGAE = new BotState("LOWALGAE", 0.0, 0.0, 0.0, 6);

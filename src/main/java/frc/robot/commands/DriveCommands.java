@@ -40,17 +40,18 @@ import java.util.function.Supplier;
 
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 0.12;
+  private static final double ANGLE_KP = 0.001;
   private static final double ANGLE_KD = 0.0;
-  private static final double ANGLE_MAX_VELOCITY = 9.86220055226554;
-  private static final double ANGLE_MAX_ACCELERATION = 50.0;
+  private static final double ANGLE_MAX_VELOCITY = 9.86220055226554; // 9.86220055226554
+  private static final double ANGLE_MAX_ACCELERATION = 50.0; // 50.0
   private static final double FF_START_DELAY = 2.0; // Secs
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
 
-  private static PIDController angleController;
+  // private static PIDController angleController;
   private static PIDController fieldPIDController;
+  private static TuneableProfiledPID fieldController;
 
   private DriveCommands() {}
 
@@ -116,11 +117,17 @@ public class DriveCommands {
       DoubleSupplier slowDownMultSupplier) {
 
     // Create PID controller w/ +-180 degree range
-    fieldPIDController = new PIDController(ANGLE_KP, 0.0, ANGLE_KD);
+    // fieldPIDController = new PIDController(ANGLE_KP, 0.0, ANGLE_KD);
+    // fieldController = new TuneableProfiledPID("thetacontroller", 0.1, 0.0, 0.0, 1.0, 0.5);
+    fieldPIDController = new PIDController(0.08, 0.0, 0.0);
     fieldPIDController.enableContinuousInput(-180, 180);
+    // LoggedTunableNumber kP = new LoggedTunableNumber("kpTheta", 0.0);
 
     return Commands.run(
         () -> {
+          fieldPIDController = new PIDController(0.08, 0.0, 0.0);
+          fieldPIDController.enableContinuousInput(-180, 180);
+          // fieldController.updatePID();
           // Get linear velocity
           Translation2d linearVelocity =
               getLinearVelocityFromJoysticks(
@@ -136,21 +143,26 @@ public class DriveCommands {
 
           if (storedState.getAutoTurn()) {
             omega =
-                fieldPIDController.calculate(
-                    getDriveHeading(drive), storedState.getTargetReefAngle());
+                fieldController.calculate(getDriveHeading(drive), storedState.getTargetReefAngle());
           } else if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
-            omega =
-                fieldPIDController.calculate(
-                    getDriveHeading(drive),
-                    getRightStickAngle(jwxSupplier, jwySupplier) + (isFlipped ? 180 : 0));
+            fieldPIDController.setSetpoint(
+                getRightStickAngle(jwxSupplier, jwySupplier) + (isFlipped ? 180 : 0));
+            omega = fieldPIDController.calculate(getDriveHeading(drive));
+            // SmartDashboard.putNumber(
+            //     "angle", getRightStickAngle(jwxSupplier, jwySupplier) + (isFlipped ? 180 : 0));
           }
           // Convert to field relative speeds & send command
+          omega *= -1;
           ChassisSpeeds speeds =
               new ChassisSpeeds(
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                   linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                   omega);
 
+          // SmartDashboard.putNumber("omega", omega);
+          // SmartDashboard.putNumber("error", fieldPIDController.getError());
+          // SmartDashboard.putNumber("setpoint", fieldPIDController.getSetpoint());
+          // SmartDashboard.putNumber("heading", drive.getRotation().getDegrees());
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,

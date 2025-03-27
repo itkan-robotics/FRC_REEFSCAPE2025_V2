@@ -21,17 +21,18 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.LoggingUtil;
 
 public class ExtensionSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
-  private final TalonFX extensionMotorA = new TalonFX(EXTENSION_MOTOR_PORT_A);
-  private final TalonFX extensionMotorB = new TalonFX(EXTENSION_MOTOR_PORT_B);
+  private final TalonFX extensionMotorRight = new TalonFX(EXTENSION_MOTOR_PORT_RIGHT, "static");
+  private final TalonFX extensionMotorLeft = new TalonFX(EXTENSION_MOTOR_PORT_LEFT, "static");
   private double elevatorSetpoint;
   private final String name = "Extension";
 
@@ -45,16 +46,17 @@ public class ExtensionSubsystem extends SubsystemBase {
     extensionConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     extensionConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_EXTENSION_POS;
     extensionConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = MIN_EXTENSION_POS;
-    extensionConfig.CurrentLimits.SupplyCurrentLimit = 30;
+    extensionConfig.CurrentLimits.SupplyCurrentLimit = 50;
     extensionConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    extensionConfig.CurrentLimits.StatorCurrentLimit = 30;
+    extensionConfig.CurrentLimits.StatorCurrentLimit = 50;
     extensionConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    extensionConfig.MotorOutput.Inverted = extensionConfig.MotorOutput.Inverted;
+    extensionConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     var extensionSlot0Configs = extensionConfig.Slot0;
 
     // set slot 0 gains
     extensionSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+    extensionSlot0Configs.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
     extensionSlot0Configs.kG = EXTENSION_KG;
     extensionSlot0Configs.kV = EXTENSION_KV;
     extensionSlot0Configs.kP =
@@ -63,23 +65,16 @@ public class ExtensionSubsystem extends SubsystemBase {
     // set Motion Magic settings
     var extensionMMConfig = extensionConfig.MotionMagic;
 
-    extensionMMConfig.MotionMagicCruiseVelocity =
-        EXTENSION_CRUISE_VELOCITY; // Target cruise velocity of EXTENSION_CRUISE_VELOCITY rps
-    // Position 0 --> 40 in 40 / EXTENSION_CRUISE_VELOCITY seconds
-    extensionMMConfig.MotionMagicAcceleration =
-        EXTENSION_CRUISE_VELOCITY / 0.25; // Reach target cruise velocity in 0.5 s
-
-    // extensionSlot0Configs.kI = 0.0; // no output for integrated error
-    // extensionSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
-    // extensionMMConfig.MotionMagicJerk = 0.0; //Optional jerk
+    extensionMMConfig.MotionMagicCruiseVelocity = EXTENSION_CRUISE_VELOCITY;
+    extensionMMConfig.MotionMagicAcceleration = EXTENSION_ACCELERATION;
 
     // in init function
-    tryUntilOk(5, () -> extensionMotorA.getConfigurator().apply(extensionConfig, 0.25));
-    tryUntilOk(5, () -> extensionMotorB.getConfigurator().apply(extensionConfig, 0.25));
+    tryUntilOk(5, () -> extensionMotorRight.getConfigurator().apply(extensionConfig, 0.25));
+    tryUntilOk(5, () -> extensionMotorLeft.getConfigurator().apply(extensionConfig, 0.25));
 
-    extensionMotorB.setControl(new Follower(EXTENSION_MOTOR_PORT_A, true));
+    extensionMotorLeft.setControl(new Follower(EXTENSION_MOTOR_PORT_RIGHT, true));
     // create a Motion Magic request, voltage output
-    m_lRequest = new MotionMagicVoltage(0);
+    m_lRequest = new MotionMagicVoltage(2);
 
     tuneablePosition = new LoggedTunableNumber(name + "/DesiredPos", 0.0);
   }
@@ -87,7 +82,7 @@ public class ExtensionSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // System.out.println(tunableHeight.get());
-    LoggingUtil.logMotor(name, extensionMotorA);
+    LoggingUtil.logMotor(name, extensionMotorRight);
   }
 
   public Command setGoal(double setpoint) {
@@ -99,14 +94,11 @@ public class ExtensionSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
-    extensionMotorA.setControl(
-        m_lRequest
-            .withPosition(Constants.tuningMode ? tuneablePosition.get() : setpoint)
-            .withSlot(0));
+    extensionMotorRight.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
   }
 
   public double getPosition() {
-    return extensionMotorA.getPosition().getValueAsDouble();
+    return extensionMotorRight.getPosition().getValueAsDouble();
   }
 
   public double getPositionRequest() {
@@ -121,6 +113,7 @@ public class ExtensionSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber(
     //     "/SetPointReached/Elevator",
     //     Math.abs(leftElevatorMotor.getPosition().getValueAsDouble() - elevatorSetpoint));
-    return Math.abs(extensionMotorA.getPosition().getValueAsDouble() - elevatorSetpoint) <= 0.10;
+    return Math.abs(extensionMotorRight.getPosition().getValueAsDouble() - elevatorSetpoint)
+        <= 0.10;
   }
 }

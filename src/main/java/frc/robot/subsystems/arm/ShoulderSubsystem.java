@@ -21,17 +21,17 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
-import frc.robot.util.LoggingUtil;
 
 public class ShoulderSubsystem extends SubsystemBase {
   private LoggedTunableNumber tuneablePosition;
-  private final TalonFX leftShoulderMotor = new TalonFX(LEFT_SHOULDER_MOTOR_PORT);
-  private final TalonFX rightShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT);
+  private final TalonFX leftShoulderMotor = new TalonFX(LEFT_SHOULDER_MOTOR_PORT, "static");
+  private final TalonFX rightShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT, "static");
   private double shoulderSetpoint;
   private final String name = "Shoulder";
 
@@ -41,15 +41,16 @@ public class ShoulderSubsystem extends SubsystemBase {
     // in init function
     var shoulderConfig = new TalonFXConfiguration();
     shoulderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    // shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    // shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    // shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40;
-    // shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.75;
-    shoulderConfig.CurrentLimits.SupplyCurrentLimit = 25;
+    shoulderConfig.Feedback.SensorToMechanismRatio = 210.0;
+    shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.421;
+    shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+    shoulderConfig.CurrentLimits.SupplyCurrentLimit = 40;
     shoulderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    shoulderConfig.CurrentLimits.StatorCurrentLimit = 25;
+    shoulderConfig.CurrentLimits.StatorCurrentLimit = 40;
     shoulderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    shoulderConfig.MotorOutput.Inverted = shoulderConfig.MotorOutput.Inverted;
+    shoulderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     var shoulderSlot0Configs = shoulderConfig.Slot0;
 
@@ -61,6 +62,7 @@ public class ShoulderSubsystem extends SubsystemBase {
     shoulderSlot0Configs.kV = SHOULDER_KV;
     shoulderSlot0Configs.kP =
         SHOULDER_KP; // A position error of SHOULDER_KP rotations results in 12 V output
+    shoulderSlot0Configs.kD = SHOULDER_KD;
 
     // set Motion Magic settings
     var extensionMMConfig = shoulderConfig.MotionMagic;
@@ -78,7 +80,7 @@ public class ShoulderSubsystem extends SubsystemBase {
     tryUntilOk(5, () -> leftShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
     tryUntilOk(5, () -> rightShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
 
-    rightShoulderMotor.setControl(new Follower(LEFT_SHOULDER_MOTOR_PORT, true));
+    leftShoulderMotor.setControl(new Follower(SHOULDER_MOTOR_PORT, true));
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
@@ -88,7 +90,11 @@ public class ShoulderSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    LoggingUtil.logMotor(name, leftShoulderMotor);
+    // LoggingUtil.logMotor(name, leftShoulderMotor);
+    // SmartDashboard.putNumber(
+    //     "shoulder position l", leftShoulderMotor.getPosition().getValueAsDouble());
+    // SmartDashboard.putNumber(
+    //     "shoulder position r", rightShoulderMotor.getPosition().getValueAsDouble());
   }
 
   public Command setGoal(double setpoint) {
@@ -99,17 +105,19 @@ public class ShoulderSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
-    leftShoulderMotor.setControl(
-        m_lRequest
-            .withPosition(Constants.tuningMode ? tuneablePosition.get() : setpoint)
-            .withSlot(0));
+    rightShoulderMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
+    SmartDashboard.putNumber("shoulder setpoint", setpoint);
   }
 
   public double getPosition() {
-    return leftShoulderMotor.getPosition().getValueAsDouble();
+    return rightShoulderMotor.getPosition().getValueAsDouble();
   }
 
   public double getPositionRequest() {
     return shoulderSetpoint;
+  }
+
+  public boolean setpointReached() {
+    return Math.abs(rightShoulderMotor.getPosition().getValueAsDouble() - shoulderSetpoint) <= 0.02;
   }
 }

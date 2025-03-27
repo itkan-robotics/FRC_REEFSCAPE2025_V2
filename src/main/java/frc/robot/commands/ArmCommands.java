@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -41,6 +42,30 @@ public class ArmCommands {
     return isValid;
   }
 
+  public static Command setScoringPosition(
+      ShoulderSubsystem shoulder, ExtensionSubsystem extension, BotState requestedState) {
+    return Commands.run(
+        () -> {
+          double initialShoulderPosition = shoulder.getPosition();
+          SmartDashboard.putNumber("armCommands/initialShoulderPosition", initialShoulderPosition);
+          SmartDashboard.putNumber(
+              "armCommands/requestedShoulderPosition", requestedState.getShoulderSetpoint());
+          SmartDashboard.putString("armCommands/currentPos", "0");
+
+          if (initialShoulderPosition < requestedState.getShoulderSetpoint()) {
+            SmartDashboard.putString("armCommands/currentPos1", "1");
+            shoulder.setSetpoint(requestedState.getShoulderSetpoint());
+            while (!shoulder.setpointReached()) {
+              SmartDashboard.putString("armCommands/currentPos2", "2");
+            }
+            SmartDashboard.putString("armCommands/currentPos3", "3");
+            extension.setSetpoint(requestedState.getExtensionSetpoint());
+          }
+
+          SmartDashboard.putString("armCommands/currentPos4", "4");
+        });
+  }
+
   public static Command setArmGoal(
       ShoulderSubsystem shoulder,
       ExtensionSubsystem extension,
@@ -63,25 +88,31 @@ public class ArmCommands {
             // extend
             if (requestedState.getExtensionSetpoint() > currentState.getExtensionSetpoint()) {
 
-              shoulder.setGoal(clampedBotState.getShoulderSetpoint());
-              while (Util.withinTolerance(
-                  shoulder.getPosition(), clampedBotState.getShoulderSetpoint(), 3.0)) {
+              System.out.println("before the first while loop");
+              shoulder.setSetpoint(requestedState.getShoulderSetpoint());
+
+              while (!shoulder.setpointReached()) {
                 // Wait for shoulder to get within tolerance
+                System.out.println("inside the first while loop");
               }
-              extension.setGoal(clampedBotState.getExtensionSetpoint());
-              wrist.setGoal(clampedBotState.getWristSetpoint());
+
+              System.out.println("after the first while loop");
+              extension.setSetpoint(clampedBotState.getExtensionSetpoint());
+              // wrist.setGoal(clampedBotState.getWristSetpoint());
             } else {
 
-              extension.setGoal(clampedBotState.getExtensionSetpoint());
-              wrist.setGoal(clampedBotState.getWristSetpoint());
+              System.out.println("before the second while loop");
+              extension.setSetpoint(clampedBotState.getExtensionSetpoint());
+              wrist.setSetpoint(clampedBotState.getWristSetpoint());
               while (Util.withinTolerance(
-                  extension.getPosition(), clampedBotState.getExtensionSetpoint(), 3.0)) {
+                  extension.getPosition(), clampedBotState.getExtensionSetpoint(), 1.0)) {
                 // Wait for shoulder to get within tolerance
+                System.out.println("inside the second while loop");
               }
-              shoulder.setGoal(clampedBotState.getShoulderSetpoint());
+              System.out.println("after the second while loop");
+              shoulder.setSetpoint(clampedBotState.getShoulderSetpoint());
             }
           }
-        },
-        requirements);
+        }); // ,requirements
   }
 }

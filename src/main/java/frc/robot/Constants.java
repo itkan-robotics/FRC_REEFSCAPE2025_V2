@@ -63,7 +63,7 @@ import java.util.Map;
  */
 public final class Constants {
 
-  public static final boolean tuningMode = true;
+  public static final boolean tuningMode = false;
 
   // PathPlanner config constants (wrong values)
   public static final double ROBOT_MASS_KG = 61.23;
@@ -79,51 +79,52 @@ public final class Constants {
 
   public static class ArmConstants {
     public static class ShoulderConstants {
-      public static final int LEFT_SHOULDER_MOTOR_PORT = 9;
-      public static final int SHOULDER_MOTOR_PORT = 10;
-      public static final int SHOULDER_MOTOR_PORT_C = 11;
+      public static final int LEFT_SHOULDER_MOTOR_PORT = 14;
+      public static final int SHOULDER_MOTOR_PORT = 13;
+      // public static final int SHOULDER_MOTOR_PORT_C = 11;
 
-      public static final double SHOULDER_KP = 0.0;
-      public static final double SHOULDER_KS = 0.0;
-      public static final double SHOULDER_KG = 0.0;
-      public static final double SHOULDER_KV = 0.0;
-      public static final double SHOULDER_CRUISE_VELOCITY = 0.0;
-      public static final double SHOULDER_ACCELERATION = 0.0;
+      public static final double SHOULDER_KP = 275.0;
+      public static final double SHOULDER_KD = 0;
+      public static final double SHOULDER_KS = 0.1;
+      public static final double SHOULDER_KG = 0.5;
+      public static final double SHOULDER_KV = 0.04;
+      public static final double SHOULDER_CRUISE_VELOCITY = 66.0;
+      public static final double SHOULDER_ACCELERATION = 3.5;
       public static final double SHOULDER_JERK = 0.0;
 
       public static final double MIN_SHOULDER_ROTATION_POS = 0.0;
-      public static final double MAX_SHOULDER_ROTATION_POS = 0.0;
+      public static final double MAX_SHOULDER_ROTATION_POS = 0.412;
     }
 
     public static class ExtensionConstants {
-      public static final int EXTENSION_MOTOR_PORT_A = 12;
-      public static final int EXTENSION_MOTOR_PORT_B = 13;
+      public static final int EXTENSION_MOTOR_PORT_RIGHT = 9; // right extend motor
+      public static final int EXTENSION_MOTOR_PORT_LEFT = 10; // left extend motor
 
-      public static final double EXTENSION_KP = 0.0;
-      public static final double EXTENSION_KS = 0.0;
-      public static final double EXTENSION_KG = 0.0;
-      public static final double EXTENSION_KV = 0.0;
-      public static final double EXTENSION_CRUISE_VELOCITY = 60.0;
-      // public static final double EXTENSION_ACCELERATION = 0.0;
-      // public static final double EXTENSION_JERK = 0.0;
+      public static final double EXTENSION_KP = 3.2;
+      public static final double EXTENSION_KS = 0.2;
+      public static final double EXTENSION_KG = 0.25;
+      public static final double EXTENSION_KV = 0.1;
+      public static final double EXTENSION_CRUISE_VELOCITY = 35.0;
+      public static final double EXTENSION_ACCELERATION = 100.0;
+      // public static final double EXTENSION_JERK = 170.0;
 
-      public static final double MIN_EXTENSION_POS = 0.05;
-      public static final double MAX_EXTENSION_POS = 39.95;
+      public static final double MIN_EXTENSION_POS = 0;
+      public static final double MAX_EXTENSION_POS = 23;
     }
 
     public static class WristConstants {
-      public static final int WRIST_MOTOR_PORT_A = 14;
+      public static final int WRIST_MOTOR_PORT_A = 17;
 
-      public static final double WRIST_KP = 0.0;
+      public static final double WRIST_KP = 20.0;
       public static final double WRIST_KS = 0.0;
       public static final double WRIST_KG = 0.0;
       public static final double WRIST_KV = 0.0;
-      public static final double WRIST_CRUISE_VELOCITY = 0.0;
-      public static final double WRIST_ACCELERATION = 0.0;
+      public static final double WRIST_CRUISE_VELOCITY = 45.0;
+      public static final double WRIST_ACCELERATION = 15.0;
       public static final double WRIST_JERK = 0.0;
 
-      public static final double MIN_WRIST_ROTATION_POS = 0.0;
-      public static final double MAX_WRIST_ROTATION_POS = 0.0;
+      public static final double MIN_WRIST_ROTATION_POS = -0.1;
+      public static final double MAX_WRIST_ROTATION_POS = 0.385;
     }
   }
 
@@ -177,7 +178,7 @@ public final class Constants {
 
     private static final Slot0Configs steerGains =
         new Slot0Configs()
-            .withKP(100)
+            .withKP(50)
             .withKI(0)
             .withKD(0.0)
             .withKS(0.0)
@@ -260,8 +261,8 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5;
 
-    private static final double kDriveGearRatio = 6.75;
-    private static final double kSteerGearRatio = 25.0;
+    private static final double kDriveGearRatio = 6.75; // 6.23
+    private static final double kSteerGearRatio = 25.0; // *12/13
     private static final Distance kWheelRadius = Inches.of(1.953036686729617 * 0.95);
 
     private static final boolean kInvertLeftSide = false;
@@ -273,8 +274,8 @@ public final class Constants {
     private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.004);
     private static final MomentOfInertia kDriveInertia = KilogramSquareMeters.of(0.025);
     // Simulated voltage necessary to overcome friction
-    private static final Voltage kSteerFrictionVoltage = Volts.of(0.2);
-    private static final Voltage kDriveFrictionVoltage = Volts.of(0.2);
+    private static final Voltage kSteerFrictionVoltage = Volts.of(0.02); // 0.2
+    private static final Voltage kDriveFrictionVoltage = Volts.of(0.02); // 0.2
 
     public static final SwerveDrivetrainConstants DrivetrainConstants =
         new SwerveDrivetrainConstants()
@@ -311,48 +312,49 @@ public final class Constants {
     // + rotation is counterclockwise if looking at swerve from below
 
     // Front Left
-    private static final int kFrontLeftDriveMotorId = 1;
-    private static final int kFrontLeftSteerMotorId = 2;
-    private static final int kFrontLeftEncoderId = 0;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.05); // TO DO: TUNE 0.055
+    private static final int kFrontLeftDriveMotorId = 5;
+    private static final int kFrontLeftSteerMotorId = 6;
+    private static final int kFrontLeftEncoderId = 1;
+    private static final Angle kFrontLeftEncoderOffset =
+        Rotations.of(-0.885 + 0.5); // TO DO: TUNE 0.055
     private static final boolean kFrontLeftSteerMotorInverted = false;
     private static final boolean kFrontLeftEncoderInverted = false;
 
-    private static final Distance kFrontLeftXPos = Inches.of(12.5);
-    private static final Distance kFrontLeftYPos = Inches.of(12.5);
+    private static final Distance kFrontLeftXPos = Inches.of(14.75);
+    private static final Distance kFrontLeftYPos = Inches.of(14.75);
 
     // Front Right
-    private static final int kFrontRightDriveMotorId = 3;
-    private static final int kFrontRightSteerMotorId = 4;
-    private static final int kFrontRightEncoderId = 1;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.89 - 0.01); // 0.83
+    private static final int kFrontRightDriveMotorId = 1;
+    private static final int kFrontRightSteerMotorId = 2;
+    private static final int kFrontRightEncoderId = 2;
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.203 + 0.5); // 0.83
     private static final boolean kFrontRightSteerMotorInverted = false;
     private static final boolean kFrontRightEncoderInverted = false;
 
-    private static final Distance kFrontRightXPos = Inches.of(12.5);
-    private static final Distance kFrontRightYPos = Inches.of(-12.5);
+    private static final Distance kFrontRightXPos = Inches.of(14.75);
+    private static final Distance kFrontRightYPos = Inches.of(-14.75);
 
     // Back Left
-    private static final int kBackLeftDriveMotorId = 5;
-    private static final int kBackLeftSteerMotorId = 6;
-    private static final int kBackLeftEncoderId = 2;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.617 - 0.0035); // 0.625
+    private static final int kBackLeftDriveMotorId = 7;
+    private static final int kBackLeftSteerMotorId = 8;
+    private static final int kBackLeftEncoderId = 0;
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.047); // 0.625
     private static final boolean kBackLeftSteerMotorInverted = false;
     private static final boolean kBackLeftEncoderInverted = false;
 
-    private static final Distance kBackLeftXPos = Inches.of(-12.5);
-    private static final Distance kBackLeftYPos = Inches.of(12.5);
+    private static final Distance kBackLeftXPos = Inches.of(-14.75);
+    private static final Distance kBackLeftYPos = Inches.of(14.75);
 
     // Back Right
-    private static final int kBackRightDriveMotorId = 7;
-    private static final int kBackRightSteerMotorId = 8;
+    private static final int kBackRightDriveMotorId = 3;
+    private static final int kBackRightSteerMotorId = 4;
     private static final int kBackRightEncoderId = 3;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(0.71 - 0.005); // 0.68 + 0.03
+    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.411 + 0.5); // 0.68 + 0.03
     private static final boolean kBackRightSteerMotorInverted = false;
     private static final boolean kBackRightEncoderInverted = false;
 
-    private static final Distance kBackRightXPos = Inches.of(-12.5);
-    private static final Distance kBackRightYPos = Inches.of(-12.5);
+    private static final Distance kBackRightXPos = Inches.of(-14.75);
+    private static final Distance kBackRightYPos = Inches.of(-14.75);
 
     public static final SwerveModuleConstants<
             TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
