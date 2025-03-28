@@ -152,7 +152,6 @@ public class DriveCommands {
             //     "angle", getRightStickAngle(jwxSupplier, jwySupplier) + (isFlipped ? 180 : 0));
           }
           // Convert to field relative speeds & send command
-          omega *= -1;
           ChassisSpeeds speeds =
               new ChassisSpeeds(
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),

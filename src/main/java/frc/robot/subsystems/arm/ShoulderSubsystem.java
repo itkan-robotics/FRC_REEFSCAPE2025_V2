@@ -105,6 +105,7 @@ public class ShoulderSubsystem extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
+    shoulderSetpoint = setpoint;
     rightShoulderMotor.setControl(m_lRequest.withPosition(setpoint).withSlot(0));
     SmartDashboard.putNumber("shoulder setpoint", setpoint);
   }

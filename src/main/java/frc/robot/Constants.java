@@ -75,7 +75,7 @@ public final class Constants {
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
 
-  public static final int END_EFFECTOR_MOTOR_PORT = 15;
+  public static final int Intake_Motor_Port = 16;
 
   public static class ArmConstants {
     public static class ShoulderConstants {
@@ -100,7 +100,7 @@ public final class Constants {
       public static final int EXTENSION_MOTOR_PORT_RIGHT = 9; // right extend motor
       public static final int EXTENSION_MOTOR_PORT_LEFT = 10; // left extend motor
 
-      public static final double EXTENSION_KP = 3.2;
+      public static final double EXTENSION_KP = 3.3;
       public static final double EXTENSION_KS = 0.2;
       public static final double EXTENSION_KG = 0.25;
       public static final double EXTENSION_KV = 0.1;
@@ -315,8 +315,7 @@ public final class Constants {
     private static final int kFrontLeftDriveMotorId = 5;
     private static final int kFrontLeftSteerMotorId = 6;
     private static final int kFrontLeftEncoderId = 1;
-    private static final Angle kFrontLeftEncoderOffset =
-        Rotations.of(-0.885 + 0.5); // TO DO: TUNE 0.055
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.885); // TO DO: TUNE 0.055
     private static final boolean kFrontLeftSteerMotorInverted = false;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -327,7 +326,7 @@ public final class Constants {
     private static final int kFrontRightDriveMotorId = 1;
     private static final int kFrontRightSteerMotorId = 2;
     private static final int kFrontRightEncoderId = 2;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.203 + 0.5); // 0.83
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.203); // 0.83
     private static final boolean kFrontRightSteerMotorInverted = false;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -338,7 +337,7 @@ public final class Constants {
     private static final int kBackLeftDriveMotorId = 7;
     private static final int kBackLeftSteerMotorId = 8;
     private static final int kBackLeftEncoderId = 0;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.047); // 0.625
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.047 + 0.5); // 0.625
     private static final boolean kBackLeftSteerMotorInverted = false;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -349,7 +348,7 @@ public final class Constants {
     private static final int kBackRightDriveMotorId = 3;
     private static final int kBackRightSteerMotorId = 4;
     private static final int kBackRightEncoderId = 3;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.411 + 0.5); // 0.68 + 0.03
+    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.411); // 0.68 + 0.03
     private static final boolean kBackRightSteerMotorInverted = false;
     private static final boolean kBackRightEncoderInverted = false;
 

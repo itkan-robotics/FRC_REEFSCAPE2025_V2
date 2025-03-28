@@ -67,11 +67,6 @@ public class WristSubsystem extends SubsystemBase {
     extensionMMConfig.MotionMagicAcceleration =
         WRIST_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
 
-    // shoulderSlot0Configs.kI = 0.0; // no output for integrated error
-    // shoulderSlot0Configs.kD = 0.0; // A velocity error of 1 rps results in 0.0 V output
-
-    // extensionMMConfig.MotionMagicJerk = WRIST_JERK; // Target jerk of WRIST_JERK rps/s/s
-
     // in init function
     tryUntilOk(5, () -> wristMotor.getConfigurator().apply(wristConfig, 0.25));
 

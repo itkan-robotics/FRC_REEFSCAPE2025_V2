@@ -29,13 +29,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.ArmCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.commands.SmartAlign;
+import frc.robot.subsystems.FullArmSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.arm.ExtensionSubsystem;
-import frc.robot.subsystems.arm.ShoulderSubsystem;
-import frc.robot.subsystems.arm.WristSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -58,11 +56,9 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  //   private static final EndEffectorSubsystem score = new EndEffectorSubsystem();
-  public static final ShoulderSubsystem shoulder = new ShoulderSubsystem();
-  private static final ExtensionSubsystem extension = new ExtensionSubsystem();
-  private static final WristSubsystem wrist = new WristSubsystem();
-  public static final ClimbSubsystem climb = new ClimbSubsystem();
+  private static final FullArmSubsystem fullArm = new FullArmSubsystem();
+  public static final IntakeSubsystem intake = new IntakeSubsystem();
+
   private static final LimelightSubsystem limelight =
       new LimelightSubsystem(LimelightConstants.leftLimelightName);
 
@@ -162,85 +158,18 @@ public class RobotContainer {
 
     // Command for when we are testing different positions
 
-    // Intaking coral
-    // base.R2()
-    //     // .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));
-    //     .onTrue
-    // .whileTrue(score.setSpeed(0.8))
-    // .onFalse(score.setSpeed(0.1));
+    base.triangle().onTrue(fullArm.setGoal(L4, true));
+    base.square().onTrue(fullArm.setGoal(L3, true));
+    base.circle().onTrue(fullArm.setGoal(L2, true));
+    base.cross().onTrue(fullArm.setGoal(HOME, true));
 
-    // Scoring Coral
-    // base.R1().or(operator.R2()).whileTrue(score.setSpeed(-0.8));
+    base.R2().whileTrue(fullArm.setGoal(INTAKE, false).alongWith(intake.setIntakeSpeed(1)));
+    base.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    // Intaking algae
-    // base.touchpad().whileTrue(score.setSpeedAndState(1.0, true));
+    base.povDown().onTrue(fullArm.setGoal(CLIMB, true));
+    base.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
 
-    // Outtake algae
-    // base.L1()
-    //     .whileTrue(score.setSpeedAndState(-0.75, true))
-    //     .onFalse(score.setSpeedAndState(-0.5, true));
-
-    // HOME
-    base.cross()
-        // .or(operator.cross())
-        // .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
-        .onTrue(extension.setGoal(14));
-
-    // base.triangle()
-    //     // .or(operator.cross())
-    //     // .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
-    //     .onTrue(shoulder.setGoal(0.2));
-
-    // Coral Positioning Commands
-    // // L1
-    // base.touchpad()
-    //     .or(operator.touchpad().and(operator.R2()))
-    //     .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L1));
-
-    // // L2
-    // base.square()
-    //     .or(operator.square().and(operator.touchpad()))
-    //     .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L2));
-
-    // // L3
-    // base.circle()
-    //     .or(operator.circle().and(operator.touchpad()))
-    //     .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L3));
-
-    // L4
-    base.triangle()
-        .or(operator.triangle().and(operator.touchpad()))
-        .onTrue(ArmCommands.setScoringPosition(shoulder, extension, L4));
-
-    // Algae Positioning Commands
-
-    // L2-3 Algae
-    base.povDown()
-        // .or(operator.povDown())
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, LOWALGAE));
-
-    // L3-4 Algae
-    base.povUp()
-        // .or(operator.povUp())
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HIGHALGAE));
-
-    // Barge/Net
-    base.PS().onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, NET));
-
-    // Reset
-    base.povLeft()
-        // .or(operator.povLeft())
-        .onTrue(ArmCommands.setArmGoal(shoulder, extension, wrist, currState, RESET));
-
-    // base.L2()
-    //     .whileTrue(new SmartAlign(drive, shoulder, extension, wrist, score, storedState))
-    //     .onFalse(new InstantCommand());
-
-    // Algae Net Dropoff
-    operator.create();
-
-    // Algae Pickup
-    operator.options();
+    base.L2().whileTrue(new SmartAlign(drive, fullArm, storedState));
 
     // Auto Turn to Reef Face
     base.R3()
@@ -293,20 +222,6 @@ public class RobotContainer {
                   storedState.setLimelightPipeLine("RIGHT");
                 }));
 
-    // Climb final
-    operator
-        .povUp()
-        .onTrue(
-            ArmCommands.setArmGoal(shoulder, extension, wrist, currState, CLIMB)
-                .alongWith(climb.setSpeed(0.0)));
-
-    // Climb setup
-    operator
-        .povDown()
-        .onTrue(
-            ArmCommands.setArmGoal(shoulder, extension, wrist, currState, PRECLIMB)
-                .alongWith(climb.setSpeed(1.0)));
-    // Set reef angle
     operator
         .L2()
         .whileTrue(
@@ -397,15 +312,14 @@ public class RobotContainer {
             () -> -base.getLeftX(),
             () -> -base.getRightY(),
             () -> base.getRightX(),
-            () -> extension.getSlowDownMult()));
+            () -> 1));
 
     // score.setDefaultCommand(score.setSpeedAndState(0.0, false));
     // limelight.setDefaultCommand(limelight.setLimelight());
     // shoulder.setDefaultCommand(shoulder.setGoal(0));
     // extension.setDefaultCommand(extension.setGoal(0));
-    shoulder.setGoal(0);
-    extension.setGoal(0);
-    wrist.setGoal(0);
+    intake.setDefaultCommand(intake.DefaultCommand());
+    fullArm.setGoal(INTAKE, false);
   }
 
   /**

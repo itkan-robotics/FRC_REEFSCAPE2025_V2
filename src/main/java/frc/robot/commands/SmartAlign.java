@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import static frc.robot.Constants.LimelightConstants.*;
-import static frc.robot.util.MachineStates.PossibleStates;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -13,11 +12,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.EndEffectorSubsystem;
+import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.arm.ExtensionSubsystem;
-import frc.robot.subsystems.arm.ShoulderSubsystem;
-import frc.robot.subsystems.arm.WristSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LimelightHelpers;
@@ -28,9 +24,7 @@ public class SmartAlign extends Command {
   /** Creates a new SmartAlign. */
   Drive drive;
 
-  ShoulderSubsystem shoulder;
-  ExtensionSubsystem extension;
-  WristSubsystem wrist;
+  FullArmSubsystem arm;
 
   String limelightName;
   AutoScoreSelection storedState;
@@ -55,20 +49,12 @@ public class SmartAlign extends Command {
 
   boolean isFlipped;
 
-  public SmartAlign(
-      Drive drive,
-      ShoulderSubsystem shoulder,
-      ExtensionSubsystem e,
-      WristSubsystem wrist,
-      EndEffectorSubsystem s,
-      AutoScoreSelection storedState) {
+  public SmartAlign(Drive drive, FullArmSubsystem arm, AutoScoreSelection storedState) {
     this.drive = drive;
-    this.extension = e;
-    this.shoulder = shoulder;
-    this.wrist = wrist;
+    this.arm = arm;
     this.storedState = storedState;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drive, extension, shoulder, wrist);
+    addRequirements(this.drive, this.arm);
   }
 
   // Called when the command is initially scheduled.
@@ -79,7 +65,7 @@ public class SmartAlign extends Command {
             && DriverStation.getAlliance().get() == Alliance.Red;
 
     // System.out.println("0");
-    currentState = PossibleStates[storedState.getBotStateInt()];
+    // currentState = PossibleStates[storedState.getBotStateInt()];
 
     m_end = false;
     limelightName = storedState.getTargetLimelight();
@@ -96,13 +82,8 @@ public class SmartAlign extends Command {
 
     targetReefAngle =
         MathUtil.inputModulus(storedState.getTargetReefAngle() + (isFlipped ? 180 : 0), -180, 180);
-    // targetReefAngle = storedState.getTargetReefAngle();
-    // targetReefAngle = 180.0;
-    // System.out.println("1");
     reefAngle = LimelightSubsystem.getLLReefAngle(limelightName);
-    // System.out.println("2");
 
-    // isAngleReached = true;
     isStrafeReached = false;
   }
 
@@ -110,62 +91,24 @@ public class SmartAlign extends Command {
   @Override
   public void execute() {
 
-    // System.out.println("3");
-    // if (!isAngleReached) {
-    //   // System.out.println("5");
-    //   // System.out.println(m_drive.getRotation().getDegrees());
-    //   if ((Math.abs(targetReefAngle) == 180.0
-    //           ? Math.abs(Math.abs(m_drive.getRotation().getDegrees()) - 180)
-    //           : Math.abs(m_drive.getRotation().getDegrees() - targetReefAngle))
-    //       < 2.5) {
-    //     // System.out.println("5.1");
-    //     isAngleReached = true;
-    //   }
-    //   rotationVal =
-    //       m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
-    //   // System.out.println("5.2");
-    //   m_thetaController.calculate(
-    //       (MathUtil.inputModulus(m_drive.getHeadingDegrees(), -180, 180)), targetReefAngle);
-    //   // System.out.println("5.4");
-    //   // rotationVal = MathUtil.clamp(rotationVal, -0.3, 0.3);
-    //   // //System.out.println("6");
-    //   // If it is reached, start moving towards the target
-    //   ChassisSpeeds speeds = new ChassisSpeeds(0.0, 0.0, rotationVal);
-    //   m_drive.runVelocity(speeds);
-    // }
     if (LimelightHelpers.getTV(limelightName)) {
-      // System.out.println("4"); // If the angle isn't reached, keep rotating until it does
       if (isAngleReached) {
-        // //System.out.println("7");
-        // rotationVal =
-        //     m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
         m_pidControllerX.setSetpoint(0);
-        // //System.out.println("8");
         xTrans = m_pidControllerX.calculate(LimelightHelpers.getTX(limelightName));
         xTrans = MathUtil.clamp(xTrans, -5, 5);
 
-        m_pidControllerY.setSetpoint(18.5);
-        // //System.out.println("9");
+        m_pidControllerY.setSetpoint(23.5);
         yTrans = m_pidControllerY.calculate(LimelightHelpers.getTA(limelightName));
-        // //System.out.println("10");
         yTrans = MathUtil.clamp(yTrans, -5, 5);
 
-        // If x-values within tolerance, start superstructuring
         if (isStrafeReached) {
-          // //System.out.println("11");
-          extension.setSetpoint(currentState.getExtensionSetpoint());
-          shoulder.setSetpoint(currentState.getShoulderSetpoint());
-          // If not reached, check if it is reached
+          // arm.setGoal(currentState, true);
         } else {
-          // //System.out.println("12");
           if (Math.abs(m_pidControllerX.calculate(LimelightHelpers.getTX(limelightName))) < 0.25) {
             isStrafeReached = true;
           }
         }
-        // System.out.println(LimelightHelpers.getTX(limelightName));
       }
-
-      // Do all the speeds stuff
 
       if (isAngleReached) {
         MathUtil.clamp(rotationVal, -0.75, 0.75);
@@ -174,7 +117,7 @@ public class SmartAlign extends Command {
         MathUtil.clamp(yTrans, -0.3, 0.3);
       }
 
-      ChassisSpeeds speeds = new ChassisSpeeds(yTrans, xTrans, 0.0);
+      ChassisSpeeds speeds = new ChassisSpeeds(-yTrans, -xTrans, 0.0);
 
       drive.runVelocity(speeds);
 
