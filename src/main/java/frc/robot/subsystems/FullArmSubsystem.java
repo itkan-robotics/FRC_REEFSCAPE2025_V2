@@ -134,7 +134,7 @@ public class FullArmSubsystem extends SubsystemBase {
     wristConfig.Feedback.SensorToMechanismRatio = 25;
     wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.4;
+    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.45;
     wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.2;
     wristConfig.CurrentLimits.SupplyCurrentLimit = 30;
     wristConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -180,6 +180,7 @@ public class FullArmSubsystem extends SubsystemBase {
 
   public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
     currentState = desiredState;
+
     this.shoulderFirst = shoulderFirst;
   }
 

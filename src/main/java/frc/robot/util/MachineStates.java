@@ -70,9 +70,9 @@ public class MachineStates {
   // Coral Handling
   public static final BotState L1 = new BotState("L1", 0.16, 1, -0.13, 1);
   public static final BotState L2 = new BotState("L2", 0.2, 6, -0.18, 2);
-  public static final BotState L3 = new BotState("L3", 0.29, 5, 0.27, 3);
-  public static final BotState L4 = new BotState("L4", 0.29, 21.5, 0.39, 4);
-  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 0.1, 0.03, 5);
+  public static final BotState L3 = new BotState("L3", 0.305, 4, 0.23, 3);
+  public static final BotState L4 = new BotState("L4", 0.3, 21.4, 0.4, 4); // 20.5
+  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 0, 0.0, 5); // 0
 
   // Algae Handling
   public static final BotState LOWALGAE = new BotState("LOWALGAE", 0.0, 0.0, 0.0, 6);

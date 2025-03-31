@@ -100,12 +100,12 @@ public final class Constants {
       public static final int EXTENSION_MOTOR_PORT_RIGHT = 9; // right extend motor
       public static final int EXTENSION_MOTOR_PORT_LEFT = 10; // left extend motor
 
-      public static final double EXTENSION_KP = 3.3;
+      public static final double EXTENSION_KP = 4;
       public static final double EXTENSION_KS = 0.2;
-      public static final double EXTENSION_KG = 0.25;
+      public static final double EXTENSION_KG = 0.19;
       public static final double EXTENSION_KV = 0.1;
-      public static final double EXTENSION_CRUISE_VELOCITY = 35.0;
-      public static final double EXTENSION_ACCELERATION = 100.0;
+      public static final double EXTENSION_CRUISE_VELOCITY = 60.0;
+      public static final double EXTENSION_ACCELERATION = 140.0;
       // public static final double EXTENSION_JERK = 170.0;
 
       public static final double MIN_EXTENSION_POS = 0;
