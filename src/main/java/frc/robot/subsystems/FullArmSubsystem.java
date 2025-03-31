@@ -130,7 +130,7 @@ public class FullArmSubsystem extends SubsystemBase {
 
     // in init function
     var wristConfig = new TalonFXConfiguration();
-    wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     wristConfig.Feedback.SensorToMechanismRatio = 25;
     wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -243,4 +243,27 @@ public class FullArmSubsystem extends SubsystemBase {
   public void setWrist(double position) {
     wristMotor.setControl(m_lRequest.withPosition(position).withSlot(0));
   }
+
+  // public void setCoastMode() {
+  //   leftShoulderMotor.setNeutralMode(NeutralModeValue.Coast);
+  //   rightShoulderMotor.setNeutralMode(NeutralModeValue.Coast);
+  //   wristMotor.setNeutralMode(NeutralModeValue.Coast);
+  // }
+
+  public void setBrakeMode() {
+    leftShoulderMotor.setNeutralMode(NeutralModeValue.Brake);
+    rightShoulderMotor.setNeutralMode(NeutralModeValue.Brake);
+    wristMotor.setNeutralMode(NeutralModeValue.Brake);
+  }
+
+  // public Command setBrakeModeCommand() {
+  //   return run(
+  //       () -> {
+  //         var shoulderConfig = new TalonFXConfiguration();
+  //         shoulderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+  //         tryUntilOk(5, () -> rightShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
+  //         tryUntilOk(5, () -> leftShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
+  //       });
+  // }
 }

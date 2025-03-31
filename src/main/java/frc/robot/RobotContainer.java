@@ -16,8 +16,10 @@ package frc.robot;
 import static frc.robot.util.MachineStates.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlign;
 import frc.robot.subsystems.FullArmSubsystem;
@@ -41,6 +44,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.AutoScoreSelection;
+import frc.robot.util.DisabledInstantCommand;
 import frc.robot.util.MachineStates;
 import frc.robot.util.MachineStates.BotState;
 import java.util.Set;
@@ -56,7 +60,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  private static final FullArmSubsystem fullArm = new FullArmSubsystem();
+  public static final FullArmSubsystem fullArm = new FullArmSubsystem();
   public static final IntakeSubsystem intake = new IntakeSubsystem();
 
   private static final LimelightSubsystem limelight =
@@ -161,13 +165,19 @@ public class RobotContainer {
     base.triangle().onTrue(fullArm.setGoal(L4, true));
     base.square().onTrue(fullArm.setGoal(L3, true));
     base.circle().onTrue(fullArm.setGoal(L2, true));
-    base.cross().onTrue(fullArm.setGoal(HOME, true));
+    base.cross().onTrue(fullArm.setGoal(HOME, false));
 
-    base.R2().whileTrue(fullArm.setGoal(INTAKE, false).alongWith(intake.setIntakeSpeed(1)));
+    base.R2()
+        .whileTrue(fullArm.setGoal(INTAKE, false).alongWith(intake.setIntakeSpeed(1)))
+        .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
+    // .onFalse(fullArm.setGoal(HOME, false));
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    base.povDown().onTrue(fullArm.setGoal(CLIMB, true));
-    base.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
+    operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
+    operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
+
+    base.povUp().onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
+    base.povDown().onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
 
     base.L2().whileTrue(new SmartAlign(drive, fullArm, storedState));
 
@@ -184,28 +194,28 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  storedState.setBotStateInt(4);
+                  storedState.setBotState(L4);
                 }));
     (operator.L2())
         .and(operator.circle())
         .onTrue(
             new InstantCommand(
                 () -> {
-                  storedState.setBotStateInt(3);
+                  storedState.setBotState(L3);
                 }));
     (operator.L2())
         .and(operator.square())
         .onTrue(
             new InstantCommand(
                 () -> {
-                  storedState.setBotStateInt(2);
+                  storedState.setBotState(L2);
                 }));
     (operator.L2())
         .and(operator.touchpad())
         .onTrue(
             new InstantCommand(
                 () -> {
-                  storedState.setBotStateInt(1);
+                  storedState.setBotState(L1);
                 }));
     (operator.L2())
         .and(operator.L1())
@@ -234,6 +244,26 @@ public class RobotContainer {
                                   () -> -operator.getRightY(), () -> operator.getRightX());
                             }),
                     Set.of())));
+
+    // operator
+    //     .PS()
+    //     .onTrue(
+    //         new DisabledInstantCommand(
+    //             () -> {
+    //               if (DriverStation.isDisabled()) {
+    //                 fullArm.setCoastMode();
+    //               }
+    //             }));
+
+    operator
+        .PS()
+        .onTrue(
+            new DisabledInstantCommand(
+                () -> {
+                  if (DriverStation.isDisabled()) {
+                    fullArm.setBrakeMode();
+                  }
+                }));
   }
 
   /*********************************************************
@@ -262,14 +292,16 @@ public class RobotContainer {
 
     // NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
 
-    // NamedCommands.registerCommand(
-    //     "goToReef",
-    //     new AutoAlignCommand(
-    //         drive,
-    //         new LimelightSubsystem(leftLimelightName),
-    //         -120,
-    //         LimelightConstants.leftLimelightName));
+    NamedCommands.registerCommand(
+        "goToReef",
+        new AutoAlignCommand(
+            drive,
+            new LimelightSubsystem(LimelightConstants.leftLimelightName),
+            -120,
+            LimelightConstants.leftLimelightName));
 
+    // NamedCommands.registerCommand("goToReef", new AutoAlignCommand(drive, limelight, 180,
+    // LimelightConstants.leftLimelightName));
     // NamedCommands.registerCommand(
     //     "goToReefRight",
     //     new AutoAlignCommand(
@@ -286,11 +318,15 @@ public class RobotContainer {
     //             drive)
     //         .ignoringDisable(true));
 
-    // NamedCommands.registerCommand(
-    //     "L4", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, L4));
+    NamedCommands.registerCommand("L4", fullArm.setGoal(L4, true));
 
-    // NamedCommands.registerCommand(
-    //     "HOME", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, HOME));
+    NamedCommands.registerCommand("L3", fullArm.setGoal(L3, true));
+
+    NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, true));
+
+    NamedCommands.registerCommand("outtakeDefault", intake.DefaultCommand());
+
+    NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
 
     // NamedCommands.registerCommand(
     //     "CoralIntakePos", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));

@@ -64,24 +64,25 @@ public class MachineStates {
     }
   }
 
-  public static final BotState HOME = new BotState("HOME", 0.125, 2.01, 0.0, 1);
+  public static final BotState HOME =
+      new BotState("HOME", 0.2, 3.5, 0.2, 1); // 0.125 for shoulder home 0.15 for wrist home
 
   // Coral Handling
   public static final BotState L1 = new BotState("L1", 0.16, 1, -0.13, 1);
   public static final BotState L2 = new BotState("L2", 0.2, 6, -0.18, 2);
   public static final BotState L3 = new BotState("L3", 0.29, 5, 0.27, 3);
-  public static final BotState L4 = new BotState("L4", 0.29, 20.75, 0.39, 4);
-  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 0.1, 0.01, 5);
+  public static final BotState L4 = new BotState("L4", 0.29, 21.5, 0.39, 4);
+  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 0.1, 0.00, 5);
 
   // Algae Handling
   public static final BotState LOWALGAE = new BotState("LOWALGAE", 0.0, 0.0, 0.0, 6);
-  public static final BotState HIGHALGAE = new BotState("HIGHALGAE", 0.0, 0.0, 0.0, 7);
+  public static final BotState HIGHALGAE = new BotState("HIGHALGAE", 0.29, 4.0, 0.2, 7);
   public static final BotState PROCESSOR = new BotState("PROCESSOR", 0.0, 0.0, 0.0, 8);
   public static final BotState NET = new BotState("NET", 0.0, 0.0, 0.0, 9);
 
   // MISC
-  public static final BotState PRECLIMB = new BotState("PRECLIMB", 0.28, 4, 0.0, 10);
-  public static final BotState CLIMB = new BotState("CLIMB", 0.0, 0.1, 0.01, 11);
+  public static final BotState PRECLIMB = new BotState("PRECLIMB", 0.305, 4, 0.0, 10);
+  public static final BotState CLIMB = new BotState("CLIMB", 0.0, 1, 0.01, 11);
   public static final BotState RESET = new BotState("RESET", 0.0, 0.0, 0.0, -1);
   public static final BotState Intake = new BotState("INTAKE", 0.0, 0.0, 0.0, 12);
 

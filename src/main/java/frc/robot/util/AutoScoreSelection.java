@@ -7,7 +7,7 @@ package frc.robot.util;
 import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.leftLimelightName;
 import static frc.robot.Constants.LimelightConstants.rightLimelightName;
-import static frc.robot.util.MachineStates.PossibleStates;
+import static frc.robot.util.MachineStates.INTAKE;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,6 +20,7 @@ public class AutoScoreSelection {
   private static int operatorStateInt = -1;
   private static int operatorLimelight = 0;
   private static double operatorReefAngle = 0.0;
+  private static BotState desiredState = INTAKE;
   private static boolean baseAutoTurn = false;
   private HashMap<Double, Integer> reefAnglesToIDs = new HashMap<Double, Integer>();
   boolean working;
@@ -31,7 +32,7 @@ public class AutoScoreSelection {
 
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putString("storedState/RobotState", "L" + getBotStateInt());
+    SmartDashboard.putString("storedState/RobotState", "L" + desiredState.getId());
     SmartDashboard.putNumber("storedState/Pipeline", getLimelightTargetPipeline());
     SmartDashboard.putNumber("storedState/TargetAngle", getTargetReefAngle());
     SmartDashboard.putBoolean("storedState/ShouldAutoTurn", getAutoTurn());
@@ -135,19 +136,23 @@ public class AutoScoreSelection {
     operatorStateInt = stateInt;
   }
 
+  public void setBotState(BotState dState) {
+    desiredState = dState;
+  }
+
   /**
    * @return The store state as an integer, with a default value of -1. Corresponding values can be
    *     found in {@link frc.robot.Constants#toBotState(int)}
    */
-  public int getBotStateInt() {
-    return operatorStateInt; // (int) SmartDashboard.getNumber("storedState/RobotState", -1);
-  }
+  // public int getBotStateInt() {
+  //   return operatorStateInt; // (int) SmartDashboard.getNumber("storedState/RobotState", -1);
+  // }
 
   /**
    * @return the store state as a BotState enum, with a default value of RESET.
    */
   public BotState getBotState() {
-    return PossibleStates[operatorStateInt]; // Constants.toBotState((int)
+    return desiredState; // Constants.toBotState((int)
     // SmartDashboard.getNumber("storedState/RobotState", -1));
   }
 

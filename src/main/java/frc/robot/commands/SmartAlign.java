@@ -63,17 +63,17 @@ public class SmartAlign extends Command {
     isFlipped =
         DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == Alliance.Red;
-
-    // System.out.println("0");
-    // currentState = PossibleStates[storedState.getBotStateInt()];
-
+    // ------------------------
+    System.out.println("0");
+    currentState = storedState.getBotState();
+    // -----------------------
     m_end = false;
     limelightName = storedState.getTargetLimelight();
 
-    m_pidControllerY = new PIDController(0.075, 0, 0);
+    m_pidControllerY = new PIDController(0.07, 0, 0);
     m_pidControllerY.setTolerance(0.5);
 
-    m_pidControllerX = new PIDController(0.045, 0, 0);
+    m_pidControllerX = new PIDController(0.04, 0, 0);
     m_pidControllerX.setTolerance(0.5);
 
     m_thetaController = new PIDController(0.12, 0.0, 0.0);
@@ -102,7 +102,7 @@ public class SmartAlign extends Command {
         yTrans = MathUtil.clamp(yTrans, -5, 5);
 
         if (isStrafeReached) {
-          // arm.setGoal(currentState, true);
+          arm.setGoal(currentState, true);
         } else {
           if (Math.abs(m_pidControllerX.calculate(LimelightHelpers.getTX(limelightName))) < 0.25) {
             isStrafeReached = true;

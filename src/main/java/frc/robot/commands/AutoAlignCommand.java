@@ -37,10 +37,10 @@ public class AutoAlignCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_pidControllerY = new PIDController(0.06, 0, 0);
+    m_pidControllerY = new PIDController(0.05, 0, 0);
     m_pidControllerY.setTolerance(0.5);
 
-    m_pidControllerX = new PIDController(0.06, 0, 0);
+    m_pidControllerX = new PIDController(0.05, 0, 0);
     m_pidControllerX.setTolerance(0.5);
 
     m_thetaController = new PIDController(0.03, 0, 0);
@@ -76,7 +76,7 @@ public class AutoAlignCommand extends Command {
     // y x theta
     // ChassisSpeeds speeds =
     //     ChassisSpeeds.fromFieldRelativeSpeeds(yTrans, xTrans, 0, m_drive.getRotation());
-    ChassisSpeeds speeds = new ChassisSpeeds(yTrans, xTrans, 0);
+    ChassisSpeeds speeds = new ChassisSpeeds(-yTrans, -xTrans, 0);
 
     m_drive.runVelocity(speeds);
 
