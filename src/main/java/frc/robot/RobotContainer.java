@@ -34,6 +34,7 @@ import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlign;
+import frc.robot.commands.SmartIntake;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -167,9 +168,8 @@ public class RobotContainer {
     base.circle().onTrue(fullArm.setGoal(L2, true));
     base.cross().onTrue(fullArm.setGoal(HOME, false));
 
-    base.R2()
-        .whileTrue(fullArm.setGoal(INTAKE, false).alongWith(intake.setIntakeSpeed(1)))
-        .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
+    base.R2().whileTrue(new SmartIntake(intake, fullArm));
+    //     .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
 

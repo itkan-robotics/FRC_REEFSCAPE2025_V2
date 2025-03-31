@@ -178,6 +178,11 @@ public class FullArmSubsystem extends SubsystemBase {
         });
   }
 
+  public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
+    currentState = desiredState;
+    this.shoulderFirst = shoulderFirst;
+  }
+
   @Override
   public void periodic() {
 

@@ -10,13 +10,17 @@ import static frc.robot.util.PhoenixUtil.*;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
+
+  DigitalInput ranger = new DigitalInput(0);
 
   private Timer timer = new Timer();
 
@@ -30,19 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command DefaultCommand() {
     return run(
         () -> {
-          intakeMotor.set(-0.0);
-          // System.out.println(timer.get());
-        });
-  }
-
-  public Command SmartIntake() {
-    return run(
-        () -> {
-          if (intakeMotor.getMotorVoltage().getValueAsDouble() < 10.5) {
-            intakeMotor.set(-0.2);
-          } else {
-            intakeMotor.set(1);
-          }
+          intakeMotor.set(-0.045);
         });
   }
 
@@ -53,31 +45,16 @@ public class IntakeSubsystem extends SubsystemBase {
         });
   }
 
-  public Command setIntakeTimed() {
-    return run(
-        () -> {
-          intakeTimed(1, 0.25);
-        });
+  public void setIntake(double speed) {
+    intakeMotor.set(-speed);
   }
 
-  public Command restartTime() {
-    return run(
-        () -> {
-          timer.restart();
-        });
-  }
-
-  public void intakeTimed(double speed, double time) {
-    if (timer.get() < time) {
-      intakeMotor.set(speed);
-    } else {
-      intakeMotor.set(0);
-    }
-    System.out.println(timer.get());
+  public boolean isIntaked() {
+    return !ranger.get();
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
   }
 }
