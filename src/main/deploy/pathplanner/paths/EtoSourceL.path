@@ -3,35 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.962909836065574,
-        "y": 2.7842725409836064
+        "x": 5.03483606557377,
+        "y": 5.241752049180327
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.469711061023911,
-        "y": 2.561991283335724
+        "x": 5.715214580040809,
+        "y": 5.142215968344333
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.5224385245901637,
-        "y": 0.9621413934426232
+        "x": 1.234733606557377,
+        "y": 6.920030737704917
       },
       "prevControl": {
-        "x": 0.7926166374993221,
-        "y": 0.679948866940383
+        "x": 0.36476390805812386,
+        "y": 7.26577085965318
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceR"
+      "linkedName": "SourceL"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.568172730907637,
-      "rotationDegrees": -119.99999999999999
+      "waypointRelativePos": 0.6353944562899827,
+      "rotationDegrees": 119.99999999999999
     }
   ],
   "constraintZones": [],
@@ -39,13 +39,13 @@
   "eventMarkers": [
     {
       "name": "HOME",
-      "waypointRelativePos": 0.27777777777777607,
+      "waypointRelativePos": 0.264686022957453,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
       "name": "INTAKEAUTO",
-      "waypointRelativePos": 0.5833896016205248,
+      "waypointRelativePos": 0.6022957461174874,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -60,13 +60,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -129.64417495714486
+    "rotation": 125.00000000000001
   },
   "reversed": false,
   "folder": "New Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }

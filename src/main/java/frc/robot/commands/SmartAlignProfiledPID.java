@@ -134,7 +134,7 @@ public class SmartAlignProfiledPID extends Command {
 
         // If x-values within tolerance, start superstructuring
         if (isStrafeReached) {
-          arm.setGoalVoid(currentState, true);
+          arm.setGoalVoid(currentState);
         } else {
           if (Math.abs(m_profiledPidX.calculate(LimelightHelpers.getTX(limelightName))) < 0.25) {
             isStrafeReached = true;

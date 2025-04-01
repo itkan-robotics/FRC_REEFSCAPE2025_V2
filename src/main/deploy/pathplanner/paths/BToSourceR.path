@@ -3,88 +3,59 @@
   "waypoints": [
     {
       "anchor": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/BToSourceR.path
-        "x": 3.2108522727272732,
-        "y": 3.8006392045454542
+        "x": 3.9799180327868857,
+        "y": 2.8082479508196716
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.243158783783784,
-        "y": 2.3253378378378375
+        "x": 4.562169877403683,
+        "y": 3.2436546658064445
       },
       "isLocked": false,
-      "linkedName": "B"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.3262215909090906,
-        "y": 0.9188494318181825
+        "x": 1.5224385245901637,
+        "y": 0.9621413934426232
       },
       "prevControl": {
-        "x": 1.548076184107498,
-        "y": 1.034090654810518
-========
-        "x": 4.017,
-        "y": 4.22
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 3.861,
-        "y": 1.9872499999999986
-      },
-      "isLocked": false,
-      "linkedName": "firstStop"
-    },
-    {
-      "anchor": {
-        "x": 1.60875,
-        "y": 1.2754999999999996
-      },
-      "prevControl": {
-        "x": 2.6617499999999996,
-        "y": 1.8117499999999995
->>>>>>>> main:src/main/deploy/pathplanner/paths/New Path.path
+        "x": 1.3231184092293793,
+        "y": 0.811239134968591
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "SourceR"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 54.011
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "INTAKEAUTO",
+      "waypointRelativePos": 0.6239027683997287,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/BToSourceR.path
-    "maxVelocity": 5.0,
-    "maxAcceleration": 6.0,
-========
-    "maxVelocity": 3.5,
-    "maxAcceleration": 10.0,
->>>>>>>> main:src/main/deploy/pathplanner/paths/New Path.path
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 90.0,
+    "maxAngularAcceleration": 45.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-<<<<<<<< HEAD:src/main/deploy/pathplanner/paths/BToSourceR.path
-    "rotation": 54.01
-========
-    "rotation": 42.64670313389167
->>>>>>>> main:src/main/deploy/pathplanner/paths/New Path.path
+    "rotation": -129.64417495714486
   },
   "reversed": false,
-  "folder": "justtestin",
+  "folder": "New Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 122.41230661835118
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

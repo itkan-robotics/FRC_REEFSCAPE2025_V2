@@ -163,21 +163,21 @@ public class RobotContainer {
 
     // Command for when we are testing different positions
 
-    base.triangle().onTrue(fullArm.setGoal(L4, true));
-    base.square().onTrue(fullArm.setGoal(L3, true));
-    base.circle().onTrue(fullArm.setGoal(L2, true));
-    base.cross().onTrue(fullArm.setGoal(HOME, false));
+    base.triangle().onTrue(fullArm.setGoal(L4));
+    base.square().onTrue(fullArm.setGoal(L3));
+    base.circle().onTrue(fullArm.setGoal(L2));
+    base.cross().onTrue(fullArm.setGoal(HOME));
 
     base.R2().whileTrue(new SmartIntake(intake, fullArm));
     //     .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
-    operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
+    operator.povDown().onTrue(fullArm.setGoal(CLIMB));
+    operator.povUp().onTrue(fullArm.setGoal(PRECLIMB));
 
-    base.povUp().onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
-    base.povDown().onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
+    base.povUp().onTrue(fullArm.setGoal(HIGHALGAE).alongWith(intake.setIntakeSpeed(1)));
+    base.povDown().onTrue(fullArm.setGoal(LOWALGAE).alongWith(intake.setIntakeSpeed(-1)));
 
     base.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
 
@@ -302,13 +302,13 @@ public class RobotContainer {
 
     // NamedCommands.registerCommand("goToReef", new AutoAlignCommand(drive, limelight, 180,
     // LimelightConstants.leftLimelightName));
-    // NamedCommands.registerCommand(
-    //     "goToReefRight",
-    //     new AutoAlignCommand(
-    //         drive,
-    //         new LimelightSubsystem(rightLimelightName),
-    //         -120,
-    //         LimelightConstants.rightLimelightName));
+    NamedCommands.registerCommand(
+        "goToReefRight",
+        new AutoAlignCommand(
+            drive,
+            new LimelightSubsystem(LimelightConstants.rightLimelightName),
+            -120,
+            LimelightConstants.rightLimelightName));
 
     // NamedCommands.registerCommand(
     //     "reHome",
@@ -318,15 +318,19 @@ public class RobotContainer {
     //             drive)
     //         .ignoringDisable(true));
 
-    NamedCommands.registerCommand("L4", fullArm.setGoal(L4, true));
+    NamedCommands.registerCommand("L4", fullArm.setGoal(L4));
 
-    NamedCommands.registerCommand("L3", fullArm.setGoal(L3, true));
+    NamedCommands.registerCommand("L3", fullArm.setGoal(L3));
 
-    NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, true));
+    NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME));
+
+    NamedCommands.registerCommand("INTAKEAUTO", fullArm.setGoal(INTAKEAUTO));
 
     NamedCommands.registerCommand("outtakeDefault", intake.DefaultCommand());
 
     NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
+
+    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(0.7));
 
     // NamedCommands.registerCommand(
     //     "CoralIntakePos", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));
@@ -355,7 +359,7 @@ public class RobotContainer {
     // shoulder.setDefaultCommand(shoulder.setGoal(0));
     // extension.setDefaultCommand(extension.setGoal(0));
     intake.setDefaultCommand(intake.DefaultCommand());
-    fullArm.setGoal(INTAKE, false);
+    fullArm.setGoal(INTAKE);
   }
 
   /**

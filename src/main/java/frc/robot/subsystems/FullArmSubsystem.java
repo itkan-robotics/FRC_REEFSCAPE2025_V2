@@ -177,18 +177,26 @@ public class FullArmSubsystem extends SubsystemBase {
     tunableWrist = new LoggedTunableNumber("tunableWrist", 0.0);
   }
 
-  public Command setGoal(BotState desiredState, boolean shoulderFirst) {
+  public Command setGoal(BotState desiredState) {
     return run(
         () -> {
+          if (desiredState.getShoulderSetpoint() < currentState.getShoulderSetpoint()) {
+            shoulderFirst = false;
+          } else {
+            shoulderFirst = true;
+          }
           currentState = desiredState;
-          this.shoulderFirst = shoulderFirst;
         });
   }
 
-  public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
-    currentState = desiredState;
+  public void setGoalVoid(BotState desiredState) {
 
-    this.shoulderFirst = shoulderFirst;
+    if (desiredState.getShoulderSetpoint() < currentState.getShoulderSetpoint()) {
+      shoulderFirst = false;
+    } else {
+      shoulderFirst = true;
+    }
+    currentState = desiredState;
   }
 
   @Override

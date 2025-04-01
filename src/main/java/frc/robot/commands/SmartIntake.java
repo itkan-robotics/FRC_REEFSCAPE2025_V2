@@ -38,9 +38,9 @@ public class SmartIntake extends Command {
   @Override
   public void execute() {
     if (intake.isIntaked()) {
-      fullArm.setGoalVoid(HOME, true);
+      fullArm.setGoalVoid(HOME);
     } else {
-      fullArm.setGoalVoid(INTAKE, false);
+      fullArm.setGoalVoid(INTAKE);
       intake.setIntake(1);
     }
   }
