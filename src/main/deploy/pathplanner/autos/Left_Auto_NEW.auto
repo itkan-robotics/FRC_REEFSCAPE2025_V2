@@ -7,6 +7,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "States",
+  "folder": null,
   "choreoAuto": false
 }

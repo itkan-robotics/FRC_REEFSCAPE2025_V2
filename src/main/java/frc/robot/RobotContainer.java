@@ -31,9 +31,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.AutoAlignCommand;
+import frc.robot.commands.AutoSmartAlignProfiledPID;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.commands.SmartIntake;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -181,8 +180,10 @@ public class RobotContainer {
     base.povUp().onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
     base.povDown().onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
 
-    base.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
+    // base.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
 
+    base.L2()
+        .whileTrue(new AutoSmartAlignProfiledPID(drive, LimelightConstants.rightLimelightName));
     // Auto Turn to Reef Face
     base.R3()
         .toggleOnTrue(
@@ -295,40 +296,25 @@ public class RobotContainer {
     // NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
 
     NamedCommands.registerCommand(
-        "goToReef",
-        new AutoAlignCommand(
-            drive,
-            new LimelightSubsystem(LimelightConstants.leftLimelightName),
-            -120,
-            LimelightConstants.leftLimelightName));
+        "goToReef", new AutoSmartAlignProfiledPID(drive, LimelightConstants.leftLimelightName));
 
-    // NamedCommands.registerCommand("goToReef", new AutoAlignCommand(drive, limelight, 180,
-    // LimelightConstants.leftLimelightName));
-    // NamedCommands.registerCommand(
-    //     "goToReefRight",
-    //     new AutoAlignCommand(
-    //         drive,
-    //         new LimelightSubsystem(rightLimelightName),
-    //         -120,
-    //         LimelightConstants.rightLimelightName));
-
-    // NamedCommands.registerCommand(
-    //     "reHome",
-    //     Commands.runOnce(
-    //             () -> drive.setPose(new Pose2d(drive.getPose().getTranslation(), new
-    // Rotation2d())),
-    //             drive)
-    //         .ignoringDisable(true));
+    NamedCommands.registerCommand(
+        "goToReefRight",
+        new AutoSmartAlignProfiledPID(drive, LimelightConstants.rightLimelightName));
 
     NamedCommands.registerCommand("L4", fullArm.setGoal(L4, true));
 
     NamedCommands.registerCommand("L3", fullArm.setGoal(L3, true));
 
-    NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, true));
+    NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, false));
 
-    NamedCommands.registerCommand("outtakeDefault", intake.DefaultCommand());
+    NamedCommands.registerCommand("INTAKEARM", fullArm.setGoal(INTAKEARM, true));
+
+    NamedCommands.registerCommand("intakeDefault", intake.DefaultCommand());
 
     NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
+
+    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(0.45));
 
     // NamedCommands.registerCommand(
     //     "CoralIntakePos", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));

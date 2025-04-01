@@ -84,6 +84,8 @@ public class MachineStates {
   public static final BotState PRECLIMB = new BotState("PRECLIMB", 0.14, 3.5, 0.0, 10);
   public static final BotState CLIMB = new BotState("CLIMB", -0.16, -1.95, 0.13, 11);
   public static final BotState RESET = new BotState("RESET", 0.0, 0.0, 0.0, -1);
+  public static final BotState INTAKEARM = new BotState("INTAKEARM", 0.05, 1, 0.09, 20);
+
   // public static final BotState Intake = new BotState("INTAKE", 0.0, 0.0, 0.0, 12);
 
   public static final BotState[] PossibleStates = {
