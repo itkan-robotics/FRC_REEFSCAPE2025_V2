@@ -65,14 +65,14 @@ public class MachineStates {
   }
 
   public static final BotState HOME =
-      new BotState("HOME", 0.2, 3.5, 0.2, 1); // 0.125 for shoulder home 0.15 for wrist home
+      new BotState("HOME", 0.05, 1.5, 0.3, 0); // 0.125 for shoulder home 0.15 for wrist home
 
   // Coral Handling
-  public static final BotState L1 = new BotState("L1", 0.16, 1, -0.13, 1);
-  public static final BotState L2 = new BotState("L2", 0.2, 6, -0.18, 2);
-  public static final BotState L3 = new BotState("L3", 0.305, 4, 0.23, 3);
-  public static final BotState L4 = new BotState("L4", 0.3, 21.4, 0.4, 4); // 20.5
-  public static final BotState INTAKE = new BotState("INTAKE", 0.0, 0, 0.0, 5); // 0
+  public static final BotState L1 = new BotState("L1", -0.13, -1.5, 0.3, 1);
+  public static final BotState L2 = new BotState("L2", 0.19, 5, 0.5, 2);
+  public static final BotState L3 = new BotState("L3", 0.155, 4.5, 0.37, 3);
+  public static final BotState L4 = new BotState("L4", 0.15, 20, 0.49, 4); // 20.5
+  public static final BotState INTAKE = new BotState("INTAKE", -0.16, -1.95, 0.13, 5); // 0
 
   // Algae Handling
   public static final BotState LOWALGAE = new BotState("LOWALGAE", 0.0, 0.0, 0.0, 6);
@@ -81,10 +81,10 @@ public class MachineStates {
   public static final BotState NET = new BotState("NET", 0.0, 0.0, 0.0, 9);
 
   // MISC
-  public static final BotState PRECLIMB = new BotState("PRECLIMB", 0.305, 4, 0.0, 10);
-  public static final BotState CLIMB = new BotState("CLIMB", 0.0, 1, 0.01, 11);
+  public static final BotState PRECLIMB = new BotState("PRECLIMB", 0.14, 3.5, 0.0, 10);
+  public static final BotState CLIMB = new BotState("CLIMB", -0.16, -1.95, 0.13, 11);
   public static final BotState RESET = new BotState("RESET", 0.0, 0.0, 0.0, -1);
-  public static final BotState Intake = new BotState("INTAKE", 0.0, 0.0, 0.0, 12);
+  // public static final BotState Intake = new BotState("INTAKE", 0.0, 0.0, 0.0, 12);
 
   public static final BotState[] PossibleStates = {
     HOME, L1, L2, L3, L4, INTAKE, LOWALGAE, HIGHALGAE, PROCESSOR, NET, PRECLIMB, CLIMB

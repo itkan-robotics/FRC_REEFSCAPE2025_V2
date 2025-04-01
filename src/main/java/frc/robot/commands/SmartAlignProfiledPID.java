@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import static frc.robot.Constants.LimelightConstants.*;
-import static frc.robot.util.MachineStates.L4;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -63,18 +62,17 @@ public class SmartAlignProfiledPID extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // currentState = storedState.getBotState();
-    currentState = L4;
+    currentState = storedState.getBotState();
+
     m_end = false;
-    // double targetLimelightInt = storedState.getLimelightTargetPipeline();
+    double targetLimelightInt = storedState.getLimelightTargetPipeline();
     // SmartDashboard.putNumber("autoAlignTeleop/targetLimelightInt", targetLimelightInt);
 
-    limelightName = LimelightConstants.leftLimelightName;
-    // if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
-    //   limelightName = LimelightConstants.rightLimelightName;
-    // } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
-    //   limelightName = LimelightConstants.leftLimelightName;
-    // }
+    if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
+      limelightName = LimelightConstants.rightLimelightName;
+    } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
+      limelightName = LimelightConstants.leftLimelightName;
+    }
 
     m_profiledPidY = new TuneableProfiledPID("m_profiledPidY", 0.17, 0.0, 0.005, 7.0, 10);
     // m_profiledPidY.setGoal(16.0);

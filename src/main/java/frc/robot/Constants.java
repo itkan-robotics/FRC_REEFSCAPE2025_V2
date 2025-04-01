@@ -79,6 +79,7 @@ public final class Constants {
 
   public static class ArmConstants {
     public static class ShoulderConstants {
+      public static final double SHOULDER_ZERO_POSITION = -0.165;
       public static final int LEFT_SHOULDER_MOTOR_PORT = 14;
       public static final int SHOULDER_MOTOR_PORT = 13;
       // public static final int SHOULDER_MOTOR_PORT_C = 11;
@@ -97,6 +98,7 @@ public final class Constants {
     }
 
     public static class ExtensionConstants {
+      public static final double EXTENSION_ZERO_POSITION = -2;
       public static final int EXTENSION_MOTOR_PORT_RIGHT = 9; // right extend motor
       public static final int EXTENSION_MOTOR_PORT_LEFT = 10; // left extend motor
 
@@ -113,6 +115,7 @@ public final class Constants {
     }
 
     public static class WristConstants {
+      public static final double WRIST_ZERO_POSITION = 0.1018;
       public static final int WRIST_MOTOR_PORT_A = 17;
 
       public static final double WRIST_KP = 20.0;

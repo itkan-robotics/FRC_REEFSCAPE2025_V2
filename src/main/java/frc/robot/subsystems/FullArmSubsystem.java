@@ -51,10 +51,10 @@ public class FullArmSubsystem extends SubsystemBase {
     var shoulderConfig = new TalonFXConfiguration();
     shoulderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     shoulderConfig.Feedback.SensorToMechanismRatio = 210.0;
-    shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.421;
-    shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+    shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    // shoulderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.421;
+    // shoulderConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
     shoulderConfig.CurrentLimits.SupplyCurrentLimit = 60;
     shoulderConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     shoulderConfig.CurrentLimits.StatorCurrentLimit = 60;
@@ -84,6 +84,9 @@ public class FullArmSubsystem extends SubsystemBase {
     tryUntilOk(5, () -> rightShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
     tryUntilOk(5, () -> leftShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
 
+    // tryUntilOk(5, () -> rightShoulderMotor.setPosition(SHOULDER_ZERO_POSITION, 0.25));
+    // tryUntilOk(5, () -> leftShoulderMotor.setPosition(SHOULDER_ZERO_POSITION, 0.25));
+
     leftShoulderMotor.setControl(new Follower(SHOULDER_MOTOR_PORT, true));
 
     // create a Motion Magic request, voltage output
@@ -93,10 +96,10 @@ public class FullArmSubsystem extends SubsystemBase {
 
     var extensionConfig = new TalonFXConfiguration();
     extensionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    extensionConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    extensionConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    extensionConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_EXTENSION_POS;
-    extensionConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = MIN_EXTENSION_POS;
+    extensionConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    extensionConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    // extensionConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = MAX_EXTENSION_POS;
+    // extensionConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = MIN_EXTENSION_POS;
     extensionConfig.CurrentLimits.SupplyCurrentLimit = 50;
     extensionConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     extensionConfig.CurrentLimits.StatorCurrentLimit = 50;
@@ -123,6 +126,9 @@ public class FullArmSubsystem extends SubsystemBase {
     tryUntilOk(5, () -> extensionMotorRight.getConfigurator().apply(extensionConfig, 0.25));
     tryUntilOk(5, () -> extensionMotorLeft.getConfigurator().apply(extensionConfig, 0.25));
 
+    // tryUntilOk(5, () -> extensionMotorRight.setPosition(EXTENSION_ZERO_POSITION, 0.25));
+    // tryUntilOk(5, () -> extensionMotorLeft.setPosition(EXTENSION_ZERO_POSITION, 0.25));
+
     extensionMotorLeft.setControl(new Follower(EXTENSION_MOTOR_PORT_RIGHT, true));
     elevator_mRequest = new MotionMagicVoltage(0);
 
@@ -132,10 +138,10 @@ public class FullArmSubsystem extends SubsystemBase {
     var wristConfig = new TalonFXConfiguration();
     wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     wristConfig.Feedback.SensorToMechanismRatio = 25;
-    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.45;
-    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.2;
+    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    // wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.45;
+    // wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.2;
     wristConfig.CurrentLimits.SupplyCurrentLimit = 30;
     wristConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     wristConfig.CurrentLimits.StatorCurrentLimit = 30;
@@ -161,6 +167,7 @@ public class FullArmSubsystem extends SubsystemBase {
 
     // in init function
     tryUntilOk(5, () -> wristMotor.getConfigurator().apply(wristConfig, 0.25));
+    // tryUntilOk(5, () -> wristMotor.setPosition(WRIST_ZERO_POSITION, 0.25));
 
     // create a Motion Magic request, voltage output
     m_lRequest = new MotionMagicVoltage(0);
@@ -224,14 +231,14 @@ public class FullArmSubsystem extends SubsystemBase {
     return Math.abs(
             rightShoulderMotor.getPosition().getValueAsDouble()
                 - currentState.getShoulderSetpoint())
-        <= 0.04;
+        <= 0.1;
   }
 
   public boolean ExtentionSetpointReached() {
     return Math.abs(
             extensionMotorRight.getPosition().getValueAsDouble()
                 - currentState.getExtensionSetpoint())
-        <= 5;
+        <= 10;
   }
 
   public double getSlowDownMult() {
