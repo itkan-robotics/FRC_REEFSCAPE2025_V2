@@ -102,7 +102,7 @@ public class SmartAlign extends Command {
         yTrans = MathUtil.clamp(yTrans, -5, 5);
 
         if (isStrafeReached) {
-          arm.setGoal(currentState, true);
+          arm.setGoal(currentState);
         } else {
           if (Math.abs(m_pidControllerX.calculate(LimelightHelpers.getTX(limelightName))) < 0.25) {
             isStrafeReached = true;

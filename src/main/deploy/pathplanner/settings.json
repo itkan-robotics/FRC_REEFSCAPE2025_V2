@@ -6,12 +6,14 @@
     "2 Coral Auton",
     "LL_Test",
     "MiddleAutoPaths",
-    "justtestin"
+    "justtestin",
+    "New Auto Paths"
   ],
   "autoFolders": [
     "2 Coral Auton",
     "LL_Test_Auto",
-    "justtestin"
+    "justtestin",
+    "New Autos"
   ],
   "defaultMaxVel": 4.0,
   "defaultMaxAccel": 4.5,

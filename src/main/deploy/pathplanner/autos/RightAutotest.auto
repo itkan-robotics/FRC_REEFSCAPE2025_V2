@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "StartRtoC"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CtoSourceR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SourceRtoB"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BtoSourceR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SourceRtoBLeft"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "New Autos",
+  "choreoAuto": false
+}

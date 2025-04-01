@@ -148,7 +148,7 @@ public class SmartAlignProfiledPID extends Command {
         rotationVal = MathUtil.applyDeadband(rotationVal, 0.05);
 
         if (isStrafeReached) {
-          arm.setGoalVoid(currentState, true);
+          arm.setGoalVoid(currentState);
         } else {
           if (xTrans < 0.1) {
             isStrafeReached = true;
