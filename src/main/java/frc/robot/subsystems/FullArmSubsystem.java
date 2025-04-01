@@ -8,7 +8,7 @@ import static frc.robot.Constants.ArmConstants.ExtensionConstants.*;
 import static frc.robot.Constants.ArmConstants.ShoulderConstants.*;
 import static frc.robot.Constants.ArmConstants.WristConstants.*;
 import static frc.robot.Constants.tuningMode;
-import static frc.robot.util.MachineStates.INTAKE;
+import static frc.robot.util.MachineStates.HOME;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -43,7 +43,7 @@ public class FullArmSubsystem extends SubsystemBase {
   private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT_A);
   final MotionMagicVoltage m_lRequest;
 
-  private BotState currentState = INTAKE;
+  private BotState currentState = HOME;
   private Boolean shoulderFirst = true;
 
   public FullArmSubsystem() {

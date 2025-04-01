@@ -36,11 +36,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command DefaultCommand() {
     return run(
         () -> {
-          if (!isIntaked()) {
-            intakeMotor.set(0);
-          } else {
-            intakeMotor.set(0.045);
-          }
+          intakeMotor.set(0.045);
         });
   }
 

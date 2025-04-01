@@ -170,8 +170,10 @@ public class RobotContainer {
 
     base.R2().whileTrue(new SmartIntake(intake, fullArm));
     //     .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
-    // .onFalse(fullArm.setGoal(HOME, false));
+    // .onFalse(fullArm.setGoal(HOME, false));h
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
+
+    operator.R2().whileTrue(intake.setIntakeSpeed(-1));
 
     operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
     operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
@@ -355,7 +357,7 @@ public class RobotContainer {
     // shoulder.setDefaultCommand(shoulder.setGoal(0));
     // extension.setDefaultCommand(extension.setGoal(0));
     intake.setDefaultCommand(intake.DefaultCommand());
-    fullArm.setGoal(INTAKE, false);
+    fullArm.setGoal(HOME, false);
   }
 
   /**

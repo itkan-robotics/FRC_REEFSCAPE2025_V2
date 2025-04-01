@@ -74,13 +74,13 @@ public class SmartAlignProfiledPID extends Command {
       limelightName = LimelightConstants.leftLimelightName;
     }
 
-    m_profiledPidY = new TuneableProfiledPID("m_profiledPidY", 0.17, 0.0, 0.005, 7.0, 10);
+    m_profiledPidY = new TuneableProfiledPID("m_profiledPidY", 0.14, 0.0, 0.005, 3.0, 3);
     // m_profiledPidY.setGoal(16.0);
     m_profiledPidY.setTolerance(0.5);
     // m_pidControllerY = new PIDController(0.7, 0, 0);
     // m_pidControllerY.setTolerance(0.5);
 
-    m_profiledPidX = new TuneableProfiledPID("m_profiledPidX", 0.065, 0.0, 0.0, 7.0, 10.0);
+    m_profiledPidX = new TuneableProfiledPID("m_profiledPidX", 0.04, 0.0, 0.001, 3.0, 3.0);
     m_profiledPidX.setTolerance(0.5);
     // m_pidControllerX = new PIDController(0.045, 0, 0);
     // m_pidControllerX.setTolerance(0.5);
@@ -133,30 +133,28 @@ public class SmartAlignProfiledPID extends Command {
         yTrans = MathUtil.clamp(yTrans, -10, 10);
 
         // If x-values within tolerance, start superstructuring
+
+        // Do all the speeds stuff
+
+        if (isAngleReached) {
+          MathUtil.clamp(rotationVal, -0.75, 0.75);
+        }
+        if (isStrafeReached) {
+          MathUtil.clamp(xTrans, -1.0, 1.0);
+        }
+
+        yTrans = MathUtil.applyDeadband(yTrans, 0.2);
+        xTrans = MathUtil.applyDeadband(xTrans, 0.2);
+        rotationVal = MathUtil.applyDeadband(rotationVal, 0.05);
+
         if (isStrafeReached) {
           arm.setGoalVoid(currentState, true);
         } else {
-          if (Math.abs(m_profiledPidX.calculate(LimelightHelpers.getTX(limelightName))) < 0.25) {
+          if (xTrans < 0.1) {
             isStrafeReached = true;
           }
         }
       }
-
-      // Do all the speeds stuff
-
-      if (isAngleReached) {
-        MathUtil.clamp(rotationVal, -0.75, 0.75);
-      }
-      if (isStrafeReached) {
-        MathUtil.clamp(xTrans, -1.0, 1.0);
-      }
-      // if (LimelightHelpers.getTA(limelightName) < 10.0) {
-      //   yTrans = Math.abs(yTrans);
-      // }
-
-      yTrans = MathUtil.applyDeadband(yTrans, 0.2);
-      xTrans = MathUtil.applyDeadband(xTrans, 0.2);
-      rotationVal = MathUtil.applyDeadband(rotationVal, 0.05);
 
       ChassisSpeeds speeds = new ChassisSpeeds(-yTrans, -xTrans, rotationVal);
       SmartDashboard.putNumber("ProfiledPIDX", xTrans);
