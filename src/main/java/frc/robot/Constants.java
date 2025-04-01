@@ -66,10 +66,10 @@ public final class Constants {
   public static final boolean tuningMode = false;
 
   // PathPlanner config constants (wrong values)
-  public static final double ROBOT_MASS_KG = 61.23;
+  public static final double ROBOT_MASS_KG = 58;
   public static final double ROBOT_MOI = 6.429;
-  public static final double WHEEL_COF = 1.2;
-  public static final double translationalAutoP = 5.0;
+  public static final double WHEEL_COF = 2;
+  public static final double translationalAutoP = 5;
   public static final double rotationalAutoP = 10.0;
 
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
@@ -266,7 +266,7 @@ public final class Constants {
 
     private static final double kDriveGearRatio = 6.75; // 6.23
     private static final double kSteerGearRatio = 25.0; // *12/13
-    private static final Distance kWheelRadius = Inches.of(1.953036686729617 * 0.95);
+    private static final Distance kWheelRadius = Inches.of(1.935);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = false;
