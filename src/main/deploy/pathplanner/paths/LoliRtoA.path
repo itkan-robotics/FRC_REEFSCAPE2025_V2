@@ -3,48 +3,43 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.22858606557377,
-        "y": 0.5425717213114762
+        "x": 1.2227459016393443,
+        "y": 2.2807889344262287
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.513,
-        "y": 1.2754999999999996
+        "x": 1.5133424146877619,
+        "y": 2.424088818551342
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LoliR"
     },
     {
       "anchor": {
-        "x": 5.55030737704918,
-        "y": 2.2688012295081954
+        "x": 2.481454918032787,
+        "y": 3.623411885245902
       },
       "prevControl": {
-        "x": 6.1645573770491815,
-        "y": 1.6253012295081952
+        "x": 2.27969845408582,
+        "y": 3.4757828594562006
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AScore"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.62987551867219,
-      "rotationDegrees": -59.99999999999999
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "default",
-      "waypointRelativePos": 0,
+      "name": "HOME",
+      "waypointRelativePos": 0.4105334233625886,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "intakeDefault"
+          "name": "HOME"
         }
       }
     }
@@ -58,14 +53,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.5,
-    "rotation": -59.99999999999999
+    "velocity": 0.5,
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

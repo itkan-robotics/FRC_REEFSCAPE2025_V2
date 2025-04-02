@@ -3,48 +3,43 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.22858606557377,
-        "y": 0.5425717213114762
+        "x": 1.2227459016393443,
+        "y": 3.9950307377049183
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.513,
-        "y": 1.2754999999999996
+        "x": 1.7142418032786886,
+        "y": 3.9710553278688536
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LoliM"
     },
     {
       "anchor": {
-        "x": 5.55030737704918,
-        "y": 2.2688012295081954
+        "x": 2.4574795081967213,
+        "y": 4.198821721311475
       },
       "prevControl": {
-        "x": 6.1645573770491815,
-        "y": 1.6253012295081952
+        "x": 1.798155737704918,
+        "y": 4.330686475409836
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.62987551867219,
-      "rotationDegrees": -59.99999999999999
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "default",
-      "waypointRelativePos": 0,
+      "name": "HOME",
+      "waypointRelativePos": 0.34841323430113935,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "intakeDefault"
+          "name": "HOME"
         }
       }
     }
@@ -58,14 +53,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.5,
-    "rotation": -59.99999999999999
+    "velocity": 0,
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

@@ -308,13 +308,15 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, false));
 
+    NamedCommands.registerCommand("INTAKE", fullArm.setGoal(INTAKE, false));
+
     NamedCommands.registerCommand("INTAKEARM", fullArm.setGoal(INTAKEARM, true));
 
-    NamedCommands.registerCommand("intakeDefault", intake.DefaultCommand());
+    NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.2));
 
     NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
 
-    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(0.45));
+    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(1));
 
     // NamedCommands.registerCommand(
     //     "CoralIntakePos", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));
