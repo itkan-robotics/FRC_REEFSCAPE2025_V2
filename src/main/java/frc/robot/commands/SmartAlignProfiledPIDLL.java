@@ -8,6 +8,9 @@ import static frc.robot.Constants.LimelightConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,7 +35,9 @@ public class SmartAlignProfiledPIDLL extends Command {
   private String limelightName;
   BotState currentState;
 
-  TuneableProfiledPID m_profiledPidY, m_profiledPidX;
+  // TuneableProfiledPID m_profiledPidY, m_profiledPidX;
+  TuneableProfiledPID m_profiledPidTrans;
+  Pose2d targetPoseRobotRelative = new Pose2d();
 
   boolean isAngleReached = true;
   boolean isStrafeReached = false;
@@ -66,109 +71,95 @@ public class SmartAlignProfiledPIDLL extends Command {
 
     m_end = false;
     double targetLimelightInt = storedState.getLimelightTargetPipeline();
-    // SmartDashboard.putNumber("autoAlignTeleop/targetLimelightInt", targetLimelightInt);
 
     if (targetLimelightInt == LEFT_BRANCH_PIPELINE) {
       limelightName = LimelightConstants.rightLimelightName;
     } else if (targetLimelightInt == RIGHT_BRANCH_PIPELINE) {
       limelightName = LimelightConstants.leftLimelightName;
     }
+    limelightName = LimelightConstants.rightLimelightName;
 
-    m_profiledPidY = new TuneableProfiledPID("m_profiledPidY", 0.14, 0.0, 0.005, 3.0, 3);
-    // m_profiledPidY.setGoal(16.0);
-    m_profiledPidY.setTolerance(0.5);
-    // m_pidControllerY = new PIDController(0.7, 0, 0);
-    // m_pidControllerY.setTolerance(0.5);
+    // m_profiledPidY = new TuneableProfiledPID("m_profiledPidY", 0.14, 0.0, 0.005, 3.0, 3);
+    // m_profiledPidY.setTolerance(0.5);
 
-    m_profiledPidX = new TuneableProfiledPID("m_profiledPidX", 0.04, 0.0, 0.001, 3.0, 3.0);
-    m_profiledPidX.setTolerance(0.5);
-    // m_pidControllerX = new PIDController(0.045, 0, 0);
-    // m_pidControllerX.setTolerance(0.5);
+    // m_profiledPidX = new TuneableProfiledPID("m_profiledPidX", 0.04, 0.0, 0.001, 3.0, 3.0);
+    // m_profiledPidX.setTolerance(0.5);
+
+    m_profiledPidTrans = new TuneableProfiledPID("m_profiledPidTrans", 0.1, 0.0, 0.0, 3.0, 3.0);
+    m_profiledPidTrans.setGoal(0);
+    m_profiledPidTrans.setTolerance(0.5);
 
     m_thetaController = new PIDController(0.12, 0.0, 0.0);
     m_thetaController.enableContinuousInput(-180, 180);
     m_thetaController.setTolerance(3);
 
-    targetReefAngle = storedState.getTargetReefAngle();
-    reefAngle = LimelightSubsystem.getLLReefAngle(limelightName);
     isStrafeReached = false;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_profiledPidX.updatePID();
-    m_profiledPidY.updatePID();
+    // m_profiledPidX.updatePID();
+    // m_profiledPidY.updatePID();
+    m_profiledPidTrans.updatePID();
 
-    // if (!isAngleReached) {
-    //   if ((Math.abs(reefAngle) == 180.0
-    //           ? Math.abs(Math.abs(m_drive.getRotation().getDegrees()) - 180)
-    //           : Math.abs(m_drive.getRotation().getDegrees() - reefAngle))
-    //       < 2.5) {
-    //     isAngleReached = true;
-    //   }
-    //   rotationVal = m_thetaController.calculate(m_drive.getRotation().getDegrees(), reefAngle);
-    //   m_thetaController.calculate(
-    //       (MathUtil.inputModulus(m_drive.getHeadingDegrees(), -180, 180)), reefAngle);
-    //   // rotationVal = MathUtil.clamp(rotationVal, -0.3, 0.3);
-    //   // If it is reached, start moving towards the target
-    //   ChassisSpeeds speeds = new ChassisSpeeds(0.0, 0.0, rotationVal);
-    //   m_drive.runVelocity(speeds);
-    // }
+    double[] targetPoseArr = LimelightHelpers.getTargetPose_RobotSpace(limelightName);
+    targetPoseRobotRelative =
+        new Pose2d(targetPoseArr[0], -targetPoseArr[1], Rotation2d.fromDegrees(targetPoseArr[4]));
+
+    SmartDashboard.putNumberArray("targetPoseArray", targetPoseArr);
 
     if (LimelightHelpers.getTV(limelightName)) {
+      //   if (isAngleReached) {
+
+      double dist = targetPoseRobotRelative.getTranslation().getDistance(new Translation2d(0, 0));
+      double targetLateralOffset = targetPoseRobotRelative.getX() - 0;
+      double targetVerticalOffset = targetPoseRobotRelative.getY() - 0;
+
+      SmartDashboard.putNumber("llsmartalign/dist", dist);
+      SmartDashboard.putNumber("llsmartalign/lat", targetLateralOffset);
+      SmartDashboard.putNumber("llsmartalign/vert", targetVerticalOffset);
+
+      rotationVal =
+          m_thetaController.calculate(
+              m_drive.getHeadingDegrees(), Math.round(m_drive.getHeadingDegrees() / 60) * 60);
+
+      double controlValue = m_profiledPidTrans.calculate(dist);
+
+      SmartDashboard.putNumber("controlVal", controlValue);
+
+      xTrans = controlValue * (targetLateralOffset / dist);
+      yTrans = controlValue * (targetVerticalOffset / dist);
+
+      xTrans = MathUtil.clamp(xTrans, -10, 10);
+      yTrans = MathUtil.clamp(yTrans, -10, 10);
+
       if (isAngleReached) {
-        // rotationVal =
-        //     m_thetaController.calculate(m_drive.getRotation().getDegrees(), targetReefAngle);
-
-        rotationVal =
-            m_thetaController.calculate(
-                m_drive.getHeadingDegrees(), Math.round(m_drive.getHeadingDegrees() / 60) * 60);
-
-        xTrans = m_profiledPidX.calculate(LimelightHelpers.getTX(limelightName));
-
-        xTrans = MathUtil.clamp(xTrans, -10, 10);
-
-        yTrans = m_profiledPidY.calculate(LimelightHelpers.getTA(limelightName) - desiredArea);
-        yTrans = MathUtil.clamp(yTrans, -10, 10);
-
-        // If x-values within tolerance, start superstructuring
-
-        // Do all the speeds stuff
-
-        if (isAngleReached) {
-          MathUtil.clamp(rotationVal, -0.75, 0.75);
-        }
-        if (isStrafeReached) {
-          MathUtil.clamp(xTrans, -1.0, 1.0);
-        }
-
-        yTrans = MathUtil.applyDeadband(yTrans, 0.2);
-        xTrans = MathUtil.applyDeadband(xTrans, 0.2);
-        rotationVal = MathUtil.applyDeadband(rotationVal, 0.05);
-
-        if (isStrafeReached) {
-          arm.setGoalVoid(currentState, true);
-        } else {
-          if (xTrans < 0.1) {
-            isStrafeReached = true;
-          }
-        }
+        MathUtil.clamp(rotationVal, -0.75, 0.75);
+      }
+      if (isStrafeReached) {
+        MathUtil.clamp(xTrans, -1.0, 1.0);
       }
 
-      ChassisSpeeds speeds = new ChassisSpeeds(-yTrans, -xTrans, rotationVal);
-      SmartDashboard.putNumber("ProfiledPIDX", xTrans);
-      SmartDashboard.putNumber("ProfiledPIDY", yTrans);
-      SmartDashboard.putNumber("RotationValue", rotationVal);
-
-      m_drive.runVelocity(speeds);
-
-      if (m_profiledPidX.atSetpoint() && m_profiledPidY.atSetpoint() && count > 25) {
-        m_end = true;
-      } else {
-        m_end = false;
-      }
+      yTrans = MathUtil.applyDeadband(yTrans, 0.2);
+      xTrans = MathUtil.applyDeadband(xTrans, 0.2);
+      rotationVal = MathUtil.applyDeadband(rotationVal, 0.05);
     }
+
+    ChassisSpeeds speeds = new ChassisSpeeds(-yTrans, -xTrans, rotationVal);
+    SmartDashboard.putNumber("ProfiledPIDX", xTrans);
+    SmartDashboard.putNumber("ProfiledPIDY", yTrans);
+    SmartDashboard.putNumber("RotationValue", rotationVal);
+
+    m_drive.runVelocity(speeds);
+
+    if (m_profiledPidTrans.atSetpoint() && count > 25) {
+      m_end = true;
+    } else {
+      m_end = false;
+    }
+    // }
+
     SmartDashboard.putBoolean("isTarget", LimelightHelpers.getTV(limelightName));
 
     count++;
