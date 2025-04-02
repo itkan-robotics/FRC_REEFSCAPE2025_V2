@@ -63,7 +63,7 @@ import java.util.Map;
  */
 public final class Constants {
 
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
 
   // PathPlanner config constants (wrong values)
   public static final double ROBOT_MASS_KG = 58;
