@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.LimelightConstants;
@@ -103,11 +104,37 @@ public class SmartAlignProfiledPIDLL extends Command {
     // m_profiledPidY.updatePID();
     m_profiledPidTrans.updatePID();
 
-    double[] targetPoseArr = LimelightHelpers.getTargetPose_RobotSpace(limelightName);
+    // double[] targetPoseArr = LimelightHelpers.getTargetPose_RobotSpace(limelightName);
+    double[] targetPoseArr = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
+
     targetPoseRobotRelative =
         new Pose2d(targetPoseArr[0], -targetPoseArr[1], Rotation2d.fromDegrees(targetPoseArr[4]));
 
-    SmartDashboard.putNumberArray("targetPoseArray", targetPoseArr);
+    SmartDashboard.putNumberArray(
+        "targetPoseBefore",
+        new double[] {
+          Units.metersToInches(targetPoseRobotRelative.getX()),
+          Units.metersToInches(targetPoseRobotRelative.getY()),
+          targetPoseRobotRelative.getRotation().getDegrees()
+        });
+
+    targetPoseRobotRelative =
+        new Pose2d(
+            targetPoseRobotRelative.getX(),
+            targetPoseRobotRelative.getY()
+                + Units.inchesToMeters(-4.5)
+                - Units.inchesToMeters(7.25),
+            targetPoseRobotRelative.getRotation());
+
+    SmartDashboard.putNumberArray(
+        "targetPoseAfter",
+        new double[] {
+          Units.metersToInches(targetPoseRobotRelative.getX()),
+          Units.metersToInches(targetPoseRobotRelative.getY()),
+          targetPoseRobotRelative.getRotation().getDegrees()
+        });
+
+    // SmartDashboard.putNumberArray("targetPoseArray", targetPoseArr);
 
     if (LimelightHelpers.getTV(limelightName)) {
       //   if (isAngleReached) {
@@ -146,7 +173,7 @@ public class SmartAlignProfiledPIDLL extends Command {
       rotationVal = MathUtil.applyDeadband(rotationVal, 0.05);
     }
 
-    ChassisSpeeds speeds = new ChassisSpeeds(-yTrans, -xTrans, rotationVal);
+    ChassisSpeeds speeds = new ChassisSpeeds(yTrans, -xTrans, rotationVal);
     SmartDashboard.putNumber("ProfiledPIDX", xTrans);
     SmartDashboard.putNumber("ProfiledPIDY", yTrans);
     SmartDashboard.putNumber("RotationValue", rotationVal);

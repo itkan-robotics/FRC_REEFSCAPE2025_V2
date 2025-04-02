@@ -33,7 +33,7 @@ import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.AutoSmartAlignProfiledPID;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.SmartAlignProfiledPIDLL;
+import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.commands.SmartIntake;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -181,9 +181,9 @@ public class RobotContainer {
     base.povUp().onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
     base.povDown().onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
 
-    // base.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
+    base.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
 
-    base.L2().whileTrue(new SmartAlignProfiledPIDLL(drive, fullArm, storedState));
+    // base.L2().whileTrue(new SmartAlignProfiledPIDLL(drive, fullArm, storedState));
     // Auto Turn to Reef Face
     base.R3()
         .toggleOnTrue(
