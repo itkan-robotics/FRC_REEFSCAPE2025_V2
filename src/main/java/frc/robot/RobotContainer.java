@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.AutoSmartAlignProfiledPID;
+import frc.robot.commands.AutoSmartAlignProfiledPID3d;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.commands.SmartIntake;
@@ -295,11 +295,11 @@ public class RobotContainer {
     // NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
 
     NamedCommands.registerCommand(
-        "goToReef", new AutoSmartAlignProfiledPID(drive, LimelightConstants.leftLimelightName));
+        "goToReef", new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.leftLimelightName));
 
     NamedCommands.registerCommand(
         "goToReefRight",
-        new AutoSmartAlignProfiledPID(drive, LimelightConstants.rightLimelightName));
+        new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.rightLimelightName));
 
     NamedCommands.registerCommand("L4", fullArm.setGoal(L4, true));
 
