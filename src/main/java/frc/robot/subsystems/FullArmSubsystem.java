@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.ArmConstants.ExtensionConstants.*;
 import static frc.robot.Constants.ArmConstants.ShoulderConstants.*;
 import static frc.robot.Constants.ArmConstants.WristConstants.*;
+import static frc.robot.Constants.tuningMode;
 import static frc.robot.util.MachineStates.HOME;
 import static frc.robot.util.PhoenixUtil.*;
 
@@ -193,7 +194,7 @@ public class FullArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (false) {
+    if (tuningMode) {
       setShoulder(tunableShoulder.get());
       setExtention(tunableExtend.get());
       setWrist(tunableWrist.get());
