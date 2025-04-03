@@ -11,8 +11,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.playingwithfusion.TimeOfFlight;
-import com.playingwithfusion.TimeOfFlight.RangingMode;
+// import com.playingwithfusion.TimeOfFlight;
+// import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
 
-  private TimeOfFlight intake_sensor = new TimeOfFlight(0);
+  // private TimeOfFlight intake_sensor = new TimeOfFlight(0);
   DigitalInput ranger = new DigitalInput(0);
 
   public IntakeSubsystem() {
@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     tryUntilOk(5, () -> intakeMotor.getConfigurator().apply(intakeConfig, 0.25));
 
-    intake_sensor.setRangingMode(RangingMode.Short, 40);
+    // intake_sensor.setRangingMode(RangingMode.Short, 40);
   }
 
   public Command DefaultCommand() {
