@@ -166,6 +166,7 @@ public class RobotContainer {
     base.triangle().onTrue(fullArm.setGoal(L4, true));
     base.square().onTrue(fullArm.setGoal(L3, true));
     base.circle().onTrue(fullArm.setGoal(L2, true));
+    base.touchpad().onTrue(fullArm.setGoal(L1, false));
     base.cross().onTrue(fullArm.setGoal(HOME, false));
 
     base.R2().whileTrue(new SmartIntake(intake, fullArm));
@@ -173,7 +174,7 @@ public class RobotContainer {
     // .onFalse(fullArm.setGoal(HOME, false));h
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    operator.R2().whileTrue(intake.setIntakeSpeed(-1));
+    operator.R2().whileTrue(intake.setIntakeSpeed(-0.9));
 
     operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
     operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
