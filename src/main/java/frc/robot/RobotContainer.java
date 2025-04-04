@@ -174,7 +174,7 @@ public class RobotContainer {
     // .onFalse(fullArm.setGoal(HOME, false));h
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    operator.R2().whileTrue(intake.setIntakeSpeed(-0.9));
+    operator.R2().whileTrue(intake.setIntakeSpeed(-0.42069));
 
     operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
     operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
