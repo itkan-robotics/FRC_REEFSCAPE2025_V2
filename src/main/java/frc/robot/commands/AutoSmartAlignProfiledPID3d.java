@@ -10,6 +10,14 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.TuneableProfiledPID;
 
+/**
+ * Command based off of the {@link frc.robot.commands.SmartAlignProfiledPID SmartAlignProfiledPID}
+ * command, specifically for autonomous. Instead of taking in an {@link
+ * frc.robot.util.AutoScoreSelection AutoScoreSelection}, it only takes in the branch the robot
+ * should go to.
+ *
+ * @see frc.robot.commands.SmartAlignProfiledPID SmartAlignProfiledPID
+ */
 public class AutoSmartAlignProfiledPID3d extends Command {
 
   Drive m_drive;

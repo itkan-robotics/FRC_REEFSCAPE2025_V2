@@ -37,7 +37,6 @@ import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.commands.SmartIntake;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -46,8 +45,6 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.DisabledInstantCommand;
-import frc.robot.util.MachineStates;
-import frc.robot.util.MachineStates.BotState;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -59,19 +56,23 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
 
-  // Subsystems
+  // Initialize Subsystems
   private final Drive drive;
   public static final FullArmSubsystem fullArm = new FullArmSubsystem();
   public static final IntakeSubsystem intake = new IntakeSubsystem();
-
-  private static final LimelightSubsystem limelight =
-      new LimelightSubsystem(LimelightConstants.leftLimelightName);
-
-  private final BotState currState = MachineStates.RESET;
   public static final AutoScoreSelection storedState = new AutoScoreSelection();
 
-  // Controller
+  // Initialize Controllers
+
+  /**
+   * Controller for our driver. Controls scoring L1-L4, auto-alignment, algae (in/out)take, and
+   * robot movement.
+   */
   private final CommandPS5Controller base = new CommandPS5Controller(0);
+  /**
+   * Controller for our operator. Controls auto-alignment coral level, left/right branch, and
+   * outtake after auto-align is completed.
+   */
   private final CommandPS5Controller operator = new CommandPS5Controller(1);
 
   // Dashboard inputs
@@ -161,8 +162,6 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Command for when we are testing different positions
-
     base.triangle().onTrue(fullArm.setGoal(L4, true));
     base.square().onTrue(fullArm.setGoal(L3, true));
     base.circle().onTrue(fullArm.setGoal(L2, true));
@@ -170,11 +169,11 @@ public class RobotContainer {
     base.cross().onTrue(fullArm.setGoal(HOME, false));
 
     base.R2().whileTrue(new SmartIntake(intake, fullArm));
-    //     .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
-    // .onFalse(fullArm.setGoal(HOME, false));h
+    // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
+    // .onFalse(fullArm.setGoal(HOME, false));
     base.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    operator.R2().whileTrue(intake.setIntakeSpeed(-0.42069));
+    operator.R2().whileTrue(intake.outtakeBotState(storedState));
 
     operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
     operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
@@ -199,6 +198,7 @@ public class RobotContainer {
                 () -> {
                   storedState.setBotState(L4);
                 }));
+
     (operator.L2())
         .and(operator.circle())
         .onTrue(
@@ -206,6 +206,7 @@ public class RobotContainer {
                 () -> {
                   storedState.setBotState(L3);
                 }));
+
     (operator.L2())
         .and(operator.square())
         .onTrue(
@@ -213,6 +214,7 @@ public class RobotContainer {
                 () -> {
                   storedState.setBotState(L2);
                 }));
+
     (operator.L2())
         .and(operator.touchpad())
         .onTrue(
@@ -220,6 +222,7 @@ public class RobotContainer {
                 () -> {
                   storedState.setBotState(L1);
                 }));
+
     (operator.L2())
         .and(operator.L1())
         .onTrue(
@@ -227,6 +230,7 @@ public class RobotContainer {
                 () -> {
                   storedState.setLimelightPipeLine("LEFT");
                 }));
+
     (operator.L2())
         .and(operator.R1())
         .onTrue(
@@ -276,25 +280,6 @@ public class RobotContainer {
 
   public void registerNamedCommands() {
 
-    // NamedCommands.registerCommand(
-    //     "setGyroTo180",
-    //     Commands.runOnce(
-    //             () ->
-    //                 drive.setPose(
-    //                     new Pose2d(
-    //                         drive.getPose().getTranslation(), new
-    // Rotation2d(Math.toRadians(180)))),
-    //             drive)
-    //         .ignoringDisable(true));
-
-    // NamedCommands.registerCommand("intake", score.setSpeed(0.5));
-
-    // NamedCommands.registerCommand("outtake", score.setSpeedAndState(-0.8, false));
-
-    // NamedCommands.registerCommand("stopIntake", score.getDefaultCommand());
-
-    // NamedCommands.registerCommand("stopOuttake", score.DefaultCommand());
-
     NamedCommands.registerCommand(
         "goToReef", new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.leftLimelightName));
 
@@ -317,11 +302,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
 
     NamedCommands.registerCommand("intake", intake.setIntakeSpeed(1));
-
-    // NamedCommands.registerCommand(
-    //     "CoralIntakePos", ArmCommands.setArmGoal(shoulder, extension, wrist, currState, INTAKE));
-
-    // NamedCommands.registerCommand("outtakeDefault", score.setSpeedAndState(0.0075, false));
   }
 
   /*********************************************************
@@ -340,10 +320,6 @@ public class RobotContainer {
             () -> base.getRightX(),
             () -> 1));
 
-    // score.setDefaultCommand(score.setSpeedAndState(0.0, false));
-    // limelight.setDefaultCommand(limelight.setLimelight());
-    // shoulder.setDefaultCommand(shoulder.setGoal(0));
-    // extension.setDefaultCommand(extension.setGoal(0));
     intake.setDefaultCommand(intake.DefaultCommand());
     fullArm.setGoal(HOME, false);
   }

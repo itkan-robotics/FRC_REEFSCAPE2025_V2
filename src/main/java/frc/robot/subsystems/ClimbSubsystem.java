@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.ClimbConstants;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;

@@ -24,30 +24,56 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.MachineStates.BotState;
 
+/**
+ * Arm subsystem for our shoulder, extension, and wrist baesd off of 2910's 2023/25 architecture.
+ *
+ * <p>Includes:
+ *
+ * <ul>
+ *   <li>CTRE's Motion Magic tuning for all three joints.
+ *   <li>Integration with the {@link frc.robot.util.MachineStates MachineStates} class for easier
+ *       positing saving.
+ *   <li>{@link frc.robot.util.LoggedTunableNumber LoggedTunableNumbers } for manual tuning when in
+ *       {@link frc.robot.Constants#tuningMode tuningMode} (e.g. during field calibration).
+ * </ul>
+ *
+ * See <a
+ * href="https://github.com/FRCTeam2910/2023CompetitionRobot-Public/tree/main/src/main/java/org/frcteam2910/c2023/subsystems/arm">
+ * 2910's arm subsystem implementation </a> for additional reference if needed
+ */
 public class FullArmSubsystem extends SubsystemBase {
   /** Creates a new FullArmSubsystem. */
   private LoggedTunableNumber tunableShoulder, tunableExtend, tunableWrist;
 
-  // ARM
-  private final TalonFX rightShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT, "static");
+  // Motors for the SHOULDER of the arm and its accompanying MotionMagic voltage request
+  private final TalonFX rightShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT_RIGHT, "static");
+  private final TalonFX leftShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT_LEFT, "static");
+  final MotionMagicVoltage shoulderRequest;
 
-  private final TalonFX leftShoulderMotor = new TalonFX(LEFT_SHOULDER_MOTOR_PORT, "static");
-  final MotionMagicVoltage arm_mRequest;
-
-  // EXTEND
+  // Motors for the EXTENSION of the arm and its accompanying MotionMagic voltage request
   private final TalonFX extensionMotorRight = new TalonFX(EXTENSION_MOTOR_PORT_RIGHT, "static");
   private final TalonFX extensionMotorLeft = new TalonFX(EXTENSION_MOTOR_PORT_LEFT, "static");
-  final MotionMagicVoltage elevator_mRequest;
+  final MotionMagicVoltage extensionRequest;
 
-  // WRIST
-  private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT_A);
-  final MotionMagicVoltage m_lRequest;
+  // Motor for the WRIST of the arm and its accompanying MotionMagic voltage request
+  private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT);
+  final MotionMagicVoltage wristRequest;
 
-  private BotState currentState = HOME;
+  private BotState currentState = HOME; // The robot's state at startup
+
+  /**
+   * A boolean that determines whether the shoulder or extension should move first. Generally, if
+   * the extension is reaching a higher position, this should be true, while if the extension is
+   * reaching a lower pos, false. This is to prevent tipping as much as possible.
+   */
   private Boolean shoulderFirst = true;
 
   public FullArmSubsystem() {
-    // in init function
+
+    // ================
+    // === Shoulder ===
+    // ================
+    // Software limits and configurations for the shoulder of the arm
     var shoulderConfig = new TalonFXConfiguration();
     shoulderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     shoulderConfig.Feedback.SensorToMechanismRatio = 210.0;
@@ -63,37 +89,34 @@ public class FullArmSubsystem extends SubsystemBase {
 
     var shoulderSlot0Configs = shoulderConfig.Slot0;
 
-    // set slot 0 gains
+    // Set PID and FF gains and settings
     shoulderSlot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
-    // shoulderSlot0Configs.kS = SHOULDER_KS; // Add SHOULDER_KS V output to overcome static
-    // friction
     shoulderSlot0Configs.kG = SHOULDER_KG;
     shoulderSlot0Configs.kV = SHOULDER_KV;
-    shoulderSlot0Configs.kP =
-        SHOULDER_KP; // A position error of SHOULDER_KP rotations results in 12 V output
+    shoulderSlot0Configs.kP = SHOULDER_KP;
     shoulderSlot0Configs.kD = SHOULDER_KD;
 
-    // set Motion Magic settings
+    // Set Motion Magic settings
     var shoulderMMConfig = shoulderConfig.MotionMagic;
     shoulderMMConfig.MotionMagicCruiseVelocity =
         SHOULDER_CRUISE_VELOCITY; // Target cruise velocity of SHOULDER_CRUISE_VELOCITY rps
     shoulderMMConfig.MotionMagicAcceleration =
         SHOULDER_ACCELERATION; // Target acceleration of SHOULDER_ACCELERATION rps/s
 
-    // in init function
+    // Apply the configs to both motors. The left shoulder motor should follow the right
+    // since the motors are mechanically linked via a shaft
     tryUntilOk(5, () -> rightShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
     tryUntilOk(5, () -> leftShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
+    leftShoulderMotor.setControl(new Follower(SHOULDER_MOTOR_PORT_RIGHT, true));
 
-    // tryUntilOk(5, () -> rightShoulderMotor.setPosition(SHOULDER_ZERO_POSITION, 0.25));
-    // tryUntilOk(5, () -> leftShoulderMotor.setPosition(SHOULDER_ZERO_POSITION, 0.25));
+    // Create a Motion Magic request with a voltage output
+    shoulderRequest = new MotionMagicVoltage(0);
 
-    leftShoulderMotor.setControl(new Follower(SHOULDER_MOTOR_PORT, true));
+    // =================
+    // === Extension ===
+    // =================
 
-    // create a Motion Magic request, voltage output
-    arm_mRequest = new MotionMagicVoltage(0);
-
-    // ELEVATOR
-
+    // Software limits and configurations for the extension of the arm
     var extensionConfig = new TalonFXConfiguration();
     extensionConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     extensionConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
@@ -108,33 +131,33 @@ public class FullArmSubsystem extends SubsystemBase {
 
     var extensionSlot0Configs = extensionConfig.Slot0;
 
-    // set slot 0 gains
+    // Set PID and FF gains and settings
     extensionSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
     extensionSlot0Configs.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
     extensionSlot0Configs.kG = EXTENSION_KG;
     extensionSlot0Configs.kV = EXTENSION_KV;
-    extensionSlot0Configs.kP =
-        EXTENSION_KP; // A position error of EXTENSION_KP rotations results in 12 V output
+    extensionSlot0Configs.kP = EXTENSION_KP;
 
-    // set Motion Magic settings
+    // Set Motion Magic settings
     var extensionMMConfig = extensionConfig.MotionMagic;
 
     extensionMMConfig.MotionMagicCruiseVelocity = EXTENSION_CRUISE_VELOCITY;
     extensionMMConfig.MotionMagicAcceleration = EXTENSION_ACCELERATION;
 
-    // in init function
+    // Apply the configs to both motors. The left shoulder motor should follow the right
+    // since the motors are mechanically linked via a shaft
     tryUntilOk(5, () -> extensionMotorRight.getConfigurator().apply(extensionConfig, 0.25));
     tryUntilOk(5, () -> extensionMotorLeft.getConfigurator().apply(extensionConfig, 0.25));
-
-    // tryUntilOk(5, () -> extensionMotorRight.setPosition(EXTENSION_ZERO_POSITION, 0.25));
-    // tryUntilOk(5, () -> extensionMotorLeft.setPosition(EXTENSION_ZERO_POSITION, 0.25));
-
     extensionMotorLeft.setControl(new Follower(EXTENSION_MOTOR_PORT_RIGHT, true));
-    elevator_mRequest = new MotionMagicVoltage(0);
 
-    // WIRST
+    // Create a Motion Magic request with a voltage output
+    extensionRequest = new MotionMagicVoltage(0);
 
-    // in init function
+    // =============
+    // === Wrist ===
+    // =============
+
+    // Software limits and configurations for the wrist of the arm
     var wristConfig = new TalonFXConfiguration();
     wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     wristConfig.Feedback.SensorToMechanismRatio = 25;
@@ -148,9 +171,8 @@ public class FullArmSubsystem extends SubsystemBase {
     wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    // Set PID and FF gains and settings
     var wristSlot0Configs = wristConfig.Slot0;
-
-    // set slot 0 gains
     wristSlot0Configs.GravityType = GravityTypeValue.Elevator_Static;
     wristSlot0Configs.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
     wristSlot0Configs.kG = WRIST_KG;
@@ -158,25 +180,34 @@ public class FullArmSubsystem extends SubsystemBase {
     wristSlot0Configs.kP =
         WRIST_KP; // A position error of WRIST_KP rotations results in 12 V output
 
-    // set Motion Magic settings
+    // Set Motion Magic settings
     var wristMMConfig = wristConfig.MotionMagic;
     wristMMConfig.MotionMagicCruiseVelocity =
         WRIST_CRUISE_VELOCITY; // Target cruise velocity of WRIST_CRUISE_VELOCITY rps
     wristMMConfig.MotionMagicAcceleration =
         WRIST_CRUISE_VELOCITY / 0.5; // Reach target cruise velocity in 0.5 s
 
-    // in init function
+    // Apply the configs to the motor
     tryUntilOk(5, () -> wristMotor.getConfigurator().apply(wristConfig, 0.25));
-    // tryUntilOk(5, () -> wristMotor.setPosition(WRIST_ZERO_POSITION, 0.25));
 
-    // create a Motion Magic request, voltage output
-    m_lRequest = new MotionMagicVoltage(0);
+    // Create a Motion Magic request with a voltage output
+    wristRequest = new MotionMagicVoltage(0);
 
+    // Create three LoggedTunableNumbers for manual tuning of each stage
     tunableShoulder = new LoggedTunableNumber("tunableShoulder", 0.0);
     tunableExtend = new LoggedTunableNumber("tunableExtend", 0.0);
     tunableWrist = new LoggedTunableNumber("tunableWrist", 0.0);
   }
 
+  /**
+   * A command the desired {@link frc.robot.util.MachineStates.BotState BotState} of the arm and
+   * determines the order the arm should move.
+   *
+   * @param desiredState The desired BotState of the arm, which includes shoulder, extension, and
+   *     wrist positions.
+   * @param shoulderFirst Determines whether the shoulder should pivot first or the extension
+   *     extend/retract first.
+   */
   public Command setGoal(BotState desiredState, boolean shoulderFirst) {
     return run(
         () -> {
@@ -185,6 +216,11 @@ public class FullArmSubsystem extends SubsystemBase {
         });
   }
 
+  /**
+   * A method version of the setGoal command
+   *
+   * @see FullArmSubsystem#setGoal setGoal Command
+   */
   public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
     currentState = desiredState;
 
@@ -193,16 +229,21 @@ public class FullArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // This method will be called once per scheduler run
 
+    // If tuning mode is on, use the manually tuned positions
     if (tuningMode) {
       setShoulder(tunableShoulder.get());
       setExtention(tunableExtend.get());
       setWrist(tunableWrist.get());
     } else {
+      // If shoulderFirst is true, move the shoulder before the other subsystems
+      // Otherwise, move the elevator and wrist before the shoulder
+
       if (shoulderFirst) {
         setShoulder(currentState.getShoulderSetpoint());
 
-        if (ShoulderSetpointReached()) {
+        if (shoulderSetpointReached()) {
           setExtention(currentState.getExtensionSetpoint());
           setWrist(currentState.getWristSetpoint());
         }
@@ -211,58 +252,72 @@ public class FullArmSubsystem extends SubsystemBase {
         setExtention(currentState.getExtensionSetpoint());
         setWrist(currentState.getWristSetpoint());
 
-        if (ExtentionSetpointReached()) {
+        if (extentionSetpointReached()) {
           setShoulder(currentState.getShoulderSetpoint());
         }
       }
     }
-    // This method will be called once per scheduler run
   }
 
-  public Command setWrist(BotState desiredState) {
-    return run(
-        () -> {
-          wristMotor.setControl(
-              m_lRequest.withPosition(desiredState.getWristSetpoint()).withSlot(0));
-        });
-  }
-
-  public boolean ShoulderSetpointReached() {
+  /** Returns whether the shoulder is within 0.1 rotations (0.1 radians or ~6 degrees). */
+  public boolean shoulderSetpointReached() {
     return Math.abs(
             rightShoulderMotor.getPosition().getValueAsDouble()
                 - currentState.getShoulderSetpoint())
         <= 0.1;
   }
 
-  public boolean ExtentionSetpointReached() {
+  /** Returns whether the shoulder is within 10 rotations (~1/4 of the total length of the arm). */
+  public boolean extentionSetpointReached() {
     return Math.abs(
             extensionMotorRight.getPosition().getValueAsDouble()
                 - currentState.getExtensionSetpoint())
         <= 10;
   }
 
+  /**
+   * Returns the multiplier (0.5 to 1.0) of the drivetrain based on the length of the extension
+   * (assuming a max position of 40).
+   */
   public double getSlowDownMult() {
     return 1.0 - (extensionMotorRight.getPosition().getValueAsDouble() * 0.0125);
   }
 
+  /**
+   * Set the shoulder to the desired position.
+   *
+   * @param position The position, in rotations, the shoulder should go to
+   */
   public void setShoulder(double position) {
-    rightShoulderMotor.setControl(arm_mRequest.withPosition(position).withSlot(0));
+    rightShoulderMotor.setControl(shoulderRequest.withPosition(position).withSlot(0));
   }
 
+  /**
+   * Set the extension to the desired position.
+   *
+   * @param position The position, in rotations, the extension should go to
+   */
   public void setExtention(double position) {
-    extensionMotorRight.setControl(elevator_mRequest.withPosition(position).withSlot(0));
+    extensionMotorRight.setControl(extensionRequest.withPosition(position).withSlot(0));
   }
 
+  /**
+   * Set the wrist to the desired position.
+   *
+   * @param position The position, in rotations, the wrist should go to
+   */
   public void setWrist(double position) {
-    wristMotor.setControl(m_lRequest.withPosition(position).withSlot(0));
+    wristMotor.setControl(wristRequest.withPosition(position).withSlot(0));
   }
 
-  // public void setCoastMode() {
-  //   leftShoulderMotor.setNeutralMode(NeutralModeValue.Coast);
-  //   rightShoulderMotor.setNeutralMode(NeutralModeValue.Coast);
-  //   wristMotor.setNeutralMode(NeutralModeValue.Coast);
-  // }
+  /** Set all arm motors to Coast mode. */
+  public void setCoastMode() {
+    leftShoulderMotor.setNeutralMode(NeutralModeValue.Coast);
+    rightShoulderMotor.setNeutralMode(NeutralModeValue.Coast);
+    wristMotor.setNeutralMode(NeutralModeValue.Coast);
+  }
 
+  /** Set all arm motors to Brake mode. */
   public void setBrakeMode() {
     leftShoulderMotor.setNeutralMode(NeutralModeValue.Brake);
     rightShoulderMotor.setNeutralMode(NeutralModeValue.Brake);
