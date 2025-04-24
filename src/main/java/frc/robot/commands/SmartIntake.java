@@ -23,6 +23,11 @@ public class SmartIntake extends Command {
   FullArmSubsystem fullArm;
   boolean m_end;
 
+  /**
+   * Start intaking and move the arm to the {@link frc.robot.util.MachineStates#INTAKE INTAKE}
+   * position until a coral is detected, at which point move the arm to the {@link
+   * frc.robot.util.MachineStates#HOME HOME} position
+   */
   public SmartIntake(IntakeSubsystem i, FullArmSubsystem f) {
     intake = i;
     fullArm = f;

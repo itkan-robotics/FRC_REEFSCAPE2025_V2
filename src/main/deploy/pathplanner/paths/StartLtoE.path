@@ -3,47 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.07,
-        "y": 2.7379999999999995
+        "x": 7.292999999999999,
+        "y": 7.535
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.167801250291123,
-        "y": 2.306679450960496
+        "x": 7.732766248722356,
+        "y": 8.01830282858811
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.86775,
-        "y": 0.7489999999999998
+        "x": 5.2455,
+        "y": 5.565499999999999
       },
       "prevControl": {
-        "x": 1.7275162024021395,
-        "y": 1.156400035554534
+        "x": 5.071486391805781,
+        "y": 5.386002746084435
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "SourceR"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "INTAKEARM",
-      "waypointRelativePos": 0.7513647642679957,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "INTAKEARM"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 4.5,
@@ -54,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -125.04800000000002
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

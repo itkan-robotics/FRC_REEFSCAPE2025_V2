@@ -9,47 +9,90 @@ import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+// import com.playingwithfusion.TimeOfFlight;
+// import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.AutoScoreSelection;
 
+/** Subsystem for the end effector */
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
 
+  // private TimeOfFlight intake_sensor = new TimeOfFlight(0);
   DigitalInput ranger = new DigitalInput(0);
 
-  private Timer timer = new Timer();
-
   public IntakeSubsystem() {
+
+    // Configure the intake motor
     var intakeConfig = new TalonFXConfiguration();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    timer.start();
+    intakeConfig.CurrentLimits.SupplyCurrentLimit = 60;
+    intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    intakeConfig.CurrentLimits.StatorCurrentLimit = 60;
+    intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     tryUntilOk(5, () -> intakeMotor.getConfigurator().apply(intakeConfig, 0.25));
+
+    // Configure the intake sensor
+    // intake_sensor.setRangingMode(RangingMode.Short, 40);
   }
 
+  /** By default, run the intake at 4.5% speed */
   public Command DefaultCommand() {
     return run(
         () -> {
-          intakeMotor.set(-0.045);
+          intakeMotor.set(0.045);
         });
   }
 
+  /**
+   * Simple setter Command for the intake
+   *
+   * @param speed The desired speed
+   */
   public Command setIntakeSpeed(double speed) {
     return run(
         () -> {
-          intakeMotor.set(-speed);
+          intakeMotor.set(speed);
         });
   }
 
-  public void setIntake(double speed) {
-    intakeMotor.set(-speed);
+  /**
+   * Set the outtake speed based on the current stored state set by the operator.
+   *
+   * @since 4/19/2025: L2 at 20% speed, L1 at 50% speed, everything else at 80% speed
+   * @param storedState The stored state set by the operator.
+   */
+  public Command outtakeBotState(AutoScoreSelection storedState) {
+    return run(
+        () -> {
+          var currentState = storedState.getBotState();
+          intakeMotor.set(currentState.getOuttakeSpeed());
+        });
   }
 
+  /**
+   * Simple setter method for the intake
+   *
+   * @param speed
+   */
+  public void setIntake(double speed) {
+    intakeMotor.set(speed);
+  }
+
+  /**
+   * Method for checking if coral is intaked fully.
+   *
+   * @deprecated
+   */
   public boolean isIntaked() {
+    // return intake_sensor.getRange() < 100;
     return !ranger.get();
   }
 

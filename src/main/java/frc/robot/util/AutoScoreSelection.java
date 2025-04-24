@@ -16,8 +16,18 @@ import frc.robot.util.MachineStates.BotState;
 import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 
+/**
+ * Class that stores various information used in the {@link frc.robot.commands.SmartAlignProfiledPID
+ * SmartAlignProfiledPID} command, including:
+ *
+ * <ul>
+ *   <li>L1-4 state
+ *   <li>Left/Right Branch
+ *   <li>Reef Angle
+ *   <li>Boolean for turning automatically to the desired reef face
+ * </ul>
+ */
 public class AutoScoreSelection {
-  private static int operatorStateInt = -1;
   private static int operatorLimelight = 0;
   private static double operatorReefAngle = 0.0;
   private static BotState desiredState = INTAKE;
@@ -36,11 +46,6 @@ public class AutoScoreSelection {
     SmartDashboard.putNumber("storedState/Pipeline", getLimelightTargetPipeline());
     SmartDashboard.putNumber("storedState/TargetAngle", getTargetReefAngle());
     SmartDashboard.putBoolean("storedState/ShouldAutoTurn", getAutoTurn());
-
-    // SmartDashboard.putString("storedState/RobotState", "L" + operatorStateInt);
-    // SmartDashboard.putNumber("storedState/Pipeline", operatorLimelight);
-    // SmartDashboard.putNumber("storedState/TargetAngle", operatorReefAngle);
-    // SmartDashboard.putBoolean("storedState/ShouldAutoTurn", baseAutoTurn);
   }
 
   /**
@@ -65,6 +70,8 @@ public class AutoScoreSelection {
   /**
    * Alternative method of setting a pipeline that takes in a string based on what branch the robot
    * should go to
+   *
+   * @param placement What branch the robot should go to
    */
   public void setLimelightPipeLine(String placement) {
     int cPipeline = 0;
@@ -112,44 +119,48 @@ public class AutoScoreSelection {
     return operatorLimelight; // (int) SmartDashboard.getNumber("storedState/Pipeline", 0);
   }
 
+  /**
+   * Getter method that returns the target limelight's ID name
+   *
+   * <ul>
+   *   <li>Left Limelight Name: {@value frc.robot.Constants.LimelightConstants#leftLimelightName}
+   *   <li>Right Limelight Name: {@value frc.robot.Constants.LimelightConstants#rightLimelightName}
+   *       *
+   * </ul>
+   */
   public String getTargetLimelight() {
     return operatorLimelight == LEFT_BRANCH_PIPELINE ? rightLimelightName : leftLimelightName;
   }
 
+  /**
+   * @param shouldTurn Sets the {@link #baseAutoTurn} boolean to true or false
+   */
   public void setAutoTurn(boolean shouldTurn) {
     baseAutoTurn = shouldTurn;
   }
 
+  /** Inverts the {@link #baseAutoTurn} boolean */
   public void invertAutoTurn() {
     baseAutoTurn = !baseAutoTurn;
   }
 
+  /**
+   * @return {@link #baseAutoTurn}
+   */
   public boolean getAutoTurn() {
     return baseAutoTurn;
   }
 
   /**
-   * Set the stored bot state using an integer value, where the number corresponds to the level.
-   * More values will be added in the future
+   * @param dState What {@link #desiredState} should be set to
    */
-  public void setBotStateInt(int stateInt) {
-    operatorStateInt = stateInt;
-  }
-
   public void setBotState(BotState dState) {
     desiredState = dState;
   }
 
   /**
-   * @return The store state as an integer, with a default value of -1. Corresponding values can be
-   *     found in {@link frc.robot.Constants#toBotState(int)}
-   */
-  // public int getBotStateInt() {
-  //   return operatorStateInt; // (int) SmartDashboard.getNumber("storedState/RobotState", -1);
-  // }
-
-  /**
-   * @return the store state as a BotState enum, with a default value of RESET.
+   * @return the store state as a {@link frc.robot.util.MachineStates.BotState BotState} with a
+   *     default value of {@link frc.robot.util.MachineStates#RESET RESET}.
    */
   public BotState getBotState() {
     return desiredState; // Constants.toBotState((int)

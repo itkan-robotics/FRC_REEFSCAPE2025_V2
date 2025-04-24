@@ -24,6 +24,7 @@ import frc.robot.util.LoggingUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/** The subsystem that contains all of our unique Limelight methods. */
 public class LimelightSubsystem extends SubsystemBase {
   /** Creates a new LimelightSubsystem. */
   public static NetworkTable table;
@@ -78,7 +79,6 @@ public class LimelightSubsystem extends SubsystemBase {
    * <p> Last Updated by Abdullah Khaled, 2/9/2025
    * <p> Update (2/9): Added compatibility with TagOffsets so the tag's pose is automatically offset
    * when requested
-   * @return
    *************************************************************************************/
   @SuppressWarnings("unused")
   public Pose2d getTagEstimatedPosition(Drive drive) {
@@ -143,7 +143,7 @@ public class LimelightSubsystem extends SubsystemBase {
     reefIDsToAngles.put(-1, -1.0);
     reefIDsToAngles.put(0, -1.0);
     reefIDsToAngles.put(6, -60.0); // 17
-    reefIDsToAngles.put(7, 0.0); // 18
+    reefIDsToAngles.put(7, -180.0); // 18
     reefIDsToAngles.put(8, 60.0); // 19
     reefIDsToAngles.put(9, -240.0); // 20
     reefIDsToAngles.put(10, -180.0); // 21

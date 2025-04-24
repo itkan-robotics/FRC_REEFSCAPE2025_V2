@@ -32,16 +32,8 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -51,10 +43,6 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.util.LoggedTunableNumber;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -66,10 +54,10 @@ public final class Constants {
   public static final boolean tuningMode = false;
 
   // PathPlanner config constants (wrong values)
-  public static final double ROBOT_MASS_KG = 61.23;
+  public static final double ROBOT_MASS_KG = 58;
   public static final double ROBOT_MOI = 6.429;
-  public static final double WHEEL_COF = 1.2;
-  public static final double translationalAutoP = 5.0;
+  public static final double WHEEL_COF = 2;
+  public static final double translationalAutoP = 5;
   public static final double rotationalAutoP = 10.0;
 
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
@@ -79,8 +67,9 @@ public final class Constants {
 
   public static class ArmConstants {
     public static class ShoulderConstants {
-      public static final int LEFT_SHOULDER_MOTOR_PORT = 14;
-      public static final int SHOULDER_MOTOR_PORT = 13;
+      public static final double SHOULDER_ZERO_POSITION = -0.165;
+      public static final int SHOULDER_MOTOR_PORT_LEFT = 14;
+      public static final int SHOULDER_MOTOR_PORT_RIGHT = 13;
       // public static final int SHOULDER_MOTOR_PORT_C = 11;
 
       public static final double SHOULDER_KP = 275.0;
@@ -97,15 +86,16 @@ public final class Constants {
     }
 
     public static class ExtensionConstants {
+      public static final double EXTENSION_ZERO_POSITION = -2;
       public static final int EXTENSION_MOTOR_PORT_RIGHT = 9; // right extend motor
       public static final int EXTENSION_MOTOR_PORT_LEFT = 10; // left extend motor
 
-      public static final double EXTENSION_KP = 3.3;
+      public static final double EXTENSION_KP = 4;
       public static final double EXTENSION_KS = 0.2;
-      public static final double EXTENSION_KG = 0.25;
+      public static final double EXTENSION_KG = 0.19;
       public static final double EXTENSION_KV = 0.1;
-      public static final double EXTENSION_CRUISE_VELOCITY = 35.0;
-      public static final double EXTENSION_ACCELERATION = 100.0;
+      public static final double EXTENSION_CRUISE_VELOCITY = 60.0;
+      public static final double EXTENSION_ACCELERATION = 140.0;
       // public static final double EXTENSION_JERK = 170.0;
 
       public static final double MIN_EXTENSION_POS = 0;
@@ -113,7 +103,8 @@ public final class Constants {
     }
 
     public static class WristConstants {
-      public static final int WRIST_MOTOR_PORT_A = 17;
+      public static final double WRIST_ZERO_POSITION = 0.1018;
+      public static final int WRIST_MOTOR_PORT = 17;
 
       public static final double WRIST_KP = 20.0;
       public static final double WRIST_KS = 0.0;
@@ -263,7 +254,7 @@ public final class Constants {
 
     private static final double kDriveGearRatio = 6.75; // 6.23
     private static final double kSteerGearRatio = 25.0; // *12/13
-    private static final Distance kWheelRadius = Inches.of(1.953036686729617 * 0.95);
+    private static final Distance kWheelRadius = Inches.of(1.935);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = false;
@@ -493,209 +484,6 @@ public final class Constants {
             odometryStandardDeviation,
             visionStandardDeviation,
             modules);
-      }
-    }
-  }
-
-  public class FieldConstants {
-
-    public static Pose2d transformAtAngle(Pose2d pose, double offset) {
-      double poseX = pose.getX();
-      double poseY = pose.getY();
-      poseX += Math.sin(pose.getRotation().getRadians()) * offset;
-      poseY += Math.cos(pose.getRotation().getRadians()) * offset;
-      return new Pose2d(poseX, poseY, pose.getRotation());
-    }
-
-    public static final double fieldLength = Units.inchesToMeters(690.876);
-    public static final double fieldWidth = Units.inchesToMeters(317);
-    public static final double startingLineX =
-        Units.inchesToMeters(299.438); // Measured from the inside of starting
-    // line
-
-    public static class Processor {
-      public static final Pose2d centerFace =
-          new Pose2d(Units.inchesToMeters(235.726), 0, Rotation2d.fromDegrees(90));
-    }
-
-    public static class Barge {
-      public static final Translation2d farCage =
-          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(286.779));
-      public static final Translation2d middleCage =
-          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(242.855));
-      public static final Translation2d closeCage =
-          new Translation2d(Units.inchesToMeters(345.428), Units.inchesToMeters(199.947));
-
-      // Measured from floor to bottom of cage
-      public static final double deepHeight = Units.inchesToMeters(3.125);
-      public static final double shallowHeight = Units.inchesToMeters(30.125);
-    }
-
-    public static class CoralStation {
-      public static final Pose2d leftCenterFace =
-          new Pose2d(
-              Units.inchesToMeters(33.526),
-              Units.inchesToMeters(291.176),
-              Rotation2d.fromDegrees(90 - 144.011));
-      public static final Pose2d rightCenterFace =
-          new Pose2d(
-              Units.inchesToMeters(33.526),
-              Units.inchesToMeters(25.824),
-              Rotation2d.fromDegrees(144.011 - 90));
-    }
-
-    public static class Reef {
-      public static final Translation2d center =
-          new Translation2d(Units.inchesToMeters(176.746), Units.inchesToMeters(158.501));
-      public static final double faceToZoneLine =
-          Units.inchesToMeters(12); // Side of the reef to the inside of the
-      // reef zone line
-
-      public static final Pose2d[] centerFaces =
-          new Pose2d[6]; // Starting facing the driver station in clockwise
-      // order
-      public static final List<Map<ReefHeight, Pose3d>> branchPositions =
-          new ArrayList<>(); // Starting at the right
-      // branch facing the
-      // driver station in
-      // clockwise
-
-      static {
-        // Initialize faces
-        centerFaces[0] =
-            new Pose2d(
-                Units.inchesToMeters(144.003),
-                Units.inchesToMeters(158.500),
-                Rotation2d.fromDegrees(180));
-        centerFaces[1] =
-            new Pose2d(
-                Units.inchesToMeters(160.373),
-                Units.inchesToMeters(186.857),
-                Rotation2d.fromDegrees(120));
-        centerFaces[2] =
-            new Pose2d(
-                Units.inchesToMeters(193.116),
-                Units.inchesToMeters(186.858),
-                Rotation2d.fromDegrees(60));
-        centerFaces[3] =
-            new Pose2d(
-                Units.inchesToMeters(209.489),
-                Units.inchesToMeters(158.502),
-                Rotation2d.fromDegrees(0));
-        centerFaces[4] =
-            new Pose2d(
-                Units.inchesToMeters(193.118),
-                Units.inchesToMeters(130.145),
-                Rotation2d.fromDegrees(-60));
-        centerFaces[5] =
-            new Pose2d(
-                Units.inchesToMeters(160.375),
-                Units.inchesToMeters(130.144),
-                Rotation2d.fromDegrees(-120));
-
-        // Initialize branch positions
-        for (int face = 0; face < 6; face++) {
-          Map<ReefHeight, Pose3d> fillRight = new HashMap<>();
-          Map<ReefHeight, Pose3d> fillLeft = new HashMap<>();
-          for (var level : ReefHeight.values()) {
-            Pose2d poseDirection = new Pose2d(center, Rotation2d.fromDegrees(180 - (60 * face)));
-            double adjustX = Units.inchesToMeters(30.738);
-            double adjustY = Units.inchesToMeters(6.469);
-
-            fillRight.put(
-                level,
-                new Pose3d(
-                    new Translation3d(
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                            .getX(),
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, adjustY, new Rotation2d()))
-                            .getY(),
-                        level.height),
-                    new Rotation3d(
-                        0,
-                        Units.degreesToRadians(level.pitch),
-                        poseDirection.getRotation().getRadians())));
-            fillLeft.put(
-                level,
-                new Pose3d(
-                    new Translation3d(
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                            .getX(),
-                        poseDirection
-                            .transformBy(new Transform2d(adjustX, -adjustY, new Rotation2d()))
-                            .getY(),
-                        level.height),
-                    new Rotation3d(
-                        0,
-                        Units.degreesToRadians(level.pitch),
-                        poseDirection.getRotation().getRadians())));
-          }
-          branchPositions.add(fillRight);
-          branchPositions.add(fillLeft);
-        }
-      }
-    }
-
-    public static class StagingPositions {
-      // Measured from the center of the ice cream
-      public static final Pose2d leftLollipop =
-          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(230.5), new Rotation2d());
-      public static final Pose2d middleLollipop =
-          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(158.5), new Rotation2d());
-      public static final Pose2d rightLollipop =
-          new Pose2d(Units.inchesToMeters(48), Units.inchesToMeters(86.5), new Rotation2d());
-    }
-
-    public enum ReefHeight {
-      L4(Units.inchesToMeters(72), -90),
-      L3(Units.inchesToMeters(47.625), -35),
-      L2(Units.inchesToMeters(31.875), -35),
-      L1(Units.inchesToMeters(18), 0);
-
-      ReefHeight(double height, double pitch) {
-        this.height = height;
-        this.pitch = pitch; // in degrees
-      }
-
-      public final double height;
-      public final double pitch;
-    }
-
-    public static Pose2d getNearestReefFace(Pose2d currentPose) {
-      return currentPose.nearest(List.of(FieldConstants.Reef.centerFaces));
-    }
-
-    public enum ReefSide {
-      LEFT,
-      RIGHT
-    }
-
-    public static Pose2d getNearestReefBranch(Pose2d currentPose, ReefSide side) {
-      return FieldConstants.Reef.branchPositions
-          .get(
-              List.of(FieldConstants.Reef.centerFaces).indexOf(getNearestReefFace(currentPose)) * 2
-                  + (side == ReefSide.LEFT ? 1 : 0))
-          .get(FieldConstants.ReefHeight.L1)
-          .toPose2d();
-    }
-
-    public static Pose2d getNearestCoralStation(Pose2d currentPose) {
-      double distanceToLeftStation =
-          currentPose
-              .getTranslation()
-              .getDistance(FieldConstants.CoralStation.leftCenterFace.getTranslation());
-      double distanceToRightStation =
-          currentPose
-              .getTranslation()
-              .getDistance(FieldConstants.CoralStation.rightCenterFace.getTranslation());
-
-      if (distanceToLeftStation > distanceToRightStation) {
-        return FieldConstants.CoralStation.rightCenterFace;
-      } else {
-        return FieldConstants.CoralStation.leftCenterFace;
       }
     }
   }
