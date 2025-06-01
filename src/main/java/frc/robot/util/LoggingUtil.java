@@ -5,13 +5,111 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.AppliedRotorPolarityValue;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.LimelightSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class LoggingUtil {
+
+  public static class SimpleMotorLogger {
+  private final TalonFX m;
+  private final String key;
+
+  public SimpleMotorLogger(TalonFX motor, String motorName) {
+    m = motor;
+    key = motorName;
+  }
+
+  /**
+   * Logs basic motor information including:
+   *
+   * <ul>
+   *   <li>Device connection
+   *   <li>Device ID
+   *   <li>Pro License
+   *   <li>Software Rotation Limits
+   *   <li>Temperature
+   * </ul>
+   *
+   * InvertedValue.Clockwise_Positive
+   */
+  public SimpleMotorLogger logMotorSpecs() {
+    Logger.recordOutput(key + "/Specs/isConnected", m.isConnected());
+    Logger.recordOutput(key + "/Specs/deviceID", m.getDeviceID());
+    Logger.recordOutput(
+        key + "/Specs/isProLicensed",
+        (m.getIsProLicensed().getValueAsDouble() == 1 ? true : false));
+    Logger.recordOutput(key + "/Specs/forwardLimit", m.getForwardLimit().getValueAsDouble());
+    Logger.recordOutput(key + "/Specs/reverseLimit", m.getReverseLimit().getValueAsDouble());
+    Logger.recordOutput(key + "/Specs/tempF", (m.getDeviceTemp().getValueAsDouble() * 1.8) + 32);
+    Logger.recordOutput(key + "/Specs/tempC", m.getDeviceTemp().getValueAsDouble());
+    Logger.recordOutput(
+        key + "/Specs/invertedValue",
+        m.getAppliedRotorPolarity().getValue() == AppliedRotorPolarityValue.PositiveIsClockwise
+            ? "PositiveIsClockwise"
+            : "PositiveIsCounterClockwise");
+    return this;
+  }
+
+  /** Records the position, velocity, and acceleration of the motor in radians and degrees. */
+  public SimpleMotorLogger logMotorPVA() {
+    // Logger.recordOutput(name + "/pos", m.getPosition().getValueAsDouble());
+    Logger.recordOutput(
+        key + "/PVA/pRad", Units.rotationsToRadians(m.getPosition().getValueAsDouble()));
+    Logger.recordOutput(
+        key + "/PVA/pDeg", Units.rotationsToDegrees(m.getVelocity().getValueAsDouble()));
+    Logger.recordOutput(
+        key + "/PVA/vRad", Units.rotationsToRadians(m.getVelocity().getValueAsDouble()));
+    Logger.recordOutput(
+        key + "/PVA/vDeg", Units.rotationsToDegrees(m.getVelocity().getValueAsDouble()));
+    Logger.recordOutput(
+        key + "/PVA/aRad", Units.rotationsToRadians(m.getVelocity().getValueAsDouble()));
+    Logger.recordOutput(
+        key + "/PVA/aDeg", Units.rotationsToDegrees(m.getVelocity().getValueAsDouble()));
+    //
+    return this;  
+  }
+
+  /** Records the applied volts, torque current, supply current, and duty cycle of the motor */
+  public SimpleMotorLogger logMotorPowerData() {
+    Logger.recordOutput(key + "/appliedVolts", m.getMotorVoltage().getValueAsDouble());
+    Logger.recordOutput(key + "/torqueCurrent", m.getTorqueCurrent().getValueAsDouble());
+    Logger.recordOutput(key + "/supplyCurrent", m.getSupplyCurrent().getValueAsDouble());
+    Logger.recordOutput(key + "/dutyCycle", m.getDutyCycle().getValueAsDouble());
+    //
+    return this;  
+  }
+
+  /**
+   * Log various information about the PID Controller and its outputs, including:
+   *
+   * <ul>
+   *   <li>Overall output and output for P, I, and D
+   *   <li>PID Error
+   *   <li>PID Reference
+   *   <li>PID Feedforward
+   * </ul>
+   */
+  public SimpleMotorLogger logMotorPID() {
+    Logger.recordOutput(key + "/PID/Error", m.getClosedLoopError().getValueAsDouble());
+    Logger.recordOutput(key + "/PID/Feedforward", m.getClosedLoopFeedForward().getValueAsDouble());
+    Logger.recordOutput(key + "/PID/Reference", m.getClosedLoopReference().getValueAsDouble());
+    Logger.recordOutput(key + "/PID/Output", m.getClosedLoopOutput().getValueAsDouble());
+    Logger.recordOutput(
+        key + "/PID/POutput", m.getClosedLoopProportionalOutput().getValueAsDouble());
+    Logger.recordOutput(
+        key + "/PID/IOutput", m.getClosedLoopIntegratedOutput().getValueAsDouble());
+    Logger.recordOutput(
+        key + "/PID/DOutput", m.getClosedLoopDerivativeOutput().getValueAsDouble());
+    //
+    return this;  
+  }
+}
 
   public static void logMotor(String key, TalonFX motor) {
     Logger.recordOutput(key + "/Setpoint", motor.getClosedLoopReference().getValue());

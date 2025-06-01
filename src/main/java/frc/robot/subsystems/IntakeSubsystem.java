@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Intake_Motor_Port;
 import static frc.robot.util.PhoenixUtil.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -14,15 +16,16 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 // import com.playingwithfusion.TimeOfFlight;
 // import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.AutoScoreSelection;
+import frc.robot.util.LoggingUtil.SimpleMotorLogger;
 
 /** Subsystem for the end effector */
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
+  private final  SimpleMotorLogger intakeLogger = new SimpleMotorLogger(intakeMotor, "Intake/motor");
 
   // private TimeOfFlight intake_sensor = new TimeOfFlight(0);
   DigitalInput ranger = new DigitalInput(0);
@@ -98,6 +101,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
+    // SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
+    intakeLogger.logMotorSpecs().logMotorPowerData();
+    Logger.recordOutput("Intake/ranger/Ranger Value", ranger.get());
   }
 }

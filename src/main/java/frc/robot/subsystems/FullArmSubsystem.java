@@ -11,6 +11,8 @@ import static frc.robot.Constants.tuningMode;
 import static frc.robot.util.MachineStates.HOME;
 import static frc.robot.util.PhoenixUtil.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -22,6 +24,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
+import frc.robot.util.LoggingUtil.SimpleMotorLogger;
 import frc.robot.util.MachineStates.BotState;
 
 /**
@@ -48,15 +51,21 @@ public class FullArmSubsystem extends SubsystemBase {
   // Motors for the SHOULDER of the arm and its accompanying MotionMagic voltage request
   private final TalonFX rightShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT_RIGHT, "static");
   private final TalonFX leftShoulderMotor = new TalonFX(SHOULDER_MOTOR_PORT_LEFT, "static");
+  private final SimpleMotorLogger leftShoulderLogger = new SimpleMotorLogger(leftShoulderMotor, "Arm/leftShoulder");
+  private final SimpleMotorLogger rightShoulderLogger = new SimpleMotorLogger(rightShoulderMotor, "Arm/rightShoulder");
   final MotionMagicVoltage shoulderRequest;
 
   // Motors for the EXTENSION of the arm and its accompanying MotionMagic voltage request
-  private final TalonFX extensionMotorRight = new TalonFX(EXTENSION_MOTOR_PORT_RIGHT, "static");
-  private final TalonFX extensionMotorLeft = new TalonFX(EXTENSION_MOTOR_PORT_LEFT, "static");
+  private final TalonFX rightExtensionMotor = new TalonFX(EXTENSION_MOTOR_PORT_RIGHT, "static");
+  private final TalonFX leftExtensionMotor = new TalonFX(EXTENSION_MOTOR_PORT_LEFT, "static");
+  private final SimpleMotorLogger leftExtensionLogger = new SimpleMotorLogger(leftExtensionMotor, "Arm/leftExtension");
+  private final SimpleMotorLogger rightExtensionLogger = new SimpleMotorLogger(rightExtensionMotor, "Arm/rightExtension");
+
   final MotionMagicVoltage extensionRequest;
 
   // Motor for the WRIST of the arm and its accompanying MotionMagic voltage request
   private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT);
+  private final SimpleMotorLogger wristLogger = new SimpleMotorLogger(wristMotor, "Arm/Wrist");
   final MotionMagicVoltage wristRequest;
 
   private BotState currentState = HOME; // The robot's state at startup
@@ -146,9 +155,9 @@ public class FullArmSubsystem extends SubsystemBase {
 
     // Apply the configs to both motors. The left shoulder motor should follow the right
     // since the motors are mechanically linked via a shaft
-    tryUntilOk(5, () -> extensionMotorRight.getConfigurator().apply(extensionConfig, 0.25));
-    tryUntilOk(5, () -> extensionMotorLeft.getConfigurator().apply(extensionConfig, 0.25));
-    extensionMotorLeft.setControl(new Follower(EXTENSION_MOTOR_PORT_RIGHT, true));
+    tryUntilOk(5, () -> rightExtensionMotor.getConfigurator().apply(extensionConfig, 0.25));
+    tryUntilOk(5, () -> rightExtensionMotor.getConfigurator().apply(extensionConfig, 0.25));
+    rightExtensionMotor.setControl(new Follower(EXTENSION_MOTOR_PORT_RIGHT, true));
 
     // Create a Motion Magic request with a voltage output
     extensionRequest = new MotionMagicVoltage(0);
@@ -257,6 +266,15 @@ public class FullArmSubsystem extends SubsystemBase {
         }
       }
     }
+
+    leftShoulderLogger.logMotorPID().logMotorPVA().logMotorSpecs().logMotorPowerData();
+    rightShoulderLogger.logMotorPID().logMotorPVA().logMotorPowerData();
+    leftExtensionLogger.logMotorPID().logMotorPVA().logMotorPowerData().logMotorSpecs();
+    rightExtensionLogger.logMotorPID().logMotorPVA().logMotorPowerData();
+    wristLogger.logMotorPID().logMotorPVA().logMotorPowerData().logMotorSpecs();
+
+    Logger.recordOutput("Arm/currentState", currentState.getName());
+    Logger.recordOutput("Arm/shoulderFirst", shoulderFirst);
   }
 
   /** Returns whether the shoulder is within 0.1 rotations (0.1 radians or ~6 degrees). */
@@ -270,7 +288,7 @@ public class FullArmSubsystem extends SubsystemBase {
   /** Returns whether the shoulder is within 10 rotations (~1/4 of the total length of the arm). */
   public boolean extentionSetpointReached() {
     return Math.abs(
-            extensionMotorRight.getPosition().getValueAsDouble()
+            rightExtensionMotor.getPosition().getValueAsDouble()
                 - currentState.getExtensionSetpoint())
         <= 10;
   }
@@ -280,7 +298,7 @@ public class FullArmSubsystem extends SubsystemBase {
    * (assuming a max position of 40).
    */
   public double getSlowDownMult() {
-    return 1.0 - (extensionMotorRight.getPosition().getValueAsDouble() * 0.0125);
+    return 1.0 - (rightExtensionMotor.getPosition().getValueAsDouble() * 0.0125);
   }
 
   /**
@@ -298,7 +316,7 @@ public class FullArmSubsystem extends SubsystemBase {
    * @param position The position, in rotations, the extension should go to
    */
   public void setExtention(double position) {
-    extensionMotorRight.setControl(extensionRequest.withPosition(position).withSlot(0));
+    rightExtensionMotor.setControl(extensionRequest.withPosition(position).withSlot(0));
   }
 
   /**

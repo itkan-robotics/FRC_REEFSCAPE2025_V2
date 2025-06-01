@@ -13,10 +13,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.util.LoggingUtil.SimpleMotorLogger;
 
 public class ClimbSubsystem extends SubsystemBase {
   /** Creates a new ClimbSubsystem. */
   private final TalonFX climbMotor = new TalonFX(ClimbConstants.CLIMB_MOTOR_PORT);
+  private final SimpleMotorLogger climbLogger = new SimpleMotorLogger(climbMotor, "Climb");
 
   public ClimbSubsystem() {
     // in init function
@@ -41,5 +43,7 @@ public class ClimbSubsystem extends SubsystemBase {
   public void periodic() {
     // climbServo.set(tunableAngle.get());
     // This method will be called once per scheduler run
+    climbLogger.logMotorSpecs();
+    climbLogger.logMotorPowerData();
   }
 }
