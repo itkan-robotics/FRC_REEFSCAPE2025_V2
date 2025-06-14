@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -68,12 +69,16 @@ public class RobotContainer {
    * Controller for our driver. Controls scoring L1-L4, auto-alignment, algae (in/out)take, and
    * robot movement.
    */
-  private final CommandPS5Controller base = new CommandPS5Controller(0);
+  private final CommandPS5Controller baseCommand = new CommandPS5Controller(0);
+
+  private final PS5Controller base = baseCommand.getHID();
   /**
    * Controller for our operator. Controls auto-alignment coral level, left/right branch, and
    * outtake after auto-align is completed.
    */
-  private final CommandPS5Controller operator = new CommandPS5Controller(1);
+  private final CommandPS5Controller operatorCommand = new CommandPS5Controller(1);
+
+  private final PS5Controller operator = operatorCommand.getHID();
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -153,7 +158,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     // Reset gyro to 0° when options button is pressed
-    base.options()
+    baseCommand
+        .options()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -162,84 +168,89 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    base.triangle().onTrue(fullArm.setGoal(L4, true));
-    base.square().onTrue(fullArm.setGoal(L3, true));
-    base.circle().onTrue(fullArm.setGoal(L2, true));
-    base.touchpad().onTrue(fullArm.setGoal(L1, false));
-    base.cross().onTrue(fullArm.setGoal(HOME, false));
+    baseCommand.triangle().onTrue(fullArm.setGoal(L4, true));
+    baseCommand.square().onTrue(fullArm.setGoal(L3, true));
+    baseCommand.circle().onTrue(fullArm.setGoal(L2, true));
+    baseCommand.touchpad().onTrue(fullArm.setGoal(L1, false));
+    baseCommand.cross().onTrue(fullArm.setGoal(HOME, false));
 
-    base.R2().whileTrue(new SmartIntake(intake, fullArm));
+    baseCommand.R2().whileTrue(new SmartIntake(intake, fullArm));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
-    base.R1().whileTrue(intake.setIntakeSpeed(-1));
+    baseCommand.R1().whileTrue(intake.setIntakeSpeed(-1));
 
-    operator.R2().whileTrue(intake.outtakeBotState(storedState));
+    operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 
-    operator.povDown().onTrue(fullArm.setGoal(CLIMB, true));
-    operator.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
+    operatorCommand.povDown().onTrue(fullArm.setGoal(CLIMB, true));
+    operatorCommand.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
 
-    base.povUp().onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
-    base.povDown().onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
+    baseCommand
+        .povUp()
+        .onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
+    baseCommand
+        .povDown()
+        .onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
 
-    base.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
+    baseCommand.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
 
     // Auto Turn to Reef Face
-    base.R3()
+    baseCommand
+        .R3()
         .toggleOnTrue(
             new InstantCommand(
                 () -> {
                   storedState.invertAutoTurn();
                 }));
 
-    (operator.L2())
-        .and(operator.triangle())
+    (operatorCommand.L2())
+        .and(operatorCommand.triangle())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotState(L4);
                 }));
 
-    (operator.L2())
-        .and(operator.circle())
+    (operatorCommand.L2())
+        .and(operatorCommand.circle())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotState(L3);
                 }));
 
-    (operator.L2())
-        .and(operator.square())
+    (operatorCommand.L2())
+        .and(operatorCommand.square())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotState(L2);
                 }));
 
-    (operator.L2())
-        .and(operator.touchpad())
+    (operatorCommand.L2())
+        .and(operatorCommand.touchpad())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setBotState(L1);
                 }));
 
-    (operator.L2())
-        .and(operator.L1())
+    (operatorCommand.L2())
+        .and(operatorCommand.L1())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setLimelightPipeLine("LEFT");
                 }));
 
-    (operator.L2())
-        .and(operator.R1())
+    (operatorCommand.L2())
+        .and(operatorCommand.R1())
         .onTrue(
             new InstantCommand(
                 () -> {
                   storedState.setLimelightPipeLine("RIGHT");
                 }));
 
-    operator
+    operatorCommand
         .L2()
         .whileTrue(
             new RepeatCommand(
@@ -248,7 +259,8 @@ public class RobotContainer {
                         new InstantCommand(
                             () -> {
                               storedState.setOperatorReefAngle(
-                                  () -> -operator.getRightY(), () -> operator.getRightX());
+                                  () -> -operatorCommand.getRightY(),
+                                  () -> operatorCommand.getRightX());
                             }),
                     Set.of())));
 
@@ -262,7 +274,7 @@ public class RobotContainer {
     //               }
     //             }));
 
-    operator
+    operatorCommand
         .PS()
         .onTrue(
             new DisabledInstantCommand(

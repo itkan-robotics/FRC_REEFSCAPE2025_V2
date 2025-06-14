@@ -7,8 +7,6 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.Intake_Motor_Port;
 import static frc.robot.util.PhoenixUtil.*;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -20,12 +18,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LoggingUtil.SimpleMotorLogger;
+import org.littletonrobotics.junction.Logger;
 
 /** Subsystem for the end effector */
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
-  private final  SimpleMotorLogger intakeLogger = new SimpleMotorLogger(intakeMotor, "Intake/motor");
+
+  private final SimpleMotorLogger intakeLogger =
+      new SimpleMotorLogger(intakeMotor, "_Intake/motor");
 
   // private TimeOfFlight intake_sensor = new TimeOfFlight(0);
   DigitalInput ranger = new DigitalInput(0);
@@ -103,6 +104,6 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
     intakeLogger.logMotorSpecs().logMotorPowerData();
-    Logger.recordOutput("Intake/ranger/Ranger Value", ranger.get());
+    Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
   }
 }

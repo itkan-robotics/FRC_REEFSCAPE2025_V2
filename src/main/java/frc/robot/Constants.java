@@ -61,7 +61,10 @@ public final class Constants {
   public static final double rotationalAutoP = 10.0;
 
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
-  public static final Vector<N3> VISION_STDS = VecBuilder.fill(5, 5, 500);
+  public static final Vector<N3> VISION_STDS = VecBuilder.fill(.2, .7, 500);
+  /* Constants for limelight position with ELEVATED reef; 0.225 for normal reef
+   * LL Forward: -0.225 || LL Right: 0.24 || LL Up: 0.5
+  */
 
   public static final int Intake_Motor_Port = 16;
 
@@ -125,10 +128,10 @@ public final class Constants {
 
   public static class LimelightConstants {
 
-    public static final String singleLimelightName = "limelight";
+    public static final String singleLimelightName = "limelight-left";
     public static final String leftLimelightName = "limelight-left";
     public static final String rightLimelightName = "limelight-right";
-    public static final boolean multipleLimelights = true;
+    public static final boolean multipleLimelights = false;
 
     /**
      * The desired offset from the limelight to the reef in meters (negative since we want to be

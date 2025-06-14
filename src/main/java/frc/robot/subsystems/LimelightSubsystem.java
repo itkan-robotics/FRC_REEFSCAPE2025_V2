@@ -69,8 +69,8 @@ public class LimelightSubsystem extends SubsystemBase {
       targetSeen = false;
     }
 
-    LoggingUtil.logCamera(leftLimelightName);
-    LoggingUtil.logCamera(rightLimelightName);
+    LoggingUtil.logCamera("_LimelightSubsystem/" + leftLimelightName);
+    LoggingUtil.logCamera("_LimelightSubsystem/" + rightLimelightName);
   }
 
   /***************************************************************************************
@@ -123,7 +123,7 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public static String getPrimaryLimelight() {
-    if (multipleLimelights) return singleLimelightName;
+    if (!multipleLimelights) return singleLimelightName;
 
     ArrayList<String> limelightNames = new ArrayList<String>();
     limelightNames.add(leftLimelightName);

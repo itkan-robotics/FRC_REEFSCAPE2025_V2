@@ -18,7 +18,8 @@ import frc.robot.util.LoggingUtil.SimpleMotorLogger;
 public class ClimbSubsystem extends SubsystemBase {
   /** Creates a new ClimbSubsystem. */
   private final TalonFX climbMotor = new TalonFX(ClimbConstants.CLIMB_MOTOR_PORT);
-  private final SimpleMotorLogger climbLogger = new SimpleMotorLogger(climbMotor, "Climb");
+
+  private final SimpleMotorLogger climbLogger = new SimpleMotorLogger(climbMotor, "_Climb");
 
   public ClimbSubsystem() {
     // in init function

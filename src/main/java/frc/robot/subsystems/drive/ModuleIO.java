@@ -60,4 +60,10 @@ public interface ModuleIO {
   public default boolean isStalling() {
     return false;
   }
+
+  public default void logDriveMotor(String key) {}
+
+  public default void logSteerMotor(String key) {}
+
+  public default void logAllMotors(String key) {}
 }
