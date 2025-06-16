@@ -58,9 +58,12 @@ public final class Constants {
   public static final double ROBOT_MOI = 6.429;
   public static final double WHEEL_COF = 2;
   public static final double translationalAutoP = 5;
-  public static final double rotationalAutoP = 10.0;
+  public static final double rotationalAutoP = 7.5;
 
   // Values from Team Spectrum 3847’s X-Ray robot from 2023
+
+  // STDEVs are how much we trust the x, y and rotation of the vision (i.e. x is +-0.2m, y +-0.7m,
+  // rotation +-500*)
   public static final Vector<N3> VISION_STDS = VecBuilder.fill(.2, .7, 500);
   /* Constants for limelight position with ELEVATED reef; 0.225 for normal reef
    * LL Forward: -0.225 || LL Right: 0.24 || LL Up: 0.5

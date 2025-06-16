@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 7.229,
-        "y": 7.457
+        "y": 7.4
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.832991803278689,
-        "y": 7.051895491803278
+        "y": 6.994895491803279
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "newLeftStart"
     },
     {
       "anchor": {

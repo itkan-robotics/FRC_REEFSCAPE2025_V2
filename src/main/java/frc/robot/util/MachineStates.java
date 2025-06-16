@@ -94,7 +94,7 @@ public class MachineStates {
   public static final BotState L2 = new BotState("L2", 0.19, 4.5, 0.5, -0.2, 2);
   public static final BotState L3 = new BotState("L3", 0.14, 4.5, 0.41, -0.8, 3);
   public static final BotState L4 = new BotState("L4", 0.13, 20, 0.52, -0.8, 4); // 20.5
-  public static final BotState INTAKE = new BotState("INTAKE", -0.164, -1.9, 0.15, -0.8, 5); // 0
+  public static final BotState INTAKE = new BotState("INTAKE", -0.164, -1.9, 0.17, -0.8, 5); // 0
 
   // Algae Handling
   public static final BotState LOWALGAE = new BotState("LOWALGAE", 0.18, 3.0, 0.35, -0.8, 6);

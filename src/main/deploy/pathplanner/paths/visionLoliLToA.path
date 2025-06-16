@@ -3,40 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.164754098360655,
-        "y": 3.87515368852459
+        "x": 1.196590909090909,
+        "y": 5.8248721590909085
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.349590163934426,
-        "y": 4.126895491803278
+        "x": 1.9269425675675667,
+        "y": 5.66537162162162
+      },
+      "isLocked": false,
+      "linkedName": "LoliL"
+    },
+    {
+      "anchor": {
+        "x": 2.430912162162162,
+        "y": 4.1905
+      },
+      "prevControl": {
+        "x": 1.9560200754447203,
+        "y": 4.1905
+      },
+      "nextControl": {
+        "x": 2.7583548747493865,
+        "y": 4.1905
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.2364772727272726,
-        "y": 4.010042613636363
+        "x": 3.063,
+        "y": 4.191
       },
       "prevControl": {
-        "x": 2.2434444858420264,
-        "y": 3.7343254005216098
+        "x": 2.7960096347847236,
+        "y": 4.191
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "LoliM"
+      "linkedName": "A"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.4348413234301114,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 1.0,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 0.75,
-        "maxAcceleration": 4.5,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
         "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 45.0,
         "nominalVoltage": 12.0,
@@ -47,15 +68,21 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intake",
-      "waypointRelativePos": 0.018906144496960438,
+      "name": "HOME",
+      "waypointRelativePos": 0.8,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "intake"
+          "name": "HOME"
         }
       }
+    },
+    {
+      "name": "L3",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
     }
   ],
   "globalConstraints": {
@@ -67,14 +94,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.5,
     "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 160.0
   },
   "useDefaultConstraints": true
 }

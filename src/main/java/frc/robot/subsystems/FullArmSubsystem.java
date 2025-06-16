@@ -19,6 +19,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
@@ -206,9 +207,9 @@ public class FullArmSubsystem extends SubsystemBase {
     wristRequest = new MotionMagicVoltage(0);
 
     // Create three LoggedTunableNumbers for manual tuning of each stage
-    tunableShoulder = new LoggedTunableNumber("tunableShoulder", 0.0);
-    tunableExtend = new LoggedTunableNumber("tunableExtend", 0.0);
-    tunableWrist = new LoggedTunableNumber("tunableWrist", 0.0);
+    tunableShoulder = new LoggedTunableNumber("tunableShoulder", 0.05);
+    tunableExtend = new LoggedTunableNumber("tunableExtend", 1.5);
+    tunableWrist = new LoggedTunableNumber("tunableWrist", 0.3);
   }
 
   /**
@@ -244,7 +245,7 @@ public class FullArmSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
 
     // If tuning mode is on, use the manually tuned positions
-    if (tuningMode) {
+    if (tuningMode && !DriverStation.isFMSAttached()) {
       setShoulder(tunableShoulder.get());
       setExtension(tunableExtend.get());
       setWrist(tunableWrist.get());

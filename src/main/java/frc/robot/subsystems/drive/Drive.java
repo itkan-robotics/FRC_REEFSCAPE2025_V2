@@ -267,19 +267,20 @@ public class Drive extends SubsystemBase {
       doRejectUpdate = true;
     }
     if (mt2.tagCount >= 1 && mt2.rawFiducials.length >= 1) {
-      if (mt2.rawFiducials[0].ambiguity > 0.2) {
+      if (mt2.rawFiducials[0].ambiguity > 0.5) {
         doRejectUpdate = true;
       }
-      if (mt2.rawFiducials[0].distToCamera > 2) {
+      if (mt2.rawFiducials[0].distToCamera > 3) {
         doRejectUpdate = true;
       }
 
-      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", mt2.rawFiducials[0].ambiguity);
-      // Logger.recordOutput("_LimelightOdo/Tag/distToCamera", mt2.rawFiducials[0].distToCamera);
+      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", (double) mt2.rawFiducials[0].ambiguity);
+      // Logger.recordOutput(
+      //     "_LimelightOdo/Tag/distToCamera", (double) mt2.rawFiducials[0].distToCamera);
     }
     if (mt2.tagCount == 0) {
-      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", 999999);
-      // Logger.recordOutput("_LimelightOdo/Tag/distToCamera", 999999);
+      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", 999999.0);
+      // Logger.recordOutput("_LimelightOdo/Tag/distToCamera", 999999.0);
       doRejectUpdate = true;
     }
     if (!doRejectUpdate) {
@@ -287,7 +288,7 @@ public class Drive extends SubsystemBase {
       poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
 
-    // Logger.recordOutput("_LimelightOdo/acceptUpdate", !doRejectUpdate ? 1 : 0);
+    Logger.recordOutput("_LimelightOdo/acceptUpdate", !doRejectUpdate ? 1 : 0);
   }
 
   /**
