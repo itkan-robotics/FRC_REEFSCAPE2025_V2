@@ -16,28 +16,28 @@
     },
     {
       "anchor": {
-        "x": 2.569,
-        "y": 3.809
+        "x": 2.572670454545454,
+        "y": 3.84
       },
       "prevControl": {
-        "x": 2.2989959189974574,
-        "y": 3.809
+        "x": 2.3026663735429116,
+        "y": 3.84
       },
       "nextControl": {
-        "x": 2.8390040810025425,
-        "y": 3.809
+        "x": 2.8426745355479968,
+        "y": 3.84
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.063,
-        "y": 3.8095
+        "x": 3.0313636363636363,
+        "y": 3.84
       },
       "prevControl": {
-        "x": 2.6871879141992387,
-        "y": 3.8095
+        "x": 2.655551550562875,
+        "y": 3.84
       },
       "nextControl": null,
       "isLocked": false,
@@ -63,21 +63,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "HOME",
-      "waypointRelativePos": 0.7,
+      "name": "SET_L3",
+      "waypointRelativePos": 0.1,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "HOME"
+          "name": "L3"
         }
       }
-    },
-    {
-      "name": "L3",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": null
     }
   ],
   "globalConstraints": {

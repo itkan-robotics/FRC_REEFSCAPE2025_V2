@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 3.6858952702702705,
-        "y": 5.121875
+        "x": 3.6196875,
+        "y": 5.166747159090908
       },
       "prevControl": {
-        "x": 3.4977522269032777,
-        "y": 5.447748310202266
+        "x": 3.431544456633007,
+        "y": 5.492620469293175
       },
       "nextControl": null,
       "isLocked": false,
@@ -68,10 +68,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "L3",
+      "name": "SET_L3",
       "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": null
+      "endWaypointRelativePos": 1.5,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "L3"
+        }
+      }
     }
   ],
   "globalConstraints": {

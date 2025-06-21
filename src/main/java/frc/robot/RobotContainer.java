@@ -27,7 +27,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
@@ -301,7 +303,12 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("L4", fullArm.setGoal(L4, true));
 
+    NamedCommands.registerCommand("PREP_L4", fullArm.setGoal(PREP_L4, true));
+
     NamedCommands.registerCommand("L3", fullArm.setGoal(L3, true));
+
+    NamedCommands.registerCommand(
+        "L3_EVENT", new ParallelDeadlineGroup(new WaitCommand(0.4), fullArm.setGoal(L3, true)));
 
     NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, false));
 
@@ -313,7 +320,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
 
-    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(1));
+    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(0.1 * 10));
   }
 
   /*********************************************************

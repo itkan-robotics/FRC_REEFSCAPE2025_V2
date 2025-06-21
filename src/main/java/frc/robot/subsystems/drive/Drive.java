@@ -279,10 +279,11 @@ public class Drive extends SubsystemBase {
       //     "_LimelightOdo/Tag/distToCamera", (double) mt2.rawFiducials[0].distToCamera);
     }
     if (mt2.tagCount == 0) {
-      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", 999999.0);
-      // Logger.recordOutput("_LimelightOdo/Tag/distToCamera", 999999.0);
+      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", 0);
+      // Logger.recordOutput("_LimelightOdo/Tag/distToCamera", 0);
       doRejectUpdate = true;
     }
+
     if (!doRejectUpdate) {
       poseEstimator.setVisionMeasurementStdDevs(Constants.VISION_STDS);
       poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
