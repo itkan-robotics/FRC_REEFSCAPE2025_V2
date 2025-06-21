@@ -307,9 +307,6 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("L3", fullArm.setGoal(L3, true));
 
-    NamedCommands.registerCommand(
-        "L3_EVENT", new ParallelDeadlineGroup(new WaitCommand(0.4), fullArm.setGoal(L3, true)));
-
     NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, false));
 
     NamedCommands.registerCommand("INTAKE", fullArm.setGoal(INTAKE, false));
