@@ -19,7 +19,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,13 +26,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.commands.AutoSmartAlignProfiledPID;
 import frc.robot.commands.AutoSmartAlignProfiledPID3d;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlignProfiledPID;
@@ -47,7 +47,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.AutoScoreSelection;
-import frc.robot.util.DisabledInstantCommand;
 import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -170,11 +169,58 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    baseCommand.triangle().onTrue(fullArm.setGoal(L4, true));
-    baseCommand.square().onTrue(fullArm.setGoal(L3, true));
-    baseCommand.circle().onTrue(fullArm.setGoal(L2, true));
-    baseCommand.touchpad().onTrue(fullArm.setGoal(L1, false));
-    baseCommand.cross().onTrue(fullArm.setGoal(HOME, false));
+    baseCommand
+        .triangle()
+        .onTrue(
+            fullArm
+                .setGoalCommand(PREP_L4, true)
+                .andThen(
+                    new WaitCommand(0.100)
+                        .andThen(
+                            new DeferredCommand(
+                                () ->
+                                    Commands.either(
+                                        new AutoSmartAlignProfiledPID(
+                                            drive, fullArm, storedState, L4),
+                                        fullArm.setGoalCommand(L4, true),
+                                        () -> base.getTriangleButton()),
+                                Set.of()))));
+
+    baseCommand
+        .square()
+        .onTrue(
+            fullArm
+                .setGoalCommand(L3, true)
+                .andThen(
+                    new WaitCommand(0.100)
+                        .andThen(
+                            new DeferredCommand(
+                                () ->
+                                    Commands.either(
+                                        new AutoSmartAlignProfiledPID(
+                                            drive, fullArm, storedState, L3),
+                                        new InstantCommand(),
+                                        () -> base.getSquareButton()),
+                                Set.of()))));
+
+    baseCommand
+        .circle()
+        .onTrue(
+            fullArm
+                .setGoalCommand(L2, true)
+                .andThen(
+                    new WaitCommand(0.100)
+                        .andThen(
+                            new DeferredCommand(
+                                () ->
+                                    Commands.either(
+                                        new AutoSmartAlignProfiledPID(
+                                            drive, fullArm, storedState, L2),
+                                        new InstantCommand(),
+                                        () -> base.getCircleButton()),
+                                Set.of()))));
+    baseCommand.touchpad().onTrue(fullArm.setGoalCommand(L1, false));
+    baseCommand.cross().onTrue(fullArm.setGoalCommand(HOME, false));
 
     baseCommand.R2().whileTrue(new SmartIntake(intake, fullArm));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
@@ -183,15 +229,15 @@ public class RobotContainer {
 
     operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 
-    operatorCommand.povDown().onTrue(fullArm.setGoal(CLIMB, true));
-    operatorCommand.povUp().onTrue(fullArm.setGoal(PRECLIMB, false));
+    operatorCommand.povDown().onTrue(fullArm.setGoalCommand(CLIMB, true));
+    operatorCommand.povUp().onTrue(fullArm.setGoalCommand(PRECLIMB, false));
 
     baseCommand
         .povUp()
-        .onTrue(fullArm.setGoal(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
+        .onTrue(fullArm.setGoalCommand(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
     baseCommand
         .povDown()
-        .onTrue(fullArm.setGoal(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
+        .onTrue(fullArm.setGoalCommand(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
 
     baseCommand.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
 
@@ -265,26 +311,18 @@ public class RobotContainer {
                                   () -> operatorCommand.getRightX());
                             }),
                     Set.of())));
+  }
 
-    // operator
-    //     .PS()
-    //     .onTrue(
-    //         new DisabledInstantCommand(
-    //             () -> {
-    //               if (DriverStation.isDisabled()) {
-    //                 fullArm.setCoastMode();
-    //               }
-    //             }));
-
-    operatorCommand
-        .PS()
-        .onTrue(
-            new DisabledInstantCommand(
-                () -> {
-                  if (DriverStation.isDisabled()) {
-                    fullArm.setBrakeMode();
-                  }
-                }));
+  public SequentialCommandGroup OPAutoAlign(BotState b, boolean button) {
+    return new WaitCommand(0.100)
+        .andThen(
+            new DeferredCommand(
+                () ->
+                    Commands.either(
+                        new AutoSmartAlignProfiledPID(drive, fullArm, storedState, b),
+                        new InstantCommand(),
+                        () -> button),
+                Set.of()));
   }
 
   /*********************************************************
@@ -301,17 +339,17 @@ public class RobotContainer {
         "goToReefRight",
         new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.rightLimelightName));
 
-    NamedCommands.registerCommand("L4", fullArm.setGoal(L4, true));
+    NamedCommands.registerCommand("L4", fullArm.setGoalCommand(L4, true));
 
-    NamedCommands.registerCommand("PREP_L4", fullArm.setGoal(PREP_L4, true));
+    NamedCommands.registerCommand("PREP_L4", fullArm.setGoalCommand(PREP_L4, true));
 
-    NamedCommands.registerCommand("L3", fullArm.setGoal(L3, true));
+    NamedCommands.registerCommand("L3", fullArm.setGoalCommand(L3, true));
 
-    NamedCommands.registerCommand("HOME", fullArm.setGoal(HOME, false));
+    NamedCommands.registerCommand("HOME", fullArm.setGoalCommand(HOME, false));
 
-    NamedCommands.registerCommand("INTAKE", fullArm.setGoal(INTAKE, false));
+    NamedCommands.registerCommand("INTAKE", fullArm.setGoalCommand(INTAKE, false));
 
-    NamedCommands.registerCommand("INTAKEARM", fullArm.setGoal(INTAKEARM, true));
+    NamedCommands.registerCommand("INTAKEARM", fullArm.setGoalCommand(INTAKEARM, true));
 
     NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.2));
 
@@ -337,7 +375,7 @@ public class RobotContainer {
             () -> 1));
 
     intake.setDefaultCommand(intake.DefaultCommand());
-    fullArm.setGoal(HOME, false);
+    fullArm.setGoalCommand(HOME, false);
   }
 
   /**

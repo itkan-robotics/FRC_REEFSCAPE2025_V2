@@ -156,6 +156,7 @@ public class FullArmSubsystem extends SubsystemBase {
 
     extensionMMConfig.MotionMagicCruiseVelocity = EXTENSION_CRUISE_VELOCITY;
     extensionMMConfig.MotionMagicAcceleration = EXTENSION_ACCELERATION;
+    extensionMMConfig.MotionMagicJerk = EXTENSION_JERK;
 
     // Apply the configs to both motors. The left shoulder motor should follow the right
     // since the motors are mechanically linked via a shaft
@@ -212,34 +213,6 @@ public class FullArmSubsystem extends SubsystemBase {
     tunableWrist = new LoggedTunableNumber("tunableWrist", 0.3);
   }
 
-  /**
-   * A command the desired {@link frc.robot.util.MachineStates.BotState BotState} of the arm and
-   * determines the order the arm should move.
-   *
-   * @param desiredState The desired BotState of the arm, which includes shoulder, extension, and
-   *     wrist positions.
-   * @param shoulderFirst Determines whether the shoulder should pivot first or the extension
-   *     extend/retract first.
-   */
-  public Command setGoal(BotState desiredState, boolean shoulderFirst) {
-    return run(
-        () -> {
-          currentState = desiredState;
-          this.shoulderFirst = shoulderFirst;
-        });
-  }
-
-  /**
-   * A method version of the setGoal command
-   *
-   * @see FullArmSubsystem#setGoal setGoal Command
-   */
-  public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
-    currentState = desiredState;
-
-    this.shoulderFirst = shoulderFirst;
-  }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -255,10 +228,10 @@ public class FullArmSubsystem extends SubsystemBase {
 
       if (shoulderFirst) {
         setShoulder(currentState.getShoulderSetpoint());
+        setWrist(currentState.getWristSetpoint());
 
         if (shoulderSetpointReached()) {
           setExtension(currentState.getExtensionSetpoint());
-          setWrist(currentState.getWristSetpoint());
         }
 
       } else {
@@ -277,8 +250,42 @@ public class FullArmSubsystem extends SubsystemBase {
     rightExtensionLogger.logMotorPID().logMotorPVA().logMotorPowerData();
     wristLogger.logMotorPID().logMotorPVA().logMotorPowerData().logMotorSpecs();
 
+    Logger.recordOutput("_Arm/shoulderSetpointReached", shoulderSetpointReached());
+    Logger.recordOutput("_Arm/extensionSetpointReached", extentionSetpointReached());
+    Logger.recordOutput("_Arm/wristSetpointReached", wristSetpointReached());
+
     Logger.recordOutput("_Arm/currentState", currentState.getName());
     Logger.recordOutput("_Arm/shoulderFirst", shoulderFirst);
+  }
+
+  /**
+   * A command the desired {@link frc.robot.util.MachineStates.BotState BotState} of the arm and
+   * determines the order the arm should move.
+   *
+   * @param desiredState The desired BotState of the arm, which includes shoulder, extension, and
+   *     wrist positions.
+   * @param shoulderFirst Determines whether the shoulder should pivot first or the extension
+   *     extend/retract first.
+   */
+  public Command setGoalCommand(BotState desiredState, boolean shoulderFirst) {
+    return run(() -> {
+          setGoalVoid(desiredState, shoulderFirst);
+        })
+        .until(
+            () ->
+                shoulderSetpointReached() && extentionSetpointReached() && wristSetpointReached());
+  }
+
+  /**
+   * A method version of the setGoal command
+   *
+   * @see FullArmSubsystem#setGoalCommand setGoal Command
+   */
+  public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
+    // shoulderFirst is true when the desired extension is greater than the current extension
+    this.shoulderFirst = currentState.getExtensionSetpoint() < desiredState.getExtensionSetpoint();
+    currentState = desiredState;
+    // this.shoulderFirst = shoulderFirst;
   }
 
   /** Returns whether the shoulder is within 0.1 rotations (0.1 radians or ~6 degrees). */
@@ -294,7 +301,13 @@ public class FullArmSubsystem extends SubsystemBase {
     return Math.abs(
             rightExtensionMotor.getPosition().getValueAsDouble()
                 - currentState.getExtensionSetpoint())
-        <= 10;
+        <= 5;
+  }
+
+  /** Returns whether the wrist is within 0.1 rotations (0.1 radians or ~6 degrees). */
+  public boolean wristSetpointReached() {
+    return Math.abs(wristMotor.getPosition().getValueAsDouble() - currentState.getWristSetpoint())
+        <= 0.1;
   }
 
   /**

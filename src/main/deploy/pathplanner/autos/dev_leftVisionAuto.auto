@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "L3"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "visionStartLtoL"
@@ -17,7 +23,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.4
+                  "waitTime": 0.2
                 }
               },
               {

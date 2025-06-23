@@ -78,13 +78,13 @@ public final class Constants {
       public static final int SHOULDER_MOTOR_PORT_RIGHT = 13;
       // public static final int SHOULDER_MOTOR_PORT_C = 11;
 
-      public static final double SHOULDER_KP = 275.0;
+      public static final double SHOULDER_KP = 250.0;
       public static final double SHOULDER_KD = 0;
-      public static final double SHOULDER_KS = 0.1;
+      public static final double SHOULDER_KS = 0.5;
       public static final double SHOULDER_KG = 0.5;
-      public static final double SHOULDER_KV = 0.04;
-      public static final double SHOULDER_CRUISE_VELOCITY = 66.0;
-      public static final double SHOULDER_ACCELERATION = 3.5;
+      public static final double SHOULDER_KV = 0.0;
+      public static final double SHOULDER_CRUISE_VELOCITY = 70.0;
+      public static final double SHOULDER_ACCELERATION = 70.0;
       public static final double SHOULDER_JERK = 0.0;
 
       public static final double MIN_SHOULDER_ROTATION_POS = 0.0;
@@ -96,16 +96,16 @@ public final class Constants {
       public static final int EXTENSION_MOTOR_PORT_RIGHT = 9; // right extend motor
       public static final int EXTENSION_MOTOR_PORT_LEFT = 10; // left extend motor
 
-      public static final double EXTENSION_KP = 4;
-      public static final double EXTENSION_KS = 0.2;
-      public static final double EXTENSION_KG = 0.19;
-      public static final double EXTENSION_KV = 0.1;
-      public static final double EXTENSION_CRUISE_VELOCITY = 60.0;
-      public static final double EXTENSION_ACCELERATION = 140.0;
-      // public static final double EXTENSION_JERK = 170.0;
+      public static final double EXTENSION_KP = 1.6;
+      public static final double EXTENSION_KS = 0.2; // used to be 0
+      public static final double EXTENSION_KG = 0.2; // used to be 1
+      public static final double EXTENSION_KV = 0.0;
+      public static final double EXTENSION_CRUISE_VELOCITY = 200.0; // used to be 100
+      public static final double EXTENSION_ACCELERATION = 400.0; // used to be 300
+      public static final double EXTENSION_JERK = 1400.0; // used to be 700
 
       public static final double MIN_EXTENSION_POS = 0;
-      public static final double MAX_EXTENSION_POS = 23;
+      public static final double MAX_EXTENSION_POS = 21;
     }
 
     public static class WristConstants {

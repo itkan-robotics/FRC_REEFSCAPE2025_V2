@@ -10,6 +10,7 @@ import static frc.robot.Constants.LimelightConstants.rightLimelightName;
 import static frc.robot.util.MachineStates.INTAKE;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.util.MachineStates.BotState;
@@ -34,6 +35,7 @@ public class AutoScoreSelection {
   private static boolean baseAutoTurn = false;
   private HashMap<Double, Integer> reefAnglesToIDs = new HashMap<Double, Integer>();
   boolean working;
+  private static double lastUpdatedFPGA = 0.0;
 
   /** Creates a new AutoScoreSelection Class. */
   public AutoScoreSelection() {
@@ -46,6 +48,14 @@ public class AutoScoreSelection {
     SmartDashboard.putNumber("storedState/Pipeline", getLimelightTargetPipeline());
     SmartDashboard.putNumber("storedState/TargetAngle", getTargetReefAngle());
     SmartDashboard.putBoolean("storedState/ShouldAutoTurn", getAutoTurn());
+  }
+
+  public void refreshLastUpdated() {
+    lastUpdatedFPGA = Timer.getFPGATimestamp();
+  }
+
+  public double getLastUpdated() {
+    return lastUpdatedFPGA;
   }
 
   /**
@@ -65,6 +75,7 @@ public class AutoScoreSelection {
   /** Set the pipeline the limelight should use during auto-align */
   public void setLimelightPipeLine(int pipeline) {
     operatorLimelight = pipeline;
+    refreshLastUpdated();
   }
 
   /**
@@ -89,6 +100,7 @@ public class AutoScoreSelection {
         break;
     }
     operatorLimelight = cPipeline;
+    refreshLastUpdated();
   }
 
   /**
@@ -109,6 +121,7 @@ public class AutoScoreSelection {
       double opAngle = Math.toDegrees(Math.atan2(xDeadband, yDeadband)) - 90;
       operatorReefAngle = Math.round(opAngle / 60.0) * 60.0;
     }
+    refreshLastUpdated();
   }
 
   /**
@@ -137,11 +150,13 @@ public class AutoScoreSelection {
    */
   public void setAutoTurn(boolean shouldTurn) {
     baseAutoTurn = shouldTurn;
+    refreshLastUpdated();
   }
 
   /** Inverts the {@link #baseAutoTurn} boolean */
   public void invertAutoTurn() {
     baseAutoTurn = !baseAutoTurn;
+    refreshLastUpdated();
   }
 
   /**
@@ -156,6 +171,7 @@ public class AutoScoreSelection {
    */
   public void setBotState(BotState dState) {
     desiredState = dState;
+    refreshLastUpdated();
   }
 
   /**

@@ -11,6 +11,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 // import com.playingwithfusion.TimeOfFlight;
 // import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -24,6 +26,8 @@ import org.littletonrobotics.junction.Logger;
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
+
+  private boolean gamepieceDetected = false;
 
   private final SimpleMotorLogger intakeLogger =
       new SimpleMotorLogger(intakeMotor, "_Intake/motor");
@@ -100,10 +104,29 @@ public class IntakeSubsystem extends SubsystemBase {
     return !ranger.get();
   }
 
+  public boolean gamepieceDetected3467() {
+    return Math.abs(intakeMotor.getVelocity().getValueAsDouble()) <= 0.02
+        && intakeMotor.getSupplyCurrent().getValueAsDouble() >= 1;
+  }
+
+  // public Command intakeUntilStalled() {
+  //   return run(() -> {
+  //         setIntakeSpeed(1.0);
+  //       })
+  //       .until(() -> isStalled())
+  //       .andThen(
+  //           new InstantCommand(
+  //               () -> {
+  //                 setIntakeSpeed(0.4);
+  //               }));
+  // }
+
   @Override
   public void periodic() {
     // SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
     intakeLogger.logMotorSpecs().logMotorPowerData();
     Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
+
+    Logger.recordOutput("_Intake/gamepieceDetected3467", gamepieceDetected3467());
   }
 }
