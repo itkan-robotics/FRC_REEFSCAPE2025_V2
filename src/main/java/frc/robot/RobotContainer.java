@@ -353,9 +353,9 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.2));
 
-    NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7));
+    NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7).until(() -> !intake.gamepieceDetected()));
 
-    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(0.1 * 10));
+    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(1.0).until(() -> intake.gamepieceDetected()));
   }
 
   /*********************************************************

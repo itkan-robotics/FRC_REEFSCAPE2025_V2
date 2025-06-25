@@ -17,6 +17,7 @@ import edu.wpi.first.math.filter.Debouncer.DebounceType;
 // import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LoggingUtil.SimpleMotorLogger;
@@ -27,6 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
 
+  private Debouncer gampieceDebouncer;
   private boolean gamepieceDetected = false;
 
   private final SimpleMotorLogger intakeLogger =
@@ -49,6 +51,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Configure the intake sensor
     // intake_sensor.setRangingMode(RangingMode.Short, 40);
+    gampieceDebouncer = new Debouncer(0.2, DebounceType.kBoth);
   }
 
   /** By default, run the intake at 4.5% speed */
@@ -104,29 +107,31 @@ public class IntakeSubsystem extends SubsystemBase {
     return !ranger.get();
   }
 
-  public boolean gamepieceDetected3467() {
+  public boolean gamepieceDetected() {
     return Math.abs(intakeMotor.getVelocity().getValueAsDouble()) <= 0.02
         && intakeMotor.getSupplyCurrent().getValueAsDouble() >= 1;
   }
 
-  // public Command intakeUntilStalled() {
-  //   return run(() -> {
-  //         setIntakeSpeed(1.0);
-  //       })
-  //       .until(() -> isStalled())
-  //       .andThen(
-  //           new InstantCommand(
-  //               () -> {
-  //                 setIntakeSpeed(0.4);
-  //               }));
-  // }
+  public Command intakeUntilStalled() {
+    return run(() -> {
+          setIntakeSpeed(1.0);
+        })
+        .until(() -> gamepieceDetected())
+        .andThen(
+            new InstantCommand(
+                () -> {
+                  setIntakeSpeed(0.4);
+                }));
+  }
 
   @Override
   public void periodic() {
     // SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
+    gamepieceDetected = gampieceDebouncer.calculate(gamepieceDetected());
     intakeLogger.logMotorSpecs().logMotorPowerData();
     Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
 
-    Logger.recordOutput("_Intake/gamepieceDetected3467", gamepieceDetected3467());
+    Logger.recordOutput("_Intake/gpDetectedUnfiltered", gamepieceDetected());
+    Logger.recordOutput("_Intake/gpDetectedFiltered", gamepieceDetected);
   }
 }

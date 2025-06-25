@@ -42,7 +42,7 @@ public class SmartIntake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (intake.isIntaked()) {
+    if (intake.gamepieceDetected()) {
       fullArm.setGoalVoid(HOME, true);
     } else {
       fullArm.setGoalVoid(INTAKE, false);
