@@ -339,7 +339,8 @@ public class RobotContainer {
         "goToReefRight",
         new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.rightLimelightName));
 
-    NamedCommands.registerCommand("L4", fullArm.setGoalCommand(L4, true));
+    NamedCommands.registerCommand(
+        "L4", fullArm.setGoalCommand(L4, true).andThen(new WaitCommand(0.2)));
 
     NamedCommands.registerCommand("PREP_L4", fullArm.setGoalCommand(PREP_L4, true));
 
@@ -353,9 +354,15 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.2));
 
-    NamedCommands.registerCommand("outtake", intake.setIntakeSpeed(-0.7).until(() -> !intake.gamepieceDetected()));
+    NamedCommands.registerCommand(
+        "outtake",
+        intake
+            .setIntakeSpeed(-0.7)
+            .until(() -> !intake.getGpDetected())
+            .andThen(new WaitCommand(0.1)));
 
-    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(1.0).until(() -> intake.gamepieceDetected()));
+    NamedCommands.registerCommand(
+        "intake", intake.setIntakeSpeed(1.0).until(() -> intake.gamepieceDetected()));
   }
 
   /*********************************************************

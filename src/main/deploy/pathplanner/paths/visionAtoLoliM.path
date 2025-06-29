@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0812215909090908,
-        "y": 4.1905
+        "x": 3.0,
+        "y": 4.191
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7254783476658475,
-        "y": 3.994854729729729
+        "x": 2.6442567567567568,
+        "y": 3.995354729729729
       },
       "isLocked": false,
       "linkedName": "A"
@@ -32,7 +32,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.44769403824522247,
+      "minWaypointRelativePos": 0.4,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 0.5,
@@ -48,7 +48,7 @@
     {
       "fieldPosition": {
         "x": 1.22,
-        "y": 4.0
+        "y": 3.95
       },
       "rotationOffset": 0.0,
       "minWaypointRelativePos": 0.27671541057367827,
@@ -57,6 +57,17 @@
     }
   ],
   "eventMarkers": [
+    {
+      "name": "HOME",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOME"
+        }
+      }
+    },
     {
       "name": "intake",
       "waypointRelativePos": 0.018906144496960438,
@@ -67,11 +78,22 @@
           "name": "intake"
         }
       }
+    },
+    {
+      "name": "INTAKE",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "INTAKE"
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.0,
-    "maxAcceleration": 4.5,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 90.0,
     "maxAngularAcceleration": 45.0,
     "nominalVoltage": 12.0,
@@ -87,5 +109,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

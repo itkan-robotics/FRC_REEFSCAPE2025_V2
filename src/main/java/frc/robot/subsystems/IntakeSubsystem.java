@@ -28,7 +28,8 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
 
-  private Debouncer gampieceDebouncer;
+  private Debouncer gamepieceDebouncerRising;
+  private Debouncer gamepieceDebouncerFalling;
   private boolean gamepieceDetected = false;
 
   private final SimpleMotorLogger intakeLogger =
@@ -51,7 +52,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // Configure the intake sensor
     // intake_sensor.setRangingMode(RangingMode.Short, 40);
-    gampieceDebouncer = new Debouncer(0.2, DebounceType.kBoth);
+    gamepieceDebouncerRising = new Debouncer(0.05, DebounceType.kRising);
+    gamepieceDebouncerFalling = new Debouncer(0.5, DebounceType.kFalling);
   }
 
   /** By default, run the intake at 4.5% speed */
@@ -112,6 +114,10 @@ public class IntakeSubsystem extends SubsystemBase {
         && intakeMotor.getSupplyCurrent().getValueAsDouble() >= 1;
   }
 
+  public boolean getGpDetected() {
+    return gamepieceDetected;
+  }
+
   public Command intakeUntilStalled() {
     return run(() -> {
           setIntakeSpeed(1.0);
@@ -127,7 +133,9 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
-    gamepieceDetected = gampieceDebouncer.calculate(gamepieceDetected());
+    gamepieceDetected =
+        gamepieceDebouncerRising.calculate(gamepieceDetected())
+            || gamepieceDebouncerFalling.calculate(gamepieceDetected());
     intakeLogger.logMotorSpecs().logMotorPowerData();
     Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
 

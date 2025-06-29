@@ -32,12 +32,12 @@
     },
     {
       "anchor": {
-        "x": 3.0812215909090908,
-        "y": 4.1905
+        "x": 3.0,
+        "y": 4.191
       },
       "prevControl": {
-        "x": 2.8142312256938142,
-        "y": 4.1905
+        "x": 2.7330096347847235,
+        "y": 4.191
       },
       "nextControl": null,
       "isLocked": false,
@@ -53,7 +53,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 1.0,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 1.0,
@@ -68,13 +68,24 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SET_L3",
+      "name": "PREP_L4",
       "waypointRelativePos": 0.3,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "L3"
+          "name": "PREP_L4"
+        }
+      }
+    },
+    {
+      "name": "L4",
+      "waypointRelativePos": 0.6,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "L4"
         }
       }
     }

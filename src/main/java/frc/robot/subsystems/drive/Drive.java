@@ -267,7 +267,7 @@ public class Drive extends SubsystemBase {
       doRejectUpdate = true;
     }
     if (mt2.tagCount >= 1 && mt2.rawFiducials.length >= 1) {
-      if (mt2.rawFiducials[0].ambiguity > 0.5) {
+      if (mt2.rawFiducials[0].ambiguity > 0.7) {
         doRejectUpdate = true;
       }
       if (mt2.rawFiducials[0].distToCamera > 3) {
