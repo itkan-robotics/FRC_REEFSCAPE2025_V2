@@ -104,6 +104,7 @@ public class IntakeSubsystem extends SubsystemBase {
    *
    * @deprecated
    */
+  @Deprecated
   public boolean isIntaked() {
     // return intake_sensor.getRange() < 100;
     return !ranger.get();
