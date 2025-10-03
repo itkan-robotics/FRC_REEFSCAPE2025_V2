@@ -1,0 +1,66 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.2364772727272726,
+        "y": 4.010042613636363
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.6901050215698652,
+        "y": 3.9587401686132155
+      },
+      "isLocked": false,
+      "linkedName": "LoliM"
+    },
+    {
+      "anchor": {
+        "x": 2.204793113425925,
+        "y": 4.072633825231481
+      },
+      "prevControl": {
+        "x": 1.82907986111111,
+        "y": 4.081252170138889
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "HOME",
+      "waypointRelativePos": 0.34841323430113935,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOME"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.5,
+    "maxAngularVelocity": 90.0,
+    "maxAngularAcceleration": 45.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

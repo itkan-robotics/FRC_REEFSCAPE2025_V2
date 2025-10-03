@@ -118,10 +118,10 @@ public class Drive extends SubsystemBase {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     this.gyroIO = gyroIO;
-    modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
-    modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
-    modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
-    modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+    modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft, "_Drive/Modules/FL");
+    modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight, "_Drive/Modules/FR");
+    modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft, "_Drive/Modules/BL");
+    modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight, "_Drive/Modules/BR");
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -179,7 +179,8 @@ public class Drive extends SubsystemBase {
     Logger.processInputs("Drive/Gyro", gyroInputs);
 
     for (int x = 0; x <= 3; x++) {
-      SmartDashboard.putNumber("encoder #" + x, modules[x].moduleAbsolutePosition());
+      SmartDashboard.putNumber("Encoder" + x, modules[x].moduleAbsolutePosition());
+      Logger.recordOutput("_Drive/Encoders/Encoder " + x, modules[x].moduleAbsolutePosition());
     }
 
     for (var module : modules) {
@@ -256,6 +257,8 @@ public class Drive extends SubsystemBase {
     LimelightHelpers.PoseEstimate mt2 =
         LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(primaryLimelightName);
 
+    Logger.recordOutput("_LimelightOdo/primaryLimelightName", primaryLimelightName);
+
     if (mt2 == null) return;
     if (Math.abs(gyroIO.getRate())
         > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision
@@ -263,21 +266,30 @@ public class Drive extends SubsystemBase {
     {
       doRejectUpdate = true;
     }
-    if (mt2.tagCount == 1 && mt2.rawFiducials.length == 1) {
-      if (mt2.rawFiducials[0].ambiguity > 0.2) {
+    if (mt2.tagCount >= 1 && mt2.rawFiducials.length >= 1) {
+      if (mt2.rawFiducials[0].ambiguity > 0.7) {
         doRejectUpdate = true;
       }
-      if (mt2.rawFiducials[0].distToCamera > 2) {
+      if (mt2.rawFiducials[0].distToCamera > 3) {
         doRejectUpdate = true;
       }
+
+      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", (double) mt2.rawFiducials[0].ambiguity);
+      // Logger.recordOutput(
+      //     "_LimelightOdo/Tag/distToCamera", (double) mt2.rawFiducials[0].distToCamera);
     }
     if (mt2.tagCount == 0) {
+      // Logger.recordOutput("_LimelightOdo/Tag/Ambiguity", 0);
+      // Logger.recordOutput("_LimelightOdo/Tag/distToCamera", 0);
       doRejectUpdate = true;
     }
+
     if (!doRejectUpdate) {
       poseEstimator.setVisionMeasurementStdDevs(Constants.VISION_STDS);
       poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
     }
+
+    Logger.recordOutput("_LimelightOdo/acceptUpdate", !doRejectUpdate ? 1 : 0);
   }
 
   /**

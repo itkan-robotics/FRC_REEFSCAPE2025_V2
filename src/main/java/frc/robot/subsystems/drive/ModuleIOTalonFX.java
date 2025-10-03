@@ -40,6 +40,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.util.LoggingUtil.SimpleMotorLogger;
 import java.util.Queue;
 
 /**
@@ -55,7 +56,9 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   // Hardware objects
   private final TalonFX driveTalon;
+  private final SimpleMotorLogger driveMotorLogger;
   private final TalonFX turnTalon;
+  private final SimpleMotorLogger turnMotorLogger;
   //   private final CANcoder cancoder;
   private final AnalogEncoder customEncoder;
   public double absEncoderAsDouble;
@@ -102,6 +105,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
     turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
     customEncoder = new AnalogEncoder(constants.EncoderId, 1.0, 0.0);
+    driveMotorLogger = new SimpleMotorLogger(driveTalon, "_Drive/Module/None/DriveMotor");
+    turnMotorLogger = new SimpleMotorLogger(turnTalon, "_Drive/Module/None/SteerMotor");
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -277,5 +282,23 @@ public class ModuleIOTalonFX implements ModuleIO {
   @Override
   public boolean isStalling() {
     return driveTalon.getStatorCurrent().getValueAsDouble() > 100;
+  }
+
+  @Override
+  public void logDriveMotor(String key) {
+    driveMotorLogger.setName(key + "/DriveMotor");
+    driveMotorLogger.logMotorPID().logMotorPVA().logMotorPowerData().logMotorSpecs();
+  }
+
+  @Override
+  public void logSteerMotor(String key) {
+    turnMotorLogger.setName(key + "/SteerMotor");
+    turnMotorLogger.logMotorPID().logMotorPVA().logMotorPowerData().logMotorSpecs();
+  }
+
+  @Override
+  public void logAllMotors(String key) {
+    logDriveMotor(key);
+    logSteerMotor(key);
   }
 }

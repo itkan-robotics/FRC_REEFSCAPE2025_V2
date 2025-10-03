@@ -6,9 +6,12 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LimelightConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
+import frc.robot.util.LoggingUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -64,6 +68,9 @@ public class LimelightSubsystem extends SubsystemBase {
     if (lastTargetTime.get() > .1) {
       targetSeen = false;
     }
+
+    LoggingUtil.logCamera("_LimelightSubsystem/" + leftLimelightName);
+    LoggingUtil.logCamera("_LimelightSubsystem/" + rightLimelightName);
   }
 
   /***************************************************************************************
@@ -116,7 +123,7 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public static String getPrimaryLimelight() {
-    if (multipleLimelights) return singleLimelightName;
+    if (!multipleLimelights) return singleLimelightName;
 
     ArrayList<String> limelightNames = new ArrayList<String>();
     limelightNames.add(leftLimelightName);
@@ -168,6 +175,53 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public static double getLLReefAngle(String limelightName) {
     return reefIDsToAngles.get((int) LimelightHelpers.getFiducialID(limelightName));
+  }
+
+  /***************************************************************************************
+   * Gets the magnitude and direction the robot should drive in based on AprilTag data.
+   * The method uses ta to calculate magnitude and tx to calculate direction, and an exponential
+   * interpolation equation to find the kP value the speed controller should use based on ta
+   * <p>Last Updated by Abdullah Khaled, 1/19/2025
+   *
+   * @param offset Offset for left and right branches
+   * @return The linear velocity of the robot as a Translation2d
+   **************************************************************************************/
+  public Translation2d getAprilTagVelocity(
+      double alignkP, double alignkD, int pipeline, double reefAngle, String limelightName) {
+
+    // if (!multipleLimelights) LimelightHelpers.setPipelineIndex(limelightName, pipeline);
+
+    m_aTagSpeedContoller = new PIDController(DRIVE_KP.getAsDouble(), 0.0, DRIVE_KD.getAsDouble());
+
+    // Apply deadband
+    double linearMagnitude =
+        MathUtil.applyDeadband(
+            // Calculate speed based on ta
+            m_aTagSpeedContoller.calculate(LimelightHelpers.getTA(limelightName), MAX_AREA)
+                + ALIGN_KS,
+            VELOCITY_DEADBAND);
+
+    // Calculate direction based on tx
+    m_aTagDirController = new PIDController(alignkP, 0.0, alignkD);
+    Rotation2d linearDirection =
+        new Rotation2d(
+            MathUtil.applyDeadband(
+                    m_aTagDirController.calculate(
+                        Math.toRadians(LimelightHelpers.getTX(limelightName))),
+                    VELOCITY_DEADBAND)
+                + Math.toRadians(reefAngle));
+    // Square magnitude for more precise control
+    linearMagnitude = linearMagnitude * linearMagnitude;
+
+    // Return new linear velocity
+    return new Pose2d(new Translation2d(), linearDirection)
+        .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
+        .getTranslation();
+  }
+
+  public boolean withinTolerance(double toleranceX, double toleranceA, String limelight) {
+    return ((Math.abs(LimelightHelpers.getTX(limelight)) <= toleranceX)
+        && (Math.abs(LimelightHelpers.getTA(limelight) - MAX_AREA) <= toleranceA));
   }
 
   // Helper Methods
