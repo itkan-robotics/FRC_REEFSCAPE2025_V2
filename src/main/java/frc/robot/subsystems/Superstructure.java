@@ -43,6 +43,11 @@ public class Superstructure extends SubsystemBase {
     HIGH_ALGAE,
     LOW_ALGAE
   }
+
+  WantedSuperState wantedSuperState = WantedSuperState.HOME;
+  CurrentSuperState currentSuperState = CurrentSuperState.HOME;
+  CurrentSuperState previouSuperState = CurrentSuperState.HOME;
+
   /** Creates a new Superstructure. */
   public Superstructure(
     Drive drive,
@@ -54,13 +59,54 @@ public class Superstructure extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-  }
-  
-  private CurrentSuperState handleStateTransitions() {
-    return CurrentSuperState.HOME;
+    applyStates();
   }
 
-  private CurrentSuperState applyStates() {
-    return CurrentSuperState.HOME;
+  public void setWantedSuperState(WantedSuperState wantedState) {
+
+  }
+  
+  private void tryState(WantedSuperState desiredState) {
+    switch (desiredState) {
+      default:
+        tryState(WantedSuperState.HOME);
+        break;
+      case HOME:
+        switch (currentSuperState) {
+          case CLIMB:
+            currentSuperState = CurrentSuperState.PRE_CLIMB;
+            break;
+          default:
+            currentSuperState = CurrentSuperState.HOME;
+            break;
+        }
+        break;
+      case PRE_CLIMB:
+        switch (currentSuperState) {
+          case CLIMB:
+          case HOME:
+            currentSuperState = CurrentSuperState.PRE_CLIMB;
+            break;
+          default:
+            currentSuperState = CurrentSuperState.HOME;
+        }
+      case CLIMB:
+        switch (currentSuperState) {
+          case PRE_CLIMB:
+            currentSuperState = CurrentSuperState.CLIMB;
+            break;
+          default:
+            currentSuperState = CurrentSuperState.PRE_CLIMB;
+        }
+    }
+  }
+
+  private void applyStates() {
+    //TO-DO: 2910-style methods
+  }
+
+  private boolean doesMatchState() {
+    //TO-DO: Make doesMatchState() for each subsystem
+    return true;
   }
 }
