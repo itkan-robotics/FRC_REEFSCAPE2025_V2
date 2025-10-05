@@ -28,12 +28,27 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
 
+  private double desiredIntakeSpeed = 0.045;
+
   private Debouncer gamepieceDebouncerRising;
   private Debouncer gamepieceDebouncerFalling;
   private boolean gamepieceDetected = false;
 
   private final SimpleMotorLogger intakeLogger =
       new SimpleMotorLogger(intakeMotor, "_Intake/motor");
+
+  public enum IntakeState {
+    NO_GAMEPIECE,
+    HAS_CORAL,
+    HAS_ALGAE,
+    INTAKING_CORAL,
+    INTAKING_ALGAE,
+    OUTTAKING_CORAL,
+    OUTTAKING_ALGAE,
+    DEALGAEFYING
+  }
+
+  IntakeState currentIntakeState = IntakeState.NO_GAMEPIECE;
 
   // private TimeOfFlight intake_sensor = new TimeOfFlight(0);
   DigitalInput ranger = new DigitalInput(0);
@@ -56,11 +71,54 @@ public class IntakeSubsystem extends SubsystemBase {
     gamepieceDebouncerFalling = new Debouncer(0.5, DebounceType.kFalling);
   }
 
+  public void tryState(IntakeState desiredState) {
+    switch (desiredState) {
+      case INTAKING_CORAL:
+        currentIntakeState = IntakeState.INTAKING_CORAL;
+        break;
+      case INTAKING_ALGAE:
+        currentIntakeState = IntakeState.INTAKING_ALGAE;
+        break;
+      case OUTTAKING_CORAL:
+        currentIntakeState = IntakeState.OUTTAKING_CORAL;
+        break;
+      case OUTTAKING_ALGAE:
+        currentIntakeState = IntakeState.OUTTAKING_ALGAE;
+        break;
+      case DEALGAEFYING:
+        currentIntakeState = IntakeState.DEALGAEFYING;
+      default:
+        break;
+    }
+  }
+
+  public void applyState() {
+    switch(currentIntakeState) {
+      case INTAKING_CORAL:
+      case INTAKING_ALGAE:
+        desiredIntakeSpeed = 1.0;
+        break;
+      case OUTTAKING_CORAL:
+      case OUTTAKING_ALGAE:
+      case DEALGAEFYING:
+        desiredIntakeSpeed = -1.0;
+        break;
+      case HAS_ALGAE:
+        desiredIntakeSpeed = 0.5;
+        break;
+      case HAS_CORAL:
+        desiredIntakeSpeed = 0.045;
+        break;
+      default:
+        break;
+    }
+  }
+
   /** By default, run the intake at 4.5% speed */
   public Command DefaultCommand() {
     return run(
         () -> {
-          intakeMotor.set(0.045);
+          setIntakeDutyCycle(desiredIntakeSpeed);
         });
   }
 
@@ -72,7 +130,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command setIntakeSpeed(double speed) {
     return run(
         () -> {
-          intakeMotor.set(speed);
+          setIntakeDutyCycle(speed);
         });
   }
 
@@ -95,7 +153,7 @@ public class IntakeSubsystem extends SubsystemBase {
    *
    * @param speed
    */
-  public void setIntake(double speed) {
+  public void setIntakeDutyCycle(double speed) {
     intakeMotor.set(speed);
   }
 
@@ -142,5 +200,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     Logger.recordOutput("_Intake/gpDetectedUnfiltered", gamepieceDetected());
     Logger.recordOutput("_Intake/gpDetectedFiltered", gamepieceDetected);
+
+    if (gamepieceDetected) {
+      currentIntakeState = IntakeState.HAS_CORAL;
+    } else {
+      currentIntakeState = IntakeState.NO_GAMEPIECE;
+    }
+  }
+
+  public boolean isIntakeAtDesiredState() {
+    return true;
   }
 }

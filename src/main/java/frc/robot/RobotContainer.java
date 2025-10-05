@@ -13,7 +13,7 @@
 
 package frc.robot;
 
-import static frc.robot.util.MachineStates.*;
+import static frc.robot.subsystems.FullArmSubsystem.ArmState.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -38,8 +38,11 @@ import frc.robot.commands.AutoSmartAlignProfiledPID3d;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.commands.SmartIntake;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.FullArmSubsystem;
+import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -60,9 +63,11 @@ public class RobotContainer {
 
   // Initialize Subsystems
   private final Drive drive;
-  public static final FullArmSubsystem fullArm = new FullArmSubsystem();
-  public static final IntakeSubsystem intake = new IntakeSubsystem();
-  public static final AutoScoreSelection storedState = new AutoScoreSelection();
+  public final FullArmSubsystem fullArm = new FullArmSubsystem();
+  public final IntakeSubsystem intake = new IntakeSubsystem();
+  public final ClimbSubsystem climb = new ClimbSubsystem();
+  public final AutoScoreSelection storedState = new AutoScoreSelection();
+  public final Superstructure superstructure;
 
   // Initialize Controllers
 
@@ -120,6 +125,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
+    superstructure = new Superstructure(drive, fullArm, intake, climb);
 
     // Register named commands for Pathplanner autonomous routines
     registerNamedCommands();
@@ -313,7 +319,7 @@ public class RobotContainer {
                     Set.of())));
   }
 
-  public SequentialCommandGroup OPAutoAlign(BotState b, boolean button) {
+  public SequentialCommandGroup OPAutoAlign(ArmState b, boolean button) {
     return new WaitCommand(0.100)
         .andThen(
             new DeferredCommand(
@@ -348,9 +354,9 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("HOME", fullArm.setGoalCommand(HOME, false));
 
-    NamedCommands.registerCommand("INTAKE", fullArm.setGoalCommand(INTAKE, false));
+    NamedCommands.registerCommand("INTAKE", fullArm.setGoalCommand(GROUND_CORAL_INTAKE, false));
 
-    NamedCommands.registerCommand("INTAKEARM", fullArm.setGoalCommand(INTAKEARM, true));
+    NamedCommands.registerCommand("INTAKEARM", fullArm.setGoalCommand(STATION_INTAKE, true));
 
     NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.2));
 

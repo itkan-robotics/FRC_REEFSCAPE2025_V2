@@ -4,14 +4,9 @@
 
 package frc.robot.commands;
 
-// import static frc.robot.util.MachineStates.HOME;
-// import static frc.robot.util.MachineStates.INTAKE;
-
-// import static frc.robot.util.MachineStates.HOME;
-import static frc.robot.util.MachineStates.*;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FullArmSubsystem;
+import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import frc.robot.subsystems.IntakeSubsystem;
 
 /* You should consider using the more terse Command factories API instead
@@ -24,9 +19,9 @@ public class SmartIntake extends Command {
   boolean m_end;
 
   /**
-   * Start intaking and move the arm to the {@link frc.robot.util.MachineStates#INTAKE INTAKE}
-   * position until a coral is detected, at which point move the arm to the {@link
-   * frc.robot.util.MachineStates#HOME HOME} position
+   * Start intaking and move the arm to the {@link frc.robot.util.ArmState#GROUND_CORAL_INTAKE
+   * INTAKE} position until a coral is detected, at which point move the arm to the {@link
+   * frc.robot.util.ArmState#HOME HOME} position
    */
   public SmartIntake(IntakeSubsystem i, FullArmSubsystem f) {
     intake = i;
@@ -43,10 +38,10 @@ public class SmartIntake extends Command {
   @Override
   public void execute() {
     if (intake.getGpDetected()) {
-      fullArm.setGoalVoid(HOME, true);
+      fullArm.setGoalMethod(ArmState.HOME, true);
     } else {
-      fullArm.setGoalVoid(INTAKE, false);
-      intake.setIntake(1);
+      fullArm.setGoalMethod(ArmState.GROUND_CORAL_INTAKE, false);
+      intake.setIntakeDutyCycle(1);
     }
   }
 

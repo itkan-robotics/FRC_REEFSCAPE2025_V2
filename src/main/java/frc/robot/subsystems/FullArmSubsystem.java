@@ -8,7 +8,6 @@ import static frc.robot.Constants.ArmConstants.ExtensionConstants.*;
 import static frc.robot.Constants.ArmConstants.ShoulderConstants.*;
 import static frc.robot.Constants.ArmConstants.WristConstants.*;
 import static frc.robot.Constants.tuningMode;
-import static frc.robot.util.MachineStates.HOME;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -24,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.LoggingUtil.SimpleMotorLogger;
-import frc.robot.util.MachineStates.BotState;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -34,8 +32,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * <ul>
  *   <li>CTRE's Motion Magic tuning for all three joints.
- *   <li>Integration with the {@link frc.robot.util.MachineStates MachineStates} class for easier
- *       positing saving.
+ *   <li>Integration with the {@link ArmState MachineStates} class for easier positing saving.
  *   <li>{@link frc.robot.util.LoggedTunableNumber LoggedTunableNumbers } for manual tuning when in
  *       {@link frc.robot.Constants#tuningMode tuningMode} (e.g. during field calibration).
  * </ul>
@@ -72,7 +69,52 @@ public class FullArmSubsystem extends SubsystemBase {
   private final SimpleMotorLogger wristLogger = new SimpleMotorLogger(wristMotor, "_Arm/Wrist");
   final MotionMagicVoltage wristRequest;
 
-  private BotState currentState = HOME; // The robot's state at startup
+  public enum ArmState {
+    HOME(0.05, 1.5, 0.3, -0.8, 0),
+    L1(-0.13, -1.5, 0.3, -0.5, 1),
+    L2(0.19, 4.5, 0.5, -0.2, 2),
+    L3(0.14, 3.5, 0.41, -0.8, 3),
+    L4(0.13, 20, 0.52, -0.8, 4),
+    PREP_L4(0.13, 3.5, 0.52, -0.8, 21),
+    GROUND_CORAL_INTAKE(-0.164, -1.9, 0.17, -0.8, 5),
+    LOWALGAE(0.18, 3.0, 0.35, -0.8, 6),
+    HIGHALGAE(0.18, 3.0, 0.2, -0.8, 7),
+    //TO-DO: TUNE
+    PROCESSOR(0.0, 0.0, 0.0, -0.8, 8),
+    NET(0.0, 0.0, 0.0, -0.8, 9),
+    GROUND_ALGAE_INTAKE(-0.164, -1.9, 0.17, -0.8, 5),
+    /////////////
+    PRECLIMB(0.14, 3.5, 0.0, -0.8, 10),
+    CLIMB(-0.16, -1.95, 0.13, -0.8, 11),
+    RESET(0.0, 0.0, 0.0, -0.8, -1),
+    STATION_INTAKE(0.05, 1, 0.09, -0.8, 20);
+
+    private final double shoulderSetpoint;
+    private final double extensionSetpoint;
+    private final double wristSetpoint;
+    private final double outtakeSpeed;
+    private final int id;
+
+    // spotless:off
+    // Constructor
+    ArmState(double shoulderSetpoint, double extensionSetpoint, double wristSetpoint, double outtakeSpeed, int id) {
+      this.shoulderSetpoint = shoulderSetpoint;
+      this.extensionSetpoint = extensionSetpoint;
+      this.wristSetpoint = wristSetpoint;
+      this.outtakeSpeed = outtakeSpeed;
+      this.id = id;
+    }
+  
+    // Getters
+    public double getShoulderSetpoint() {return shoulderSetpoint;}
+    public double getExtensionSetpoint() {return extensionSetpoint;}
+    public double getWristSetpoint() {return wristSetpoint;}
+    public double getOuttakeSpeed() {return outtakeSpeed;}
+    public int getId() {return id;}
+    //spotless:on
+  }
+
+  private ArmState currentState = ArmState.HOME; // The robot's state at startup
 
   /**
    * A boolean that determines whether the shoulder or extension should move first. Generally, if
@@ -213,6 +255,7 @@ public class FullArmSubsystem extends SubsystemBase {
     tunableWrist = new LoggedTunableNumber("tunableWrist", 0.3);
   }
 
+  @SuppressWarnings("unused")
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -254,22 +297,22 @@ public class FullArmSubsystem extends SubsystemBase {
     Logger.recordOutput("_Arm/extensionSetpointReached", extentionSetpointReached());
     Logger.recordOutput("_Arm/wristSetpointReached", wristSetpointReached());
 
-    Logger.recordOutput("_Arm/currentState", currentState.getName());
+    Logger.recordOutput("_Arm/currentState", currentState);
     Logger.recordOutput("_Arm/shoulderFirst", shoulderFirst);
   }
 
   /**
-   * A command the desired {@link frc.robot.util.MachineStates.BotState BotState} of the arm and
-   * determines the order the arm should move.
+   * A command the desired {@link frc.robot.util.ArmState BotState} of the arm and determines the
+   * order the arm should move.
    *
    * @param desiredState The desired BotState of the arm, which includes shoulder, extension, and
    *     wrist positions.
    * @param shoulderFirst Determines whether the shoulder should pivot first or the extension
    *     extend/retract first.
    */
-  public Command setGoalCommand(BotState desiredState, boolean shoulderFirst) {
+  public Command setGoalCommand(ArmState desiredState, boolean shoulderFirst) {
     return run(() -> {
-          setGoalVoid(desiredState, shoulderFirst);
+          setGoalMethod(desiredState, shoulderFirst);
         })
         .until(
             () ->
@@ -281,7 +324,7 @@ public class FullArmSubsystem extends SubsystemBase {
    *
    * @see FullArmSubsystem#setGoalCommand setGoal Command
    */
-  public void setGoalVoid(BotState desiredState, boolean shoulderFirst) {
+  public void setGoalMethod(ArmState desiredState, boolean shoulderFirst) {
     // shoulderFirst is true when the desired extension is greater than the current extension
     this.shoulderFirst = currentState.getExtensionSetpoint() < desiredState.getExtensionSetpoint();
     currentState = desiredState;
@@ -369,4 +412,8 @@ public class FullArmSubsystem extends SubsystemBase {
   //         tryUntilOk(5, () -> leftShoulderMotor.getConfigurator().apply(shoulderConfig, 0.25));
   //       });
   // }
+
+  public boolean isArmAtDesiredState() {
+    return extentionSetpointReached() && wristSetpointReached() && shoulderSetpointReached();
+  }
 }

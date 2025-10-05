@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.FullArmSubsystem.ArmState;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.drive.Drive;
 import java.util.*;
 
@@ -31,16 +33,149 @@ public class Superstructure extends SubsystemBase {
   State currentState = State.HOME;
   State wantedState = State.HOME;
 
+  FullArmSubsystem fullArm;
+  IntakeSubsystem intake;
+  ClimbSubsystem climb;
+  Drive drive;
+
   /** Creates a new Superstructure. */
   public Superstructure(
       Drive drive, FullArmSubsystem fullArm, IntakeSubsystem intake, ClimbSubsystem climb) {
+    this.drive = drive;
+    this.fullArm = fullArm;
+    this.intake = intake;
+    this.climb = climb;
+
     initGraph();
   }
 
   @Override
   public void periodic() {
-    if (doesMatchState() && currentState.compareTo(wantedState) != 0) currentState = tryState();
+    if (areAllSubsystemsAtCurrentState() && currentState.compareTo(wantedState) != 0)
+      currentState = tryState();
     applyStates();
+  }
+
+  public void setWantedSuperState(State wantedState) {
+    this.wantedState = wantedState;
+  }
+
+  private void applyStates() {
+    // TO-DO: 2910-style methods
+    switch (currentState) {
+      case SINTAKE:
+        stationIntake();
+        break;
+      case CGINTAKE:
+        coralGroundIntake();
+        break;
+      case AGINTAKE:
+        algaeGroundIntake();
+        break;
+      case LALGAE:
+        lowAlgae();
+        break;
+      case HALGAE:
+        highAlgae();
+        break;
+      case PROCESSOR:
+        processor();
+        break;
+      case BARGE:
+        barge();
+        break;
+      case L1:
+        l1();
+        break;
+      case L2:
+        l2();
+        break;
+      case L3:
+        l3();
+        break;
+      case L4:
+        l4();
+        break;
+      case PRECLIMB:
+        preClimb();
+        break;
+      case CLIMB:
+        climb();
+        break;
+      case HOME:
+        home();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private void home() {
+    fullArm.setGoalMethod(ArmState.HOME, false);
+  }
+  private void stationIntake() {
+    fullArm.setGoalMethod(ArmState.STATION_INTAKE, false);
+    intake.tryState(IntakeState.INTAKING_CORAL);
+  }
+
+  private void coralGroundIntake() {
+    fullArm.setGoalMethod(ArmState.GROUND_CORAL_INTAKE, false);
+    intake.tryState(IntakeState.INTAKING_CORAL);
+  }
+
+  private void algaeGroundIntake() {
+    fullArm.setGoalMethod(ArmState.GROUND_ALGAE_INTAKE, false);
+    intake.tryState(IntakeState.INTAKING_ALGAE);;
+  }
+
+  private void lowAlgae() {
+    fullArm.setGoalMethod(ArmState.LOWALGAE, false);
+    intake.tryState(IntakeState.DEALGAEFYING);
+  }
+
+  private void highAlgae() {
+    fullArm.setGoalMethod(ArmState.HIGHALGAE, false);
+    intake.tryState(IntakeState.DEALGAEFYING);
+  }
+
+  private void processor() {
+    fullArm.setGoalMethod(ArmState.PROCESSOR, false);
+  }
+
+  private void barge() {
+    fullArm.setGoalMethod(ArmState.NET, false);
+  }
+
+  private void l1() {
+    fullArm.setGoalMethod(ArmState.L1, false);
+  }
+
+  private void l2() {
+    fullArm.setGoalMethod(ArmState.L2, false);
+  }
+
+  private void l3() {
+    fullArm.setGoalMethod(ArmState.L3, false);
+  }
+  
+  private void l4() {
+    fullArm.setGoalMethod(ArmState.L4, false);
+  }
+  
+  private void preClimb() {
+    fullArm.setGoalMethod(ArmState.PRECLIMB, false);
+    climb.setSpeed(1.0);
+  }
+
+  private void climb() {
+    fullArm.setGoalMethod(ArmState.CLIMB, false);
+  }
+
+  private boolean areAllSubsystemsAtCurrentState() {
+    // TO-DO: Make doesMatchState() for each subsystem
+    return fullArm.isArmAtDesiredState()
+        && intake.isIntakeAtDesiredState()
+        && climb.isClimbAtDesiredState();
   }
 
   public void initGraph() {
@@ -71,94 +206,86 @@ public class Superstructure extends SubsystemBase {
   }
 
   public State tryState() {
-    double[] min = new double[State.values().length];
-    Arrays.fill(min, Double.MAX_VALUE);
-    boolean[] processed = new boolean[State.values().length];
-    min[currentState.ordinal()] = 0;
-    PriorityQueue<Pair> q =
+    double[] minCost = new double[State.values().length];
+    Arrays.fill(minCost, Double.MAX_VALUE);
+    boolean[] isProcessed = new boolean[State.values().length];
+    minCost[currentState.ordinal()] = 0;
+    PriorityQueue<StateCostPair> queue =
         new PriorityQueue<>(
-            new Comparator<Pair>() {
+            new Comparator<StateCostPair>() {
               @Override
-              public int compare(Pair o1, Pair o2) {
-                return Double.compare(o1.weight, o2.weight);
+              public int compare(StateCostPair o1, StateCostPair o2) {
+                return Double.compare(o1.cost, o2.cost);
               }
             });
-    State[] pr = new State[State.values().length];
-    q.offer(new Pair(currentState, 0));
-    while (!q.isEmpty()) {
-      Pair p = q.poll();
-      if (processed[p.state.ordinal()]) continue;
-      if (p.state.compareTo(wantedState) == 0) break;
-      processed[p.state.ordinal()] = true;
-      for (Pair c : graph.getAdj(p.state)) {
-        if (min[p.state.ordinal()] + c.weight < min[c.state.ordinal()]) {
-          min[c.state.ordinal()] = min[p.state.ordinal()] + c.weight;
-          pr[c.state.ordinal()] = p.state;
+    State[] previousState = new State[State.values().length];
+    queue.offer(new StateCostPair(currentState, 0));
+    while (!queue.isEmpty()) {
+      StateCostPair currentPair = queue.poll();
+      State current = currentPair.state;
+      if (isProcessed[current.ordinal()]) continue;
+      if (current.compareTo(wantedState) == 0) break;
+      isProcessed[current.ordinal()] = true;
+      for (StateCostPair neighborPair : graph.getAdj(current)) {
+        State neighbor = neighborPair.state;
+        double costToNeighbor = neighborPair.cost;
+        if (minCost[current.ordinal()] + costToNeighbor < minCost[neighbor.ordinal()]) {
+          minCost[neighbor.ordinal()] = minCost[current.ordinal()] + costToNeighbor;
+          previousState[neighbor.ordinal()] = current;
         }
-        q.offer(new Pair(c.state, min[c.state.ordinal()]));
+        queue.offer(new StateCostPair(neighbor, minCost[neighbor.ordinal()]));
       }
     }
     State last = wantedState;
-    while (pr[last.ordinal()].compareTo(currentState) != 0) {
-      last = pr[last.ordinal()];
+    while (previousState[last.ordinal()].compareTo(currentState) != 0) {
+      last = previousState[last.ordinal()];
     }
     return last;
-  }
-
-  public void setWantedSuperState(State wantedState) {
-    this.wantedState = wantedState;
-  }
-
-  private void applyStates() {
-    // TO-DO: 2910-style methods
-  }
-
-  private boolean doesMatchState() {
-    // TO-DO: Make doesMatchState() for each subsystem
-    return true;
   }
 }
 
 class Graph {
-  HashMap<Superstructure.State, List<Pair>> graph;
+  HashMap<Superstructure.State, List<StateCostPair>> graph;
 
   public Graph() {
     graph = new HashMap<>();
-    for (Superstructure.State s : Superstructure.State.values()) {
-      graph.put(s, new ArrayList<Pair>());
+    for (Superstructure.State state : Superstructure.State.values()) {
+      graph.put(state, new ArrayList<StateCostPair>());
     }
   }
 
-  public void add(Superstructure.State i, Superstructure.State f, double w) {
-    if (graph.containsKey(i)) {
-      List<Pair> edges = graph.get(i);
-      edges.add(new Pair(f, w));
-      graph.put(i, edges);
+  public void add(
+      Superstructure.State startState, Superstructure.State endState, double transitionCost) {
+    if (graph.containsKey(startState)) {
+      List<StateCostPair> edges = graph.get(startState);
+      edges.add(new StateCostPair(endState, transitionCost));
+      graph.put(startState, edges);
     } else {
       throw new IllegalArgumentException();
     }
   }
 
-  public void addBoth(Superstructure.State i, Superstructure.State f, double w) {
-    if (graph.containsKey(i) && graph.containsKey(f)) {
-      add(i, f, w);
-      add(f, i, w);
+  public void addBoth(
+      Superstructure.State startState, Superstructure.State endState, double transitionCost) {
+    if (graph.containsKey(startState) && graph.containsKey(endState)) {
+      add(startState, endState, transitionCost);
+      add(endState, startState, transitionCost);
     } else {
       throw new IllegalArgumentException();
     }
   }
 
-  public List<Pair> getAdj(Superstructure.State s) {
-    return graph.get(s);
+  public List<StateCostPair> getAdj(Superstructure.State state) {
+    return graph.get(state);
   }
 }
 
-class Pair {
+class StateCostPair {
   public Superstructure.State state;
-  public double weight;
+  public double cost;
 
-  public Pair(Superstructure.State state, double weight) {
+  public StateCostPair(Superstructure.State state, double cost) {
     this.state = state;
-    this.weight = weight;
+    this.cost = cost;
   }
 }

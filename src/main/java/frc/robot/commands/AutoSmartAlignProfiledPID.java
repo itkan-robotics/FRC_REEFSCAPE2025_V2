@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import static frc.robot.util.MachineStates.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,10 +9,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.FullArmSubsystem;
+import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.MachineStates.BotState;
 import frc.robot.util.TuneableProfiledPID;
 
 /**
@@ -30,7 +28,7 @@ public class AutoSmartAlignProfiledPID extends Command {
   AutoScoreSelection storedState;
   FullArmSubsystem arm;
   String limelightName;
-  BotState currentState;
+  ArmState currentState;
 
   TuneableProfiledPID profiledPid;
   PIDController thetaController;
@@ -62,9 +60,9 @@ public class AutoSmartAlignProfiledPID extends Command {
 
   boolean isFinished = false;
 
-  BotState bState;
+  ArmState bState;
 
-  public AutoSmartAlignProfiledPID(Drive d, FullArmSubsystem a, AutoScoreSelection s, BotState b) {
+  public AutoSmartAlignProfiledPID(Drive d, FullArmSubsystem a, AutoScoreSelection s, ArmState b) {
     this.m_drive = d;
     this.storedState = s;
     this.arm = a;
@@ -107,8 +105,9 @@ public class AutoSmartAlignProfiledPID extends Command {
     }
 
     // Logic for determining offsets
-    targetDistanceOffset = currentState == L2 ? farDistanceOffset : closeDistanceOffset;
-    armDistanceThreshold = currentState == L2 ? farArmDistanceThreshold : closeArmDistanceThreshold;
+    targetDistanceOffset = currentState == ArmState.L2 ? farDistanceOffset : closeDistanceOffset;
+    armDistanceThreshold =
+        currentState == ArmState.L2 ? farArmDistanceThreshold : closeArmDistanceThreshold;
   }
 
   @Override
@@ -151,7 +150,7 @@ public class AutoSmartAlignProfiledPID extends Command {
     m_drive.runVelocity(speeds);
 
     if (distanceToTarget < armDistanceThreshold) {
-      arm.setGoalVoid(currentState, true);
+      arm.setGoalMethod(currentState, true);
     }
 
     SmartDashboard.putNumber("smartAlign/CombinedProfiledPID X", xTrans);

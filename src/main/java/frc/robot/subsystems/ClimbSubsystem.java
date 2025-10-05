@@ -47,4 +47,8 @@ public class ClimbSubsystem extends SubsystemBase {
     climbLogger.logMotorSpecs();
     climbLogger.logMotorPowerData();
   }
+
+  public boolean isClimbAtDesiredState() {
+    return true;
+  }
 }

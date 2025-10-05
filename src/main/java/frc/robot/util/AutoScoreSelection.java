@@ -7,13 +7,12 @@ package frc.robot.util;
 import static frc.robot.Constants.LimelightConstants.LEFT_BRANCH_PIPELINE;
 import static frc.robot.Constants.LimelightConstants.leftLimelightName;
 import static frc.robot.Constants.LimelightConstants.rightLimelightName;
-import static frc.robot.util.MachineStates.INTAKE;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.util.MachineStates.BotState;
+import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import java.util.HashMap;
 import java.util.function.DoubleSupplier;
 
@@ -31,7 +30,7 @@ import java.util.function.DoubleSupplier;
 public class AutoScoreSelection {
   private static int operatorLimelight = 0;
   private static double operatorReefAngle = 0.0;
-  private static BotState desiredState = INTAKE;
+  private static ArmState desiredState = ArmState.HOME;
   private static boolean baseAutoTurn = false;
   private HashMap<Double, Integer> reefAnglesToIDs = new HashMap<Double, Integer>();
   boolean working;
@@ -169,16 +168,16 @@ public class AutoScoreSelection {
   /**
    * @param dState What {@link #desiredState} should be set to
    */
-  public void setBotState(BotState dState) {
+  public void setBotState(ArmState dState) {
     desiredState = dState;
     refreshLastUpdated();
   }
 
   /**
-   * @return the store state as a {@link frc.robot.util.MachineStates.BotState BotState} with a
-   *     default value of {@link frc.robot.util.MachineStates#RESET RESET}.
+   * @return the store state as a {@link frc.robot.util.ArmState.ArmState BotState} with a default
+   *     value of {@link frc.robot.util.ArmState#RESET RESET}.
    */
-  public BotState getBotState() {
+  public ArmState getBotState() {
     return desiredState; // Constants.toBotState((int)
     // SmartDashboard.getNumber("storedState/RobotState", -1));
   }
