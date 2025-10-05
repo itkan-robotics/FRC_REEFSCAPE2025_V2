@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 
@@ -50,11 +49,7 @@ public class Superstructure extends SubsystemBase {
 
   /** Creates a new Superstructure. */
   public Superstructure(
-    Drive drive,
-    FullArmSubsystem fullArm,
-    IntakeSubsystem intake,
-    ClimbSubsystem climb
-  ) {}
+      Drive drive, FullArmSubsystem fullArm, IntakeSubsystem intake, ClimbSubsystem climb) {}
 
   @Override
   public void periodic() {
@@ -62,10 +57,8 @@ public class Superstructure extends SubsystemBase {
     applyStates();
   }
 
-  public void setWantedSuperState(WantedSuperState wantedState) {
+  public void setWantedSuperState(WantedSuperState wantedState) {}
 
-  }
-  
   private void tryState(WantedSuperState desiredState) {
     switch (desiredState) {
       default:
@@ -102,11 +95,11 @@ public class Superstructure extends SubsystemBase {
   }
 
   private void applyStates() {
-    //TO-DO: 2910-style methods
+    // TO-DO: 2910-style methods
   }
 
   private boolean doesMatchState() {
-    //TO-DO: Make doesMatchState() for each subsystem
+    // TO-DO: Make doesMatchState() for each subsystem
     return true;
   }
 }

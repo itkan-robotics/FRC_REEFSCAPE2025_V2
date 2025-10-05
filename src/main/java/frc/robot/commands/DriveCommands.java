@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.TuneableProfiledPID;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -110,6 +111,7 @@ public class DriveCommands {
 
   public static Command joystickMDrive(
       Drive drive,
+      AutoScoreSelection storedState,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier jwxSupplier,
@@ -141,7 +143,10 @@ public class DriveCommands {
               DriverStation.getAlliance().isPresent()
                   && DriverStation.getAlliance().get() == Alliance.Red;
 
-          if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
+          if (storedState.getAutoTurn()) {
+            omega =
+                fieldController.calculate(getDriveHeading(drive), storedState.getTargetReefAngle());
+          } else if (Math.abs(jwxSupplier.getAsDouble() + jwySupplier.getAsDouble()) > 0.1) {
             fieldPIDController.setSetpoint(
                 getRightStickAngle(jwxSupplier, jwySupplier) + (isFlipped ? 180 : 0));
             omega = fieldPIDController.calculate(getDriveHeading(drive));
