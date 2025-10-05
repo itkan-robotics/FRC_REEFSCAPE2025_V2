@@ -25,6 +25,7 @@ public class Superstructure extends SubsystemBase {
     L2,
     L3,
     L4,
+    PREL4,
     PRECLIMB,
     CLIMB
   }
@@ -113,6 +114,7 @@ public class Superstructure extends SubsystemBase {
   private void home() {
     fullArm.setGoalMethod(ArmState.HOME, false);
   }
+
   private void stationIntake() {
     fullArm.setGoalMethod(ArmState.STATION_INTAKE, false);
     intake.tryState(IntakeState.INTAKING_CORAL);
@@ -125,7 +127,8 @@ public class Superstructure extends SubsystemBase {
 
   private void algaeGroundIntake() {
     fullArm.setGoalMethod(ArmState.GROUND_ALGAE_INTAKE, false);
-    intake.tryState(IntakeState.INTAKING_ALGAE);;
+    intake.tryState(IntakeState.INTAKING_ALGAE);
+    ;
   }
 
   private void lowAlgae() {
@@ -157,11 +160,11 @@ public class Superstructure extends SubsystemBase {
   private void l3() {
     fullArm.setGoalMethod(ArmState.L3, false);
   }
-  
+
   private void l4() {
     fullArm.setGoalMethod(ArmState.L4, false);
   }
-  
+
   private void preClimb() {
     fullArm.setGoalMethod(ArmState.PRECLIMB, false);
     climb.setSpeed(1.0);
@@ -183,7 +186,8 @@ public class Superstructure extends SubsystemBase {
     graph.addBoth(State.HOME, State.L1, 2);
     graph.addBoth(State.HOME, State.L2, 1);
     graph.addBoth(State.HOME, State.L3, 1);
-    graph.addBoth(State.HOME, State.L4, 1);
+    graph.addBoth(State.HOME, State.PREL4, 1);
+    graph.addBoth(State.PREL4, State.L4, 1);
     graph.addBoth(State.HOME, State.LALGAE, 1);
     graph.addBoth(State.HOME, State.HALGAE, 2);
     graph.addBoth(State.HOME, State.SINTAKE, 1);

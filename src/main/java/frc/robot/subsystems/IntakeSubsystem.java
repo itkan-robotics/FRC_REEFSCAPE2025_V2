@@ -93,7 +93,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void applyState() {
-    switch(currentIntakeState) {
+    switch (currentIntakeState) {
       case INTAKING_CORAL:
       case INTAKING_ALGAE:
         desiredIntakeSpeed = 1.0;

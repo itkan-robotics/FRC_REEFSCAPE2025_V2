@@ -79,7 +79,7 @@ public class FullArmSubsystem extends SubsystemBase {
     GROUND_CORAL_INTAKE(-0.164, -1.9, 0.17, -0.8, 5),
     LOWALGAE(0.18, 3.0, 0.35, -0.8, 6),
     HIGHALGAE(0.18, 3.0, 0.2, -0.8, 7),
-    //TO-DO: TUNE
+    // TO-DO: TUNE
     PROCESSOR(0.0, 0.0, 0.0, -0.8, 8),
     NET(0.0, 0.0, 0.0, -0.8, 9),
     GROUND_ALGAE_INTAKE(-0.164, -1.9, 0.17, -0.8, 5),
