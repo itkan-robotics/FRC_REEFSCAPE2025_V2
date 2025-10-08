@@ -8,10 +8,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.*;
 import java.util.*;
 
 public class Superstructure extends SubsystemBase {
 
+  // All states for our robot
   public enum State {
     HOME,
     SINTAKE,
@@ -30,7 +32,7 @@ public class Superstructure extends SubsystemBase {
     CLIMB
   }
 
-  Graph graph;
+  Graph<State> graph;
   State currentState = State.HOME;
   State wantedState = State.HOME;
 
@@ -46,7 +48,6 @@ public class Superstructure extends SubsystemBase {
     this.fullArm = fullArm;
     this.intake = intake;
     this.climb = climb;
-
     initGraph();
   }
 
@@ -180,9 +181,11 @@ public class Superstructure extends SubsystemBase {
         && intake.isIntakeAtDesiredState()
         && climb.isClimbAtDesiredState();
   }
-
+  // Creates the graph and defines all edges in the graph. If there is an edge between 2 states, the
+  // robot can move directly between those two states, where the weight is the time it takes to do
+  // so.
   public void initGraph() {
-    graph = new Graph();
+    graph = new Graph<>(State.values());
     graph.addBoth(State.HOME, State.L1, 2);
     graph.addBoth(State.HOME, State.L2, 1);
     graph.addBoth(State.HOME, State.L3, 1);
@@ -210,86 +213,42 @@ public class Superstructure extends SubsystemBase {
   }
 
   public State tryState() {
+    // Dijkstra's algorithm implementation to find the fastest path for state transition
     double[] minCost = new double[State.values().length];
     Arrays.fill(minCost, Double.MAX_VALUE);
     boolean[] isProcessed = new boolean[State.values().length];
     minCost[currentState.ordinal()] = 0;
-    PriorityQueue<StateCostPair> queue =
+    PriorityQueue<Pair<State>> queue =
         new PriorityQueue<>(
-            new Comparator<StateCostPair>() {
+            new Comparator<Pair<State>>() {
               @Override
-              public int compare(StateCostPair o1, StateCostPair o2) {
+              public int compare(Pair<State> o1, Pair<State> o2) {
                 return Double.compare(o1.cost, o2.cost);
               }
             });
     State[] previousState = new State[State.values().length];
-    queue.offer(new StateCostPair(currentState, 0));
+    queue.offer(new Pair<State>(currentState, 0));
     while (!queue.isEmpty()) {
-      StateCostPair currentPair = queue.poll();
+      Pair<State> currentPair = queue.poll();
       State current = currentPair.state;
       if (isProcessed[current.ordinal()]) continue;
       if (current.compareTo(wantedState) == 0) break;
       isProcessed[current.ordinal()] = true;
-      for (StateCostPair neighborPair : graph.getAdj(current)) {
+      for (Pair<State> neighborPair : graph.getAdj(current)) {
         State neighbor = neighborPair.state;
         double costToNeighbor = neighborPair.cost;
         if (minCost[current.ordinal()] + costToNeighbor < minCost[neighbor.ordinal()]) {
           minCost[neighbor.ordinal()] = minCost[current.ordinal()] + costToNeighbor;
           previousState[neighbor.ordinal()] = current;
         }
-        queue.offer(new StateCostPair(neighbor, minCost[neighbor.ordinal()]));
+        queue.offer(new Pair<State>(neighbor, minCost[neighbor.ordinal()]));
       }
     }
+    // Backtrack along minimum path
     State last = wantedState;
     while (previousState[last.ordinal()].compareTo(currentState) != 0) {
       last = previousState[last.ordinal()];
     }
     return last;
-  }
-}
-
-class Graph {
-  HashMap<Superstructure.State, List<StateCostPair>> graph;
-
-  public Graph() {
-    graph = new HashMap<>();
-    for (Superstructure.State state : Superstructure.State.values()) {
-      graph.put(state, new ArrayList<StateCostPair>());
-    }
-  }
-
-  public void add(
-      Superstructure.State startState, Superstructure.State endState, double transitionCost) {
-    if (graph.containsKey(startState)) {
-      List<StateCostPair> edges = graph.get(startState);
-      edges.add(new StateCostPair(endState, transitionCost));
-      graph.put(startState, edges);
-    } else {
-      throw new IllegalArgumentException();
-    }
-  }
-
-  public void addBoth(
-      Superstructure.State startState, Superstructure.State endState, double transitionCost) {
-    if (graph.containsKey(startState) && graph.containsKey(endState)) {
-      add(startState, endState, transitionCost);
-      add(endState, startState, transitionCost);
-    } else {
-      throw new IllegalArgumentException();
-    }
-  }
-
-  public List<StateCostPair> getAdj(Superstructure.State state) {
-    return graph.get(state);
-  }
-}
-
-class StateCostPair {
-  public Superstructure.State state;
-  public double cost;
-
-  public StateCostPair(Superstructure.State state, double cost) {
-    this.state = state;
-    this.cost = cost;
   }
 }
