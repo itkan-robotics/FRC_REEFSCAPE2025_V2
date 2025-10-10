@@ -45,7 +45,8 @@ public class IntakeSubsystem extends SubsystemBase {
     INTAKING_ALGAE,
     OUTTAKING_CORAL,
     OUTTAKING_ALGAE,
-    DEALGAEFYING
+    DEALGAEFYINGLOW,
+    DEALGAEFYINGHIGH
   }
 
   IntakeState currentIntakeState = IntakeState.NO_GAMEPIECE;
@@ -85,8 +86,11 @@ public class IntakeSubsystem extends SubsystemBase {
       case OUTTAKING_ALGAE:
         currentIntakeState = IntakeState.OUTTAKING_ALGAE;
         break;
-      case DEALGAEFYING:
-        currentIntakeState = IntakeState.DEALGAEFYING;
+      case DEALGAEFYINGLOW:
+        currentIntakeState = IntakeState.DEALGAEFYINGLOW;
+        break;
+      case DEALGAEFYINGHIGH:
+        currentIntakeState = IntakeState.DEALGAEFYINGHIGH;
       default:
         break;
     }
@@ -96,11 +100,12 @@ public class IntakeSubsystem extends SubsystemBase {
     switch (currentIntakeState) {
       case INTAKING_CORAL:
       case INTAKING_ALGAE:
+      case DEALGAEFYINGHIGH:
         desiredIntakeSpeed = 1.0;
         break;
       case OUTTAKING_CORAL:
       case OUTTAKING_ALGAE:
-      case DEALGAEFYING:
+      case DEALGAEFYINGLOW:
         desiredIntakeSpeed = -1.0;
         break;
       case HAS_ALGAE:

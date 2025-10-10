@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
@@ -56,6 +57,13 @@ public class Superstructure extends SubsystemBase {
     if (areAllSubsystemsAtCurrentState() && currentState.compareTo(wantedState) != 0)
       currentState = tryState();
     applyStates();
+  }
+
+  public Command setWantedSuperStateCommand(State wantedState) {
+    return run(
+        () -> {
+          setWantedSuperState(wantedState);
+        });
   }
 
   public void setWantedSuperState(State wantedState) {
@@ -134,12 +142,12 @@ public class Superstructure extends SubsystemBase {
 
   private void lowAlgae() {
     fullArm.setGoalMethod(ArmState.LOWALGAE, false);
-    intake.tryState(IntakeState.DEALGAEFYING);
+    intake.tryState(IntakeState.DEALGAEFYINGLOW);
   }
 
   private void highAlgae() {
     fullArm.setGoalMethod(ArmState.HIGHALGAE, false);
-    intake.tryState(IntakeState.DEALGAEFYING);
+    intake.tryState(IntakeState.DEALGAEFYINGHIGH);
   }
 
   private void processor() {

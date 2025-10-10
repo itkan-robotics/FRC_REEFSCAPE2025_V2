@@ -19,6 +19,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,22 +29,20 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.AutoSmartAlignProfiledPID;
 import frc.robot.commands.AutoSmartAlignProfiledPID3d;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.commands.SmartIntake;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.FullArmSubsystem;
-import frc.robot.subsystems.FullArmSubsystem.ArmState;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.State;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -175,58 +175,13 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    baseCommand
-        .triangle()
-        .onTrue(
-            fullArm
-                .setGoalCommand(PREP_L4, true)
-                .andThen(
-                    new WaitCommand(0.100)
-                        .andThen(
-                            new DeferredCommand(
-                                () ->
-                                    Commands.either(
-                                        new AutoSmartAlignProfiledPID(
-                                            drive, fullArm, storedState, L4),
-                                        fullArm.setGoalCommand(L4, true),
-                                        () -> base.getTriangleButton()),
-                                Set.of()))));
+    baseCommand.triangle().onTrue(superstructure.setWantedSuperStateCommand(State.L4));
 
-    baseCommand
-        .square()
-        .onTrue(
-            fullArm
-                .setGoalCommand(L3, true)
-                .andThen(
-                    new WaitCommand(0.100)
-                        .andThen(
-                            new DeferredCommand(
-                                () ->
-                                    Commands.either(
-                                        new AutoSmartAlignProfiledPID(
-                                            drive, fullArm, storedState, L3),
-                                        new InstantCommand(),
-                                        () -> base.getSquareButton()),
-                                Set.of()))));
+    baseCommand.square().onTrue(superstructure.setWantedSuperStateCommand(State.L3));
 
-    baseCommand
-        .circle()
-        .onTrue(
-            fullArm
-                .setGoalCommand(L2, true)
-                .andThen(
-                    new WaitCommand(0.100)
-                        .andThen(
-                            new DeferredCommand(
-                                () ->
-                                    Commands.either(
-                                        new AutoSmartAlignProfiledPID(
-                                            drive, fullArm, storedState, L2),
-                                        new InstantCommand(),
-                                        () -> base.getCircleButton()),
-                                Set.of()))));
-    baseCommand.touchpad().onTrue(fullArm.setGoalCommand(L1, false));
-    baseCommand.cross().onTrue(fullArm.setGoalCommand(HOME, false));
+    baseCommand.circle().onTrue(superstructure.setWantedSuperStateCommand(State.L2));
+    baseCommand.touchpad().onTrue(superstructure.setWantedSuperStateCommand(State.L1));
+    baseCommand.cross().onTrue(superstructure.setWantedSuperStateCommand(State.HOME));
 
     baseCommand.R2().whileTrue(new SmartIntake(intake, fullArm));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
@@ -235,15 +190,11 @@ public class RobotContainer {
 
     operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 
-    operatorCommand.povDown().onTrue(fullArm.setGoalCommand(CLIMB, true));
-    operatorCommand.povUp().onTrue(fullArm.setGoalCommand(PRECLIMB, false));
+    operatorCommand.povDown().onTrue(superstructure.setWantedSuperStateCommand(State.CLIMB));
+    operatorCommand.povUp().onTrue(superstructure.setWantedSuperStateCommand(State.PRECLIMB));
 
-    baseCommand
-        .povUp()
-        .onTrue(fullArm.setGoalCommand(HIGHALGAE, true).alongWith(intake.setIntakeSpeed(1)));
-    baseCommand
-        .povDown()
-        .onTrue(fullArm.setGoalCommand(LOWALGAE, true).alongWith(intake.setIntakeSpeed(-1)));
+    baseCommand.povUp().onTrue(superstructure.setWantedSuperStateCommand(State.HALGAE));
+    baseCommand.povDown().onTrue(superstructure.setWantedSuperStateCommand(State.LALGAE));
 
     baseCommand.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
 
@@ -319,24 +270,23 @@ public class RobotContainer {
                     Set.of())));
   }
 
-  public SequentialCommandGroup OPAutoAlign(ArmState b, boolean button) {
-    return new WaitCommand(0.100)
-        .andThen(
-            new DeferredCommand(
-                () ->
-                    Commands.either(
-                        new AutoSmartAlignProfiledPID(drive, fullArm, storedState, b),
-                        new InstantCommand(),
-                        () -> button),
-                Set.of()));
-  }
-
   /*********************************************************
    * Use this to set up PathplannerLib Named Commands
    * for autonomous routines.
    *********************************************************/
 
   public void registerNamedCommands() {
+
+    Commands.either(
+            new InstantCommand(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            drive.getPose().getTranslation(),
+                            new Rotation2d(Math.toRadians(180))))),
+            new InstantCommand(),
+            () -> DriverStation.getAlliance().get() == Alliance.Red)
+        .ignoringDisable(true);
 
     NamedCommands.registerCommand(
         "goToReef", new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.leftLimelightName));
