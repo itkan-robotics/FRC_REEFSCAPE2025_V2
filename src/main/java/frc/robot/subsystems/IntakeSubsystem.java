@@ -205,12 +205,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     Logger.recordOutput("_Intake/gpDetectedUnfiltered", gamepieceDetected());
     Logger.recordOutput("_Intake/gpDetectedFiltered", gamepieceDetected);
+    Logger.recordOutput("_Intake/desiredSpeed", desiredIntakeSpeed);
 
     if (gamepieceDetected) {
       currentIntakeState = IntakeState.HAS_CORAL;
     } else {
-      currentIntakeState = IntakeState.NO_GAMEPIECE;
+      setIntakeDutyCycle(desiredIntakeSpeed);
     }
+
+    applyState();
   }
 
   public boolean isIntakeAtDesiredState() {

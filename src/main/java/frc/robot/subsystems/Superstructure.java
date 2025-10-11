@@ -11,6 +11,7 @@ import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.*;
 import java.util.*;
+import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
 
@@ -57,6 +58,10 @@ public class Superstructure extends SubsystemBase {
     if (areAllSubsystemsAtCurrentState() && currentState.compareTo(wantedState) != 0)
       currentState = tryState();
     applyStates();
+
+    Logger.recordOutput(
+        "_Superstructure/areAllSubsystemsAtCurrentState", areAllSubsystemsAtCurrentState());
+    Logger.recordOutput("_Superstrucutre/currentState", currentState);
   }
 
   public Command setWantedSuperStateCommand(State wantedState) {
@@ -194,26 +199,25 @@ public class Superstructure extends SubsystemBase {
   // so.
   public void initGraph() {
     graph = new Graph<>(State.values());
-    graph.addBoth(State.HOME, State.L1, 2);
-    graph.addBoth(State.HOME, State.L2, 1);
-    graph.addBoth(State.HOME, State.L3, 1);
-    graph.addBoth(State.HOME, State.PREL4, 1);
-    graph.addBoth(State.PREL4, State.L4, 1);
-    graph.addBoth(State.HOME, State.LALGAE, 1);
-    graph.addBoth(State.HOME, State.HALGAE, 2);
+    graph.addBoth(State.HOME, State.L1, 0.33);
+    graph.addBoth(State.HOME, State.L2, 0.28);
+    graph.addBoth(State.HOME, State.L3, 0.18);
+    graph.addBoth(State.HOME, State.PREL4, 0.16);
+    graph.addBoth(State.PREL4, State.L4, 0.4);
+    graph.addBoth(State.HOME, State.LALGAE, 0.15);
+    graph.addBoth(State.HOME, State.HALGAE, 0.2);
     graph.addBoth(State.HOME, State.SINTAKE, 1);
     graph.addBoth(State.HOME, State.AGINTAKE, 1);
-    graph.addBoth(State.HOME, State.CGINTAKE, 1);
+    graph.addBoth(State.HOME, State.CGINTAKE, 0.35);
     graph.addBoth(State.HOME, State.PRECLIMB, 1);
     graph.addBoth(State.HOME, State.PROCESSOR, 1);
     graph.addBoth(State.HOME, State.BARGE, 1);
     graph.addBoth(State.L1, State.SINTAKE, 2);
-    graph.addBoth(State.L1, State.CGINTAKE, 1);
-    graph.addBoth(State.L2, State.LALGAE, 1);
-    graph.addBoth(State.L3, State.LALGAE, 1);
-    graph.addBoth(State.L3, State.HALGAE, 1);
-    graph.addBoth(State.L4, State.HALGAE, 1);
-    graph.add(State.PRECLIMB, State.CLIMB, 1);
+    graph.addBoth(State.L1, State.CGINTAKE, 0.23);
+    graph.addBoth(State.L2, State.LALGAE, 0.20);
+    graph.addBoth(State.L3, State.LALGAE, 0.01);
+    graph.addBoth(State.L3, State.HALGAE, 0.28);
+    graph.add(State.PRECLIMB, State.CLIMB, 0.5);
     graph.addBoth(State.AGINTAKE, State.CGINTAKE, 1);
     graph.addBoth(State.AGINTAKE, State.PROCESSOR, 1);
     graph.addBoth(State.AGINTAKE, State.SINTAKE, 1);
