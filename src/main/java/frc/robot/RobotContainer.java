@@ -37,7 +37,6 @@ import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.AutoSmartAlignProfiledPID3d;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SmartAlignProfiledPID;
-import frc.robot.commands.SmartIntake;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -183,7 +182,7 @@ public class RobotContainer {
     baseCommand.touchpad().onTrue(superstructure.setWantedSuperStateCommand(State.L1));
     baseCommand.cross().onTrue(superstructure.setWantedSuperStateCommand(State.HOME));
 
-    baseCommand.R2().whileTrue(new SmartIntake(intake, fullArm));
+    baseCommand.R2().whileTrue(superstructure.setWantedSuperStateCommand(State.CGINTAKE));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
     baseCommand.R1().whileTrue(intake.setIntakeSpeed(-1));
@@ -339,7 +338,7 @@ public class RobotContainer {
             () -> base.getRightX(),
             () -> 1));
 
-    intake.setDefaultCommand(intake.DefaultCommand());
+    // intake.setDefaultCommand(intake.DefaultCommand());
     fullArm.setGoalCommand(HOME, false);
   }
 
