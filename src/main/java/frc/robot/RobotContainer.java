@@ -302,6 +302,8 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("L3", fullArm.setGoalCommand(L3, true));
 
+    NamedCommands.registerCommand("L2", fullArm.setGoalCommand(L2, true));
+
     NamedCommands.registerCommand("HOME", fullArm.setGoalCommand(HOME, false));
 
     NamedCommands.registerCommand("INTAKE", fullArm.setGoalCommand(GROUND_CORAL_INTAKE, false));
