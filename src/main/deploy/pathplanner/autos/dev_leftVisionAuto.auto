@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionStartLtoL"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4"
+            "pathName": "visionStartRtoC"
           }
         },
         {
@@ -38,13 +32,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionLToLoliL"
+            "pathName": "visionCtoLoliR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "visionLoliLToA"
+            "pathName": "visionLoliRtoB"
           }
         },
         {
@@ -69,13 +63,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionAtoLoliM"
+            "pathName": "visionBtoLoliM"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "visionLoliMToB"
+            "pathName": "visionLoliMtoA"
           }
         },
         {
@@ -98,28 +92,15 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.05
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "INTAKE"
-                }
-              }
-            ]
+            "pathName": "visionAtoLoliL"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "visionBToLoliR"
+            "pathName": "visionLoliLToAL2"
           }
         }
       ]
