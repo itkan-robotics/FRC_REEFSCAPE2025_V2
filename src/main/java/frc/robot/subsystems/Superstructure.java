@@ -55,11 +55,16 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Checks if the robot has reached the next state and is not at the desired state
     if (areAllSubsystemsAtCurrentState() && currentState.compareTo(wantedState) != 0)
       currentState = transitions.get(new Pair<State, State>(currentState, wantedState));
     applyStates();
   }
 
+  /**
+   * @param wantedState state to move to
+   * @return command to set wanted state to param
+   */
   public Command setWantedSuperStateCommand(State wantedState) {
     return run(
         () -> {
@@ -67,12 +72,15 @@ public class Superstructure extends SubsystemBase {
         });
   }
 
+  /**
+   * @param wantedState state to move to
+   */
   public void setWantedSuperState(State wantedState) {
     this.wantedState = wantedState;
   }
 
   private void applyStates() {
-    // TO-DO: 2910-style methods
+    // Calls methods to set the robot to the current state
     switch (currentState) {
       case SINTAKE:
         stationIntake();
@@ -121,6 +129,7 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
+  // Methods to change robot to current state
   private void home() {
     fullArm.setGoalMethod(ArmState.HOME, false);
   }
@@ -184,15 +193,20 @@ public class Superstructure extends SubsystemBase {
     fullArm.setGoalMethod(ArmState.CLIMB, false);
   }
 
+  /**
+   * @return if the robot matches current state
+   */
   private boolean areAllSubsystemsAtCurrentState() {
     // TO-DO: Make doesMatchState() for each subsystem
     return fullArm.isArmAtDesiredState()
         && intake.isIntakeAtDesiredState()
         && climb.isClimbAtDesiredState();
   }
-  // Creates the graph and defines all edges in the graph. If there is an edge between 2 states, the
-  // robot can move directly between those two states, where the weight is the time it takes to do
-  // so.
+  /*
+   * Creates the graph and defines all edges in the graph. If there is an edge between 2 states, the
+   * bot can move directly between those two states, where the weight is the time it takes to do
+   * so.
+   */
   public void initGraph() {
     graph = new Graph<>(State.values());
     graph.addBoth(State.HOME, State.L1, 2.);
@@ -219,6 +233,7 @@ public class Superstructure extends SubsystemBase {
     graph.addBoth(State.AGINTAKE, State.PROCESSOR, 1.);
     graph.addBoth(State.AGINTAKE, State.SINTAKE, 1.);
     graph.addBoth(State.SINTAKE, State.CGINTAKE, 1.);
+    // Precomputes all transitions
     transitions = new HashMap<>();
     for (State state1 : State.values()) {
       for (State state2 : State.values()) {
@@ -226,7 +241,12 @@ public class Superstructure extends SubsystemBase {
       }
     }
   }
-
+  /**
+   * @param curState current state of the robot
+   * @param wanState wanted state of the robot
+   * @return next state on the fastest path from current statr to wanted state
+   * @see https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php
+   */
   private State nextNode(State curState, State wanState) {
     // Dijkstra's algorithm implementation to find the fastest path for state transition
     double[] minCost = new double[State.values().length];
@@ -238,20 +258,20 @@ public class Superstructure extends SubsystemBase {
             new Comparator<Pair<State, Double>>() {
               @Override
               public int compare(Pair<State, Double> o1, Pair<State, Double> o2) {
-                return Double.compare(o1.cost, o2.cost);
+                return Double.compare(o1.second(), o2.second());
               }
             });
     State[] previousState = new State[State.values().length];
     queue.offer(new Pair<State, Double>(curState, 0.0));
     while (!queue.isEmpty()) {
       Pair<State, Double> currentPair = queue.poll();
-      State current = currentPair.state;
+      State current = currentPair.first();
       if (isProcessed[current.ordinal()]) continue;
       if (current.compareTo(wanState) == 0) break;
       isProcessed[current.ordinal()] = true;
       for (Pair<State, Double> neighborPair : graph.getAdj(current)) {
-        State neighbor = neighborPair.state;
-        double costToNeighbor = neighborPair.cost;
+        State neighbor = neighborPair.first();
+        double costToNeighbor = neighborPair.second();
         if (minCost[current.ordinal()] + costToNeighbor < minCost[neighbor.ordinal()]) {
           minCost[neighbor.ordinal()] = minCost[current.ordinal()] + costToNeighbor;
           previousState[neighbor.ordinal()] = current;
