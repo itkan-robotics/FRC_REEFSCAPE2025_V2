@@ -313,11 +313,11 @@ public class RobotContainer {
         "outtake",
         intake
             .setIntakeSpeed(-0.7)
-            .until(() -> !intake.getGpDetected())
+            .until(() -> !intake.getCoralDetectedWithDebouncer())
             .andThen(new WaitCommand(0.1)));
 
     NamedCommands.registerCommand(
-        "intake", intake.setIntakeSpeed(1.0).until(() -> intake.gamepieceDetected()));
+        "intake", intake.setIntakeSpeed(1.0).until(() -> intake.coralDetectedInstant()));
   }
 
   /*********************************************************
