@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Intake_Motor_Port;
+import static frc.robot.Constants.ALGAE_MOTOR_PORT;
+import static frc.robot.Constants.CORAL_LEFT_MOTOR_PORT;
+import static frc.robot.Constants.CORAL_RIGHT_MOTOR_PORT;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -26,22 +28,26 @@ import org.littletonrobotics.junction.Logger;
 /** Subsystem for the end effector */
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
-  private final TalonFX intakeMotor = new TalonFX(Intake_Motor_Port);
+  private final TalonFX coralMotorLeft = new TalonFX(CORAL_LEFT_MOTOR_PORT);
+
+  private final TalonFX coralMotorRight = new TalonFX(CORAL_RIGHT_MOTOR_PORT);
+  private final TalonFX algaeMotor = new TalonFX(ALGAE_MOTOR_PORT);
 
   private double desiredIntakeSpeed = 0.045;
 
-  private Debouncer gamepieceDebouncerRising;
-  private Debouncer gamepieceDebouncerFalling;
-  private boolean gamepieceDetected = false;
+  private Debouncer coralDetectionDebouncerRising;
+  private Debouncer coralDetectionDebouncerFalling;
+  private boolean coralDetectedWithDebouncer = false;
 
   private final SimpleMotorLogger intakeLogger =
-      new SimpleMotorLogger(intakeMotor, "_Intake/motor");
+      new SimpleMotorLogger(coralMotorLeft, "_Intake/motor");
 
   public enum IntakeState {
     NO_GAMEPIECE,
     HAS_CORAL,
     HAS_ALGAE,
     INTAKING_CORAL,
+    INTAKING_CORAL_L1,
     INTAKING_ALGAE,
     OUTTAKING_CORAL,
     OUTTAKING_ALGAE,
@@ -64,12 +70,14 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig.CurrentLimits.StatorCurrentLimit = 60;
     intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    tryUntilOk(5, () -> intakeMotor.getConfigurator().apply(intakeConfig, 0.25));
+    tryUntilOk(5, () -> coralMotorLeft.getConfigurator().apply(intakeConfig, 0.25));
+    tryUntilOk(5, () -> coralMotorRight.getConfigurator().apply(intakeConfig, 0.25));
+    tryUntilOk(5, () -> algaeMotor.getConfigurator().apply(intakeConfig, 0.25));
 
     // Configure the intake sensor
     // intake_sensor.setRangingMode(RangingMode.Short, 40);
-    gamepieceDebouncerRising = new Debouncer(0.05, DebounceType.kRising);
-    gamepieceDebouncerFalling = new Debouncer(0.5, DebounceType.kFalling);
+    coralDetectionDebouncerRising = new Debouncer(0.05, DebounceType.kRising);
+    coralDetectionDebouncerFalling = new Debouncer(0.5, DebounceType.kFalling);
   }
 
   public void tryState(IntakeState desiredState) {
@@ -149,7 +157,7 @@ public class IntakeSubsystem extends SubsystemBase {
     return run(
         () -> {
           var currentState = storedState.getBotState();
-          intakeMotor.set(currentState.getOuttakeSpeed());
+          coralMotorLeft.set(currentState.getOuttakeSpeed());
         });
   }
 
@@ -159,7 +167,9 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param speed
    */
   public void setIntakeDutyCycle(double speed) {
-    intakeMotor.set(speed);
+    coralMotorLeft.set(speed);
+    coralMotorRight.set(-speed);
+    algaeMotor.set(speed);
   }
 
   /**
@@ -173,20 +183,20 @@ public class IntakeSubsystem extends SubsystemBase {
     return !ranger.get();
   }
 
-  public boolean gamepieceDetected() {
-    return Math.abs(intakeMotor.getVelocity().getValueAsDouble()) <= 0.02
-        && intakeMotor.getSupplyCurrent().getValueAsDouble() >= 1;
+  public boolean coralDetectedInstant() {
+    return Math.abs(coralMotorLeft.getVelocity().getValueAsDouble()) <= 0.02
+        && coralMotorLeft.getSupplyCurrent().getValueAsDouble() >= 1;
   }
 
-  public boolean getGpDetected() {
-    return gamepieceDetected;
+  public boolean getCoralDetectedWithDebouncer() {
+    return coralDetectedWithDebouncer;
   }
 
   public Command intakeUntilStalled() {
     return run(() -> {
           setIntakeSpeed(1.0);
         })
-        .until(() -> gamepieceDetected())
+        .until(() -> coralDetectedInstant())
         .andThen(
             new InstantCommand(
                 () -> {
@@ -197,17 +207,17 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // SmartDashboard.putBoolean("ranger/Ranger Value", ranger.get());
-    gamepieceDetected =
-        gamepieceDebouncerRising.calculate(gamepieceDetected())
-            || gamepieceDebouncerFalling.calculate(gamepieceDetected());
+    coralDetectedWithDebouncer =
+        coralDetectionDebouncerRising.calculate(coralDetectedInstant())
+            || coralDetectionDebouncerFalling.calculate(coralDetectedInstant());
     intakeLogger.logMotorSpecs().logMotorPowerData();
     Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
 
-    Logger.recordOutput("_Intake/gpDetectedUnfiltered", gamepieceDetected());
-    Logger.recordOutput("_Intake/gpDetectedFiltered", gamepieceDetected);
+    Logger.recordOutput("_Intake/gpDetectedUnfiltered", coralDetectedInstant());
+    Logger.recordOutput("_Intake/gpDetectedFiltered", coralDetectedWithDebouncer);
     Logger.recordOutput("_Intake/desiredSpeed", desiredIntakeSpeed);
 
-    if (gamepieceDetected) {
+    if (coralDetectedWithDebouncer) {
       currentIntakeState = IntakeState.HAS_CORAL;
     } else {
       setIntakeDutyCycle(desiredIntakeSpeed);

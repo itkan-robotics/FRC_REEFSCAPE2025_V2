@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionStartLtoL"
+            "pathName": "visionStartRtoL"
           }
         },
         {
@@ -119,7 +119,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionBToLoliR"
+            "pathName": "visionLoliRToB"
           }
         }
       ]

@@ -37,7 +37,7 @@ public class SmartIntake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (intake.getGpDetected()) {
+    if (intake.getCoralDetectedWithDebouncer()) {
       fullArm.setGoalMethod(ArmState.HOME, true);
     } else {
       fullArm.setGoalMethod(ArmState.GROUND_CORAL_INTAKE, false);

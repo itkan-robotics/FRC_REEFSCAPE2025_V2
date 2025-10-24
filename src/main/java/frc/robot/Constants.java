@@ -69,7 +69,9 @@ public final class Constants {
    * LL Forward: -0.225 || LL Right: 0.24 || LL Up: 0.5
    */
 
-  public static final int Intake_Motor_Port = 16;
+  public static final int CORAL_LEFT_MOTOR_PORT = 16;
+  public static final int CORAL_RIGHT_MOTOR_PORT = 17;
+  public static final int ALGAE_MOTOR_PORT = 18;
 
   public static class ArmConstants {
     public static class ShoulderConstants {
@@ -110,7 +112,7 @@ public final class Constants {
 
     public static class WristConstants {
       public static final double WRIST_ZERO_POSITION = 0.1018;
-      public static final int WRIST_MOTOR_PORT = 17;
+      public static final int WRIST_MOTOR_PORT = 19;
 
       public static final double WRIST_KP = 20.0;
       public static final double WRIST_KS = 0.0;
