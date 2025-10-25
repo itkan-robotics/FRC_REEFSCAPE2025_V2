@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -36,6 +42,62 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "visionLoliRToB"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.3
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "outtake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "visionAtoLoliM"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "visionLoliMToB"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.3
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "outtake"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -58,137 +120,6 @@
           "type": "path",
           "data": {
             "pathName": "visionLoliRToB"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L3"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.3
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "outtake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "visionBtoLoliM"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.05
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "INTAKE"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "visionLoliMtoA"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L3"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.3
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "outtake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "visionAtoLoliL"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.05
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "INTAKE"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "visionLoliLToAL2"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.3
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "outtake"
-                }
-              }
-            ]
           }
         }
       ]
