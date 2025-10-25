@@ -182,7 +182,7 @@ public class RobotContainer {
     baseCommand.touchpad().onTrue(superstructure.setWantedSuperStateCommand(State.L1));
     baseCommand.cross().onTrue(superstructure.setWantedSuperStateCommand(State.HOME));
 
-    baseCommand.R2().whileTrue(superstructure.setWantedSuperStateCommand(State.CGINTAKE));
+    baseCommand.povLeft().whileTrue(superstructure.setWantedSuperStateCommand(State.CGINTAKE));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
     baseCommand.R1().whileTrue(intake.setIntakeSpeed(-1));

@@ -225,7 +225,7 @@ public class FullArmSubsystem extends SubsystemBase {
     wristConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     wristConfig.CurrentLimits.StatorCurrentLimit = 30;
     wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     // Set PID and FF gains and settings
     var wristSlot0Configs = wristConfig.Slot0;
