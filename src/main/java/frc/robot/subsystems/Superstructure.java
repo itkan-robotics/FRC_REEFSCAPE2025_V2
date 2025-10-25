@@ -11,6 +11,7 @@ import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.*;
 import java.util.*;
+import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
 
@@ -33,10 +34,9 @@ public class Superstructure extends SubsystemBase {
     CLIMB
   }
 
-  Graph<State, Double> graph;
+  Graph<State> graph;
   State currentState = State.HOME;
   State wantedState = State.HOME;
-  HashMap<Pair<State, State>, State> transitions;
 
   FullArmSubsystem fullArm;
   IntakeSubsystem intake;
@@ -56,8 +56,12 @@ public class Superstructure extends SubsystemBase {
   @Override
   public void periodic() {
     if (areAllSubsystemsAtCurrentState() && currentState.compareTo(wantedState) != 0)
-      currentState = transitions.get(new Pair<State, State>(currentState, wantedState));
+      currentState = tryState();
     applyStates();
+
+    Logger.recordOutput(
+        "_Superstructure/areAllSubsystemsAtCurrentState", areAllSubsystemsAtCurrentState());
+    Logger.recordOutput("_Superstrucutre/currentState", currentState);
   }
 
   public Command setWantedSuperStateCommand(State wantedState) {
@@ -195,73 +199,66 @@ public class Superstructure extends SubsystemBase {
   // so.
   public void initGraph() {
     graph = new Graph<>(State.values());
-    graph.addBoth(State.HOME, State.L1, 2.);
-    graph.addBoth(State.HOME, State.L2, 1.);
-    graph.addBoth(State.HOME, State.L3, 1.);
-    graph.addBoth(State.HOME, State.PREL4, 1.);
-    graph.addBoth(State.PREL4, State.L4, 1.);
-    graph.addBoth(State.HOME, State.LALGAE, 1.);
-    graph.addBoth(State.HOME, State.HALGAE, 2.);
-    graph.addBoth(State.HOME, State.SINTAKE, 1.);
-    graph.addBoth(State.HOME, State.AGINTAKE, 1.);
-    graph.addBoth(State.HOME, State.CGINTAKE, 1.);
-    graph.addBoth(State.HOME, State.PRECLIMB, 1.);
-    graph.addBoth(State.HOME, State.PROCESSOR, 1.);
-    graph.addBoth(State.HOME, State.BARGE, 1.);
-    graph.addBoth(State.L1, State.SINTAKE, 2.);
-    graph.addBoth(State.L1, State.CGINTAKE, 1.);
-    graph.addBoth(State.L2, State.LALGAE, 1.);
-    graph.addBoth(State.L3, State.LALGAE, 1.);
-    graph.addBoth(State.L3, State.HALGAE, 1.);
-    graph.addBoth(State.L4, State.HALGAE, 1.);
-    graph.addBoth(State.PRECLIMB, State.CLIMB, 1.);
-    graph.addBoth(State.AGINTAKE, State.CGINTAKE, 1.);
-    graph.addBoth(State.AGINTAKE, State.PROCESSOR, 1.);
-    graph.addBoth(State.AGINTAKE, State.SINTAKE, 1.);
-    graph.addBoth(State.SINTAKE, State.CGINTAKE, 1.);
-    transitions = new HashMap<>();
-    for (State state1 : State.values()) {
-      for (State state2 : State.values()) {
-        transitions.put(new Pair<State, State>(state1, state2), nextNode(state1, state2));
-      }
-    }
+    graph.addBoth(State.HOME, State.L1, 0.33);
+    graph.addBoth(State.HOME, State.L2, 0.28);
+    graph.addBoth(State.HOME, State.L3, 0.18);
+    graph.addBoth(State.HOME, State.PREL4, 0.16);
+    graph.addBoth(State.PREL4, State.L4, 0.4);
+    graph.addBoth(State.HOME, State.LALGAE, 0.15);
+    graph.addBoth(State.HOME, State.HALGAE, 0.2);
+    graph.addBoth(State.HOME, State.SINTAKE, 1);
+    graph.addBoth(State.HOME, State.AGINTAKE, 1);
+    graph.addBoth(State.HOME, State.CGINTAKE, 0.35);
+    graph.addBoth(State.HOME, State.PRECLIMB, 1);
+    graph.addBoth(State.HOME, State.PROCESSOR, 1);
+    graph.addBoth(State.HOME, State.BARGE, 1);
+    graph.addBoth(State.L1, State.SINTAKE, 2);
+    graph.addBoth(State.L1, State.CGINTAKE, 0.23);
+    graph.addBoth(State.L2, State.LALGAE, 0.20);
+    graph.addBoth(State.L3, State.LALGAE, 0.01);
+    graph.addBoth(State.L3, State.HALGAE, 0.28);
+    graph.add(State.PRECLIMB, State.CLIMB, 0.5);
+    graph.addBoth(State.AGINTAKE, State.CGINTAKE, 1);
+    graph.addBoth(State.AGINTAKE, State.PROCESSOR, 1);
+    graph.addBoth(State.AGINTAKE, State.SINTAKE, 1);
+    graph.addBoth(State.SINTAKE, State.CGINTAKE, 1);
   }
 
-  private State nextNode(State curState, State wanState) {
+  public State tryState() {
     // Dijkstra's algorithm implementation to find the fastest path for state transition
     double[] minCost = new double[State.values().length];
     Arrays.fill(minCost, Double.MAX_VALUE);
     boolean[] isProcessed = new boolean[State.values().length];
-    minCost[curState.ordinal()] = 0;
-    PriorityQueue<Pair<State, Double>> queue =
+    minCost[currentState.ordinal()] = 0;
+    PriorityQueue<Pair<State>> queue =
         new PriorityQueue<>(
-            new Comparator<Pair<State, Double>>() {
+            new Comparator<Pair<State>>() {
               @Override
-              public int compare(Pair<State, Double> o1, Pair<State, Double> o2) {
+              public int compare(Pair<State> o1, Pair<State> o2) {
                 return Double.compare(o1.cost, o2.cost);
               }
             });
     State[] previousState = new State[State.values().length];
-    queue.offer(new Pair<State, Double>(curState, 0.0));
+    queue.offer(new Pair<State>(currentState, 0));
     while (!queue.isEmpty()) {
-      Pair<State, Double> currentPair = queue.poll();
+      Pair<State> currentPair = queue.poll();
       State current = currentPair.state;
       if (isProcessed[current.ordinal()]) continue;
-      if (current.compareTo(wanState) == 0) break;
+      if (current.compareTo(wantedState) == 0) break;
       isProcessed[current.ordinal()] = true;
-      for (Pair<State, Double> neighborPair : graph.getAdj(current)) {
+      for (Pair<State> neighborPair : graph.getAdj(current)) {
         State neighbor = neighborPair.state;
         double costToNeighbor = neighborPair.cost;
         if (minCost[current.ordinal()] + costToNeighbor < minCost[neighbor.ordinal()]) {
           minCost[neighbor.ordinal()] = minCost[current.ordinal()] + costToNeighbor;
           previousState[neighbor.ordinal()] = current;
         }
-        queue.offer(new Pair<State, Double>(neighbor, minCost[neighbor.ordinal()]));
+        queue.offer(new Pair<State>(neighbor, minCost[neighbor.ordinal()]));
       }
     }
     // Backtrack along minimum path
-    State last = wanState;
-    while (previousState[last.ordinal()].compareTo(curState) != 0) {
+    State last = wantedState;
+    while (previousState[last.ordinal()].compareTo(currentState) != 0) {
       last = previousState[last.ordinal()];
     }
     return last;

@@ -2,11 +2,11 @@ package frc.robot.util;
 
 import frc.robot.subsystems.*;
 
-public class Pair<T, A> {
+public class Pair<T> {
   public T state;
-  public A cost;
+  public double cost;
 
-  public Pair(T state, A cost) {
+  public Pair(T state, double cost) {
     this.state = state;
     this.cost = cost;
   }
