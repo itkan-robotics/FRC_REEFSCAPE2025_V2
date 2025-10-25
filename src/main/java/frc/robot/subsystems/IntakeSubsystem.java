@@ -186,7 +186,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean coralDetectedInstant() {
     return Math.abs(coralMotorLeft.getVelocity().getValueAsDouble()) <= 0.02
-        && coralMotorLeft.getSupplyCurrent().getValueAsDouble() >= 1;
+        && coralMotorLeft.getSupplyCurrent().getValueAsDouble() >= 1
+        || Math.abs(coralMotorRight.getVelocity().getValueAsDouble()) <= 0.02
+        && coralMotorRight.getSupplyCurrent().getValueAsDouble() >= 1;
+  }
+
+  public boolean algaeDetectedInstant() {
+    return Math.abs(algaeMotor.getVelocity().getValueAsDouble()) <= 0.02
+        && algaeMotor.getSupplyCurrent().getValueAsDouble() >= 1;
   }
 
   public boolean getCoralDetectedWithDebouncer() {
@@ -212,9 +219,9 @@ public class IntakeSubsystem extends SubsystemBase {
         coralDetectionDebouncerRising.calculate(coralDetectedInstant())
             || coralDetectionDebouncerFalling.calculate(coralDetectedInstant());
     intakeLogger.logMotorSpecs().logMotorPowerData();
-    Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
+    // Logger.recordOutput("_Intake/ranger/Ranger Value", ranger.get());
 
-    Logger.recordOutput("_Intake/gpDetectedUnfiltered", coralDetectedInstant());
+    // Logger.recordOutput("_Intake/gpDetectedUnfiltered", coralDetectedInstant());
     Logger.recordOutput("_Intake/gpDetectedFiltered", coralDetectedWithDebouncer);
     Logger.recordOutput("_Intake/desiredSpeed", desiredIntakeSpeed);
 
