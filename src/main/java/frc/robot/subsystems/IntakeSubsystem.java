@@ -29,7 +29,6 @@ import org.littletonrobotics.junction.Logger;
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   private final TalonFX coralMotorLeft = new TalonFX(CORAL_LEFT_MOTOR_PORT);
-
   private final TalonFX coralMotorRight = new TalonFX(CORAL_RIGHT_MOTOR_PORT);
   private final TalonFX algaeMotor = new TalonFX(ALGAE_MOTOR_PORT);
 
@@ -158,6 +157,8 @@ public class IntakeSubsystem extends SubsystemBase {
         () -> {
           var currentState = storedState.getBotState();
           coralMotorLeft.set(currentState.getOuttakeSpeed());
+          coralMotorRight.set(-currentState.getOuttakeSpeed());
+          algaeMotor.set(currentState.getOuttakeSpeed());
         });
   }
 
