@@ -51,7 +51,7 @@
       "minWaypointRelativePos": 1.0,
       "maxWaypointRelativePos": 2,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 0.6,
         "maxAcceleration": 4.5,
         "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 45.0,
@@ -61,19 +61,7 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "INTAKE",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "INTAKE"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
     "maxAcceleration": 4.5,

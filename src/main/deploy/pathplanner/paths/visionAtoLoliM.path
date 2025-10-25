@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 3.0,
-        "y": 4.191
+        "y": 3.84
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.6442567567567568,
-        "y": 3.995354729729729
+        "y": 3.644354729729729
       },
       "isLocked": false,
-      "linkedName": "A"
+      "linkedName": "B"
     },
     {
       "anchor": {
@@ -51,7 +51,7 @@
         "y": 3.95
       },
       "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.27671541057367827,
+      "minWaypointRelativePos": 0.3,
       "maxWaypointRelativePos": 0.75,
       "name": "Point Towards Zone"
     }
@@ -70,7 +70,7 @@
     },
     {
       "name": "intake",
-      "waypointRelativePos": 0.018906144496960438,
+      "waypointRelativePos": 0.05,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -107,7 +107,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -179.92596722174488
   },
   "useDefaultConstraints": false
 }
