@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.2165340909090911,
-        "y": 2.175
+        "x": 1.2285000000000001,
+        "y": 2.2114999999999996
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3630803298940652,
-        "y": 2.4275517060095617
+        "x": 1.3750462389849742,
+        "y": 2.4640517060095615
       },
       "isLocked": false,
       "linkedName": "LoliR"
@@ -20,7 +20,7 @@
         "y": 3.84
       },
       "prevControl": {
-        "x": 1.7757742010732915,
+        "x": 1.7757742010732906,
         "y": 3.8373480627407215
       },
       "nextControl": {
@@ -90,7 +90,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -178.37271667760643
   },
   "useDefaultConstraints": true
 }
