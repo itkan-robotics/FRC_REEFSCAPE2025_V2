@@ -1,29 +1,13 @@
 package frc.robot.util;
 
+import frc.robot.subsystems.*;
+
 public class Pair<T, A> {
-  private T first;
-  private A second;
+  public T state;
+  public A cost;
 
-  /**
-   * @param first First element in the pair
-   * @param second Second element in the pair
-   */
-  public Pair(T first, A second) {
-    this.first = first;
-    this.second = second;
-  }
-
-  /**
-   * @return Returns the first element in the pair
-   */
-  public T first() {
-    return first;
-  }
-
-  /**
-   * @return Returns the second element in the pair
-   */
-  public A second() {
-    return second;
+  public Pair(T state, A cost) {
+    this.state = state;
+    this.cost = cost;
   }
 }

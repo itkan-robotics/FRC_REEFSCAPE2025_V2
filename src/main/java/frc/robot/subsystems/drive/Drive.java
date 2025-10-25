@@ -163,7 +163,7 @@ public class Drive extends SubsystemBase {
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
-    // TO-DO: Make it so that updates when auto is selected
+    //TO-DO: Make it so that updates when auto is selected
     Logger.recordOutput("ppSetupPose", new Pose2d(7.274, 0.915, new Rotation2d(0)));
   }
 
