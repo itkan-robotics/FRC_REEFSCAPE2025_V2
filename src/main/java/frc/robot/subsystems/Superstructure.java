@@ -181,11 +181,12 @@ public class Superstructure extends SubsystemBase {
 
   private void preClimb() {
     fullArm.setGoalMethod(ArmState.PRECLIMB, false);
-    climb.setSpeed(1.0);
+    // climb.setSpeedMethod(1.0);
   }
 
   private void climb() {
     fullArm.setGoalMethod(ArmState.CLIMB, false);
+    // climb.setSpeedMethod(1.0);
   }
 
   private boolean areAllSubsystemsAtCurrentState() {
@@ -219,7 +220,7 @@ public class Superstructure extends SubsystemBase {
     graph.addBoth(State.L3, State.LALGAE, 1);
     graph.addBoth(State.L3, State.HALGAE, 1);
     graph.addBoth(State.L4, State.HALGAE, 1);
-    graph.add(State.PRECLIMB, State.CLIMB, 1);
+    graph.addBoth(State.PRECLIMB, State.CLIMB, 1);
     graph.addBoth(State.AGINTAKE, State.CGINTAKE, 1);
     graph.addBoth(State.AGINTAKE, State.PROCESSOR, 1);
     graph.addBoth(State.AGINTAKE, State.SINTAKE, 1);

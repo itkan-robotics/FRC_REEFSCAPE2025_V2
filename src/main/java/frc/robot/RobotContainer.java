@@ -200,7 +200,9 @@ public class RobotContainer {
         .whileTrue(
             new RunCommand(() -> intake.tryState(IntakeState.OUTTAKING_CORAL))
                 .alongWith(new RunCommand(() -> intake.setToggleStatorCurrentLimit(false))))
-        .onFalse(new RunCommand(() -> intake.setToggleStatorCurrentLimit(true)));
+        .onFalse(
+            new RunCommand(() -> intake.setToggleStatorCurrentLimit(true))
+                .alongWith(new RunCommand(() -> intake.tryState(IntakeState.IDLE))));
 
     operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 
@@ -305,6 +307,9 @@ public class RobotContainer {
         .ignoringDisable(true);
 
     NamedCommands.registerCommand(
+        "dealgify", superstructure.setWantedSuperStateCommand(State.LALGAE));
+
+    NamedCommands.registerCommand(
         "goToReef", new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.leftLimelightName));
 
     NamedCommands.registerCommand(
@@ -335,8 +340,7 @@ public class RobotContainer {
             .until(() -> !intake.getCoralDetectedWithDebouncer())
             .andThen(new WaitCommand(0.1)));
 
-    NamedCommands.registerCommand(
-        "intake", intake.setIntakeSpeed(1.0).until(() -> intake.coralDetectedInstant()));
+    NamedCommands.registerCommand("intake", intake.setIntakeSpeed(1.0).withTimeout(10));
   }
 
   /*********************************************************

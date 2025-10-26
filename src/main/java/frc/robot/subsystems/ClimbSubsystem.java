@@ -28,7 +28,7 @@ public class ClimbSubsystem extends SubsystemBase {
     climbConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     climbConfig.CurrentLimits.StatorCurrentLimit = 40;
     climbConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    climbConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     tryUntilOk(5, () -> climbMotor.getConfigurator().apply(climbConfig, 0.25));
   }
@@ -38,6 +38,10 @@ public class ClimbSubsystem extends SubsystemBase {
         () -> {
           climbMotor.set(speed);
         });
+  }
+
+  public void setSpeedMethod(double speed) {
+    climbMotor.set(speed);
   }
 
   @Override

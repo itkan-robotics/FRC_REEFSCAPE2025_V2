@@ -45,14 +45,14 @@ public class SmartAlignProfiledPID extends Command {
   /** Offsets from the AprilTag for left and right branches, in inches. */
   double targetLateralOffset = 0;
 
-  double rightLateralOffset = 0.0;
-  double leftLateralOffset = 2.0;
+  double rightLateralOffset = 3.0; // left branch
+  double leftLateralOffset = -2.0; // right branch
 
   /** Distance from the AprilTag the robot desires to go to, in inches. */
   double targetDistanceOffset = 0;
 
-  double closeDistanceOffset = 0.33;
-  double farDistanceOffset = 1.0; // L2
+  double closeDistanceOffset = 0.25;
+  double farDistanceOffset = 0.65; // L2
 
   /** Distance the arm can start extending from; different for L2 than L3-4, in inches. */
   double armDistanceThreshold = 0;

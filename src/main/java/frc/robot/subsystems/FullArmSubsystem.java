@@ -73,7 +73,7 @@ public class FullArmSubsystem extends SubsystemBase {
     HOME(0.05, 1.5, 0.3, -0.8, 0),
     L1(-0.13, -1.5, 0.3, -0.5, 1),
     L2(0.19, 3.0, 0.45, -0.2, 2),
-    L3(0.1, 3.0, 0.43, -0.8, 3),
+    L3(0.1, 3.75, 0.43, -0.8, 3),
     L4(0.09, 20, 0.55, -0.8, 4),
     PREP_L4(0.13, 3.5, 0.52, -0.8, 21),
     GROUND_CORAL_INTAKE(-0.18, -3.0, 0.21, -0.8, 5),
@@ -85,7 +85,7 @@ public class FullArmSubsystem extends SubsystemBase {
     GROUND_ALGAE_INTAKE(-0.1, 1.0, 0.03, -0.8, 5),
     /////////////
     PRECLIMB(0.14, 3.5, 0.0, -0.8, 10),
-    CLIMB(-0.16, -1.95, 0.13, -0.8, 11),
+    CLIMB(-0.18, -1.95, 0.55, -0.8, 11),
     RESET(0.0, 0.0, 0.0, -0.8, -1),
     STATION_INTAKE(0.05, 1, 0.09, -0.8, 20);
 

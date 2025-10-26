@@ -69,7 +69,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     intakeConfig.CurrentLimits.SupplyCurrentLimit = 60;
     intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    intakeConfig.CurrentLimits.StatorCurrentLimit = 15;
+    intakeConfig.CurrentLimits.StatorCurrentLimit = 30;
     intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     tryUntilOk(5, () -> coralMotorLeft.getConfigurator().apply(intakeConfig, 0.25));
@@ -203,9 +203,9 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean coralDetectedInstant() {
     return currentIntakeState == IntakeState.INTAKING_CORAL
         ? Math.abs(coralMotorLeft.getVelocity().getValueAsDouble()) <= 80.0
-                && coralMotorLeft.getSupplyCurrent().getValueAsDouble() >= 0.25
+                && coralMotorLeft.getStatorCurrent().getValueAsDouble() >= 15.0
             || Math.abs(coralMotorRight.getVelocity().getValueAsDouble()) <= 80.0
-                && coralMotorRight.getSupplyCurrent().getValueAsDouble() >= 0.25
+                && coralMotorRight.getStatorCurrent().getValueAsDouble() >= 15.0
         : false;
   }
 
