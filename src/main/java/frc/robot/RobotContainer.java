@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -66,7 +67,7 @@ public class RobotContainer {
   public final FullArmSubsystem fullArm = new FullArmSubsystem();
   public final IntakeSubsystem intake = new IntakeSubsystem();
   public final ClimbSubsystem climb = new ClimbSubsystem();
-  public final AutoScoreSelection storedState = new AutoScoreSelection();
+  public static final AutoScoreSelection storedState = new AutoScoreSelection();
   public final Superstructure superstructure;
 
   // Initialize Controllers
@@ -185,17 +186,21 @@ public class RobotContainer {
 
     baseCommand
         .R2()
-        .onTrue(
+        .whileTrue(
             superstructure
                 .setWantedSuperStateCommand(State.CGINTAKE)
-                .alongWith(new InstantCommand(() -> intake.tryState(IntakeState.INTAKING_CORAL))))
-        .onFalse(new InstantCommand(() -> intake.tryState(IntakeState.IDLE)));
+                .alongWith(new RunCommand(() -> intake.tryState(IntakeState.INTAKING_CORAL))))
+        .onFalse(new RunCommand(() -> intake.tryState(IntakeState.IDLE)));
 
     baseCommand.povRight().whileTrue(superstructure.setWantedSuperStateCommand(State.AGINTAKE));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
-    // baseCommand.R1().whileTrue(new RunCommand(() ->
-    // intake.tryState(IntakeState.INTAKING_CORAL)));
+    baseCommand
+        .R1()
+        .whileTrue(
+            new RunCommand(() -> intake.tryState(IntakeState.OUTTAKING_CORAL))
+                .alongWith(new RunCommand(() -> intake.setToggleStatorCurrentLimit(false))))
+        .onFalse(new RunCommand(() -> intake.setToggleStatorCurrentLimit(true)));
 
     operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 
@@ -205,7 +210,9 @@ public class RobotContainer {
     baseCommand.povUp().onTrue(superstructure.setWantedSuperStateCommand(State.HALGAE));
     baseCommand.povDown().onTrue(superstructure.setWantedSuperStateCommand(State.LALGAE));
 
-    baseCommand.L2().whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState));
+    baseCommand
+        .L2()
+        .whileTrue(new SmartAlignProfiledPID(drive, fullArm, storedState, superstructure));
 
     // Auto Turn to Reef Face
     baseCommand
@@ -304,10 +311,10 @@ public class RobotContainer {
         "goToReefRight",
         new AutoSmartAlignProfiledPID3d(drive, LimelightConstants.rightLimelightName));
 
-    NamedCommands.registerCommand(
-        "L4", fullArm.setGoalCommand(L4, true).andThen(new WaitCommand(0.2)));
+    NamedCommands.registerCommand("L4", superstructure.setWantedSuperStateCommand(State.L4));
 
-    NamedCommands.registerCommand("PREP_L4", fullArm.setGoalCommand(PREP_L4, true));
+    NamedCommands.registerCommand(
+        "PREP_L4", superstructure.setWantedSuperStateCommand(State.PREL4));
 
     NamedCommands.registerCommand("L3", fullArm.setGoalCommand(L3, true));
 

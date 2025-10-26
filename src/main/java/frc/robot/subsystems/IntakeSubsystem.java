@@ -39,6 +39,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private Debouncer coralDetectionDebouncerFalling;
   private boolean coralDetectedWithDebouncer = false;
 
+  private TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
+
   private final SimpleMotorLogger intakeLogger =
       new SimpleMotorLogger(coralMotorLeft, "_Intake/motor");
 
@@ -64,11 +66,10 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {
 
     // Configure the intake motor
-    var intakeConfig = new TalonFXConfiguration();
     intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     intakeConfig.CurrentLimits.SupplyCurrentLimit = 60;
     intakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    intakeConfig.CurrentLimits.StatorCurrentLimit = 60;
+    intakeConfig.CurrentLimits.StatorCurrentLimit = 15;
     intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     tryUntilOk(5, () -> coralMotorLeft.getConfigurator().apply(intakeConfig, 0.25));
@@ -82,7 +83,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void tryState(IntakeState desiredState) {
-    System.out.println("Intake state: " + desiredState);
+    // System.out.println("Intake state: " + desiredState);
     switch (desiredState) {
       case INTAKING_CORAL:
         currentIntakeState = IntakeState.INTAKING_CORAL;
@@ -154,6 +155,13 @@ public class IntakeSubsystem extends SubsystemBase {
         () -> {
           setIntakeDutyCycle(speed);
         });
+  }
+
+  public void setToggleStatorCurrentLimit(boolean toggle) {
+    intakeConfig.CurrentLimits.StatorCurrentLimitEnable = toggle;
+    coralMotorLeft.getConfigurator().apply(intakeConfig, 0.25);
+    coralMotorRight.getConfigurator().apply(intakeConfig, 0.25);
+    algaeMotor.getConfigurator().apply(intakeConfig, 0.25);
   }
 
   /**

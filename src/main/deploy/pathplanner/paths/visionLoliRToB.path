@@ -59,7 +59,7 @@
     },
     {
       "name": "L4",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.75,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

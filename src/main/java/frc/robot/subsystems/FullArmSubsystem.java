@@ -76,7 +76,7 @@ public class FullArmSubsystem extends SubsystemBase {
     L3(0.1, 3.0, 0.43, -0.8, 3),
     L4(0.09, 20, 0.55, -0.8, 4),
     PREP_L4(0.13, 3.5, 0.52, -0.8, 21),
-    GROUND_CORAL_INTAKE(-0.18, -3.0, 0.29, -0.8, 5),
+    GROUND_CORAL_INTAKE(-0.18, -3.0, 0.21, -0.8, 5),
     LOWALGAE(0.18, 3.0, 0.35, -0.8, 6),
     HIGHALGAE(0.18, 3.0, 0.2, -0.8, 7),
     // TO-DO: TUNE
@@ -216,7 +216,7 @@ public class FullArmSubsystem extends SubsystemBase {
     // Software limits and configurations for the wrist of the arm
     var wristConfig = new TalonFXConfiguration();
     wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    wristConfig.Feedback.SensorToMechanismRatio = 20 * 40 / 20;
+    wristConfig.Feedback.SensorToMechanismRatio = 20;
     wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     // wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.45;
@@ -225,7 +225,7 @@ public class FullArmSubsystem extends SubsystemBase {
     wristConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     wristConfig.CurrentLimits.StatorCurrentLimit = 30;
     wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     // Set PID and FF gains and settings
     var wristSlot0Configs = wristConfig.Slot0;

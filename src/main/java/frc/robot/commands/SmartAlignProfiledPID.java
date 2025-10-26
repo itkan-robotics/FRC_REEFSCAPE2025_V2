@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.FullArmSubsystem.ArmState;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.State;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AutoScoreSelection;
 import frc.robot.util.LimelightHelpers;
@@ -28,6 +30,7 @@ public class SmartAlignProfiledPID extends Command {
   FullArmSubsystem arm;
   String limelightName;
   ArmState currentState;
+  Superstructure superstructure;
 
   TuneableProfiledPID profiledPid;
   PIDController thetaController;
@@ -42,14 +45,14 @@ public class SmartAlignProfiledPID extends Command {
   /** Offsets from the AprilTag for left and right branches, in inches. */
   double targetLateralOffset = 0;
 
-  double rightLateralOffset = 3;
-  double leftLateralOffset = -0.5;
+  double rightLateralOffset = 0.0;
+  double leftLateralOffset = 2.0;
 
   /** Distance from the AprilTag the robot desires to go to, in inches. */
   double targetDistanceOffset = 0;
 
   double closeDistanceOffset = 0.33;
-  double farDistanceOffset = 0.41; // L2
+  double farDistanceOffset = 1.0; // L2
 
   /** Distance the arm can start extending from; different for L2 than L3-4, in inches. */
   double armDistanceThreshold = 0;
@@ -59,10 +62,12 @@ public class SmartAlignProfiledPID extends Command {
 
   boolean isFinished = false;
 
-  public SmartAlignProfiledPID(Drive d, FullArmSubsystem a, AutoScoreSelection b) {
+  public SmartAlignProfiledPID(
+      Drive d, FullArmSubsystem a, AutoScoreSelection b, Superstructure s) {
     this.m_drive = d;
     this.storedState = b;
     this.arm = a;
+    this.superstructure = s;
     addRequirements(m_drive, arm);
   }
 
@@ -74,7 +79,7 @@ public class SmartAlignProfiledPID extends Command {
     profiledPid = new TuneableProfiledPID("m_profiledPid", 0.07, 0.0, 0.0, 3, 3);
     profiledPid.setTolerance(0.4);
 
-    thetaController = new PIDController(0.05, 0.0, 0.0);
+    thetaController = new PIDController(0.1, 0.0, 0.0);
     thetaController.enableContinuousInput(-180, 180);
     thetaController.setTolerance(3);
 
@@ -136,6 +141,12 @@ public class SmartAlignProfiledPID extends Command {
 
     if (distanceToTarget < armDistanceThreshold) {
       arm.setGoalMethod(currentState, true);
+      superstructure.setWantedSuperState(
+          currentState == ArmState.L4
+              ? State.L4
+              : currentState == ArmState.L3
+                  ? State.L3
+                  : currentState == ArmState.L2 ? State.L2 : State.HOME);
     }
 
     SmartDashboard.putNumber("smartAlign/CombinedProfiledPID X", xTrans);
