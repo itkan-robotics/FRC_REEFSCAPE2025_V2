@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "L4"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [

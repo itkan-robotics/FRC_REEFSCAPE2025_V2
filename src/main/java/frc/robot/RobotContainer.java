@@ -312,7 +312,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("INTAKEARM", fullArm.setGoalCommand(STATION_INTAKE, true));
 
-    NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.2));
+    NamedCommands.registerCommand("intakeDefault", intake.setIntakeSpeed(0.5));
 
     NamedCommands.registerCommand(
         "outtake",

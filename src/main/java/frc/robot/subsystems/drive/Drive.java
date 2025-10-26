@@ -164,7 +164,8 @@ public class Drive extends SubsystemBase {
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
     // TO-DO: Make it so that updates when auto is selected
-    Logger.recordOutput("ppSetupPose", new Pose2d(7.274, 0.915, new Rotation2d(0)));
+    Logger.recordOutput(
+        "ppSetupPose", new Pose2d(10.271, 7.450, new Rotation2d(Math.toRadians(180))));
   }
 
   Field2d robotPose = new Field2d();
