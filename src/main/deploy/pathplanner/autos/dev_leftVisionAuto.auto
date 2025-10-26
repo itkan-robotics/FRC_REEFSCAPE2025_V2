@@ -38,13 +38,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionCToLoliR"
+            "pathName": "visionCtoLoliR"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "visionLoliRToB"
+            "pathName": "visionLoliRtoB"
           }
         },
         {
@@ -69,13 +69,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "visionAtoLoliM"
+            "pathName": "visionBtoLoliM"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "visionLoliMToB"
+            "pathName": "visionLoliMtoA"
           }
         },
         {
@@ -95,6 +95,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "visionAtoLoliL"
           }
         },
         {
@@ -114,12 +120,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "visionLoliRToB"
           }
         }
       ]
