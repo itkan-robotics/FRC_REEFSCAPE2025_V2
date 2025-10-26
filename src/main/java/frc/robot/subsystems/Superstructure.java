@@ -136,7 +136,7 @@ public class Superstructure extends SubsystemBase {
 
   private void coralGroundIntake() {
     fullArm.setGoalMethod(ArmState.GROUND_CORAL_INTAKE, false);
-    intake.tryState(IntakeState.INTAKING_CORAL);
+    // intake.tryState(IntakeState.INTAKING_CORAL);
   }
 
   private void algaeGroundIntake() {

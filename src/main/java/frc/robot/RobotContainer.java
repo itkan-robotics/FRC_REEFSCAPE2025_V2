@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -184,11 +183,19 @@ public class RobotContainer {
     baseCommand.touchpad().onTrue(superstructure.setWantedSuperStateCommand(State.L1));
     baseCommand.cross().onTrue(superstructure.setWantedSuperStateCommand(State.HOME));
 
-    baseCommand.R2().whileTrue(superstructure.setWantedSuperStateCommand(State.CGINTAKE));
+    baseCommand
+        .R2()
+        .onTrue(
+            superstructure
+                .setWantedSuperStateCommand(State.CGINTAKE)
+                .alongWith(new InstantCommand(() -> intake.tryState(IntakeState.INTAKING_CORAL))))
+        .onFalse(new InstantCommand(() -> intake.tryState(IntakeState.IDLE)));
+
     baseCommand.povRight().whileTrue(superstructure.setWantedSuperStateCommand(State.AGINTAKE));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
-    baseCommand.R1().whileTrue(new RunCommand(() -> intake.tryState(IntakeState.OUTTAKING_CORAL)));
+    // baseCommand.R1().whileTrue(new RunCommand(() ->
+    // intake.tryState(IntakeState.INTAKING_CORAL)));
 
     operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 

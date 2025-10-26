@@ -82,6 +82,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void tryState(IntakeState desiredState) {
+    System.out.println("Intake state: " + desiredState);
     switch (desiredState) {
       case INTAKING_CORAL:
         currentIntakeState = IntakeState.INTAKING_CORAL;
@@ -100,8 +101,10 @@ public class IntakeSubsystem extends SubsystemBase {
         break;
       case DEALGAEFYINGHIGH:
         currentIntakeState = IntakeState.DEALGAEFYINGHIGH;
+        break;
       case IDLE:
         currentIntakeState = IntakeState.IDLE;
+        break;
       default:
         break;
     }
@@ -127,6 +130,7 @@ public class IntakeSubsystem extends SubsystemBase {
         break;
       case IDLE:
         desiredIntakeSpeed = 0.2;
+        break;
       default:
         break;
     }
@@ -226,11 +230,11 @@ public class IntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("_Intake/gpDetectedFiltered", coralDetectedWithDebouncer);
     Logger.recordOutput("_Intake/desiredSpeed", desiredIntakeSpeed);
 
-    if (coralDetectedInstant()) {
-      currentIntakeState = IntakeState.HAS_CORAL;
-    } else {
-      setIntakeDutyCycle(desiredIntakeSpeed);
-    }
+    // if (coralDetectedInstant()) {
+    //   currentIntakeState = IntakeState.HAS_CORAL;
+    // } else {
+    setIntakeDutyCycle(desiredIntakeSpeed);
+    // }
 
     applyState();
   }
