@@ -72,17 +72,17 @@ public class FullArmSubsystem extends SubsystemBase {
   public enum ArmState {
     HOME(0.05, 1.5, 0.3, -0.8, 0),
     L1(-0.13, -1.5, 0.3, -0.5, 1),
-    L2(0.19, 4.5, 0.5, -0.2, 2),
-    L3(0.14, 3.5, 0.41, -0.8, 3),
-    L4(0.13, 20, 0.52, -0.8, 4),
+    L2(0.19, 3.0, 0.45, -0.2, 2),
+    L3(0.1, 3.0, 0.43, -0.8, 3),
+    L4(0.09, 20, 0.55, -0.8, 4),
     PREP_L4(0.13, 3.5, 0.52, -0.8, 21),
-    GROUND_CORAL_INTAKE(-0.164, -1.9, 0.17, -0.8, 5),
+    GROUND_CORAL_INTAKE(-0.18, -3.0, 0.22, -0.8, 5),
     LOWALGAE(0.18, 3.0, 0.35, -0.8, 6),
     HIGHALGAE(0.18, 3.0, 0.2, -0.8, 7),
     // TO-DO: TUNE
     PROCESSOR(0.0, 0.0, 0.0, -0.8, 8),
     NET(0.0, 0.0, 0.0, -0.8, 9),
-    GROUND_ALGAE_INTAKE(-0.164, -1.9, 0.17, -0.8, 5),
+    GROUND_ALGAE_INTAKE(-0.1, 1.0, 0.03, -0.8, 5),
     /////////////
     PRECLIMB(0.14, 3.5, 0.0, -0.8, 10),
     CLIMB(-0.16, -1.95, 0.13, -0.8, 11),
@@ -216,7 +216,7 @@ public class FullArmSubsystem extends SubsystemBase {
     // Software limits and configurations for the wrist of the arm
     var wristConfig = new TalonFXConfiguration();
     wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    wristConfig.Feedback.SensorToMechanismRatio = 25;
+    wristConfig.Feedback.SensorToMechanismRatio = 20 * 40 / 20;
     wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     // wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.45;

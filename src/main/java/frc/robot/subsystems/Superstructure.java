@@ -126,6 +126,7 @@ public class Superstructure extends SubsystemBase {
 
   private void home() {
     fullArm.setGoalMethod(ArmState.HOME, false);
+    intake.tryState(IntakeState.IDLE);
   }
 
   private void stationIntake() {

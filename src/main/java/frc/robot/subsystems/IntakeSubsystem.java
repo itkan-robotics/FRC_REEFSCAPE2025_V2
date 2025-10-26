@@ -52,7 +52,8 @@ public class IntakeSubsystem extends SubsystemBase {
     OUTTAKING_CORAL,
     OUTTAKING_ALGAE,
     DEALGAEFYINGLOW,
-    DEALGAEFYINGHIGH
+    DEALGAEFYINGHIGH,
+    IDLE
   }
 
   IntakeState currentIntakeState = IntakeState.NO_GAMEPIECE;
@@ -99,6 +100,8 @@ public class IntakeSubsystem extends SubsystemBase {
         break;
       case DEALGAEFYINGHIGH:
         currentIntakeState = IntakeState.DEALGAEFYINGHIGH;
+      case IDLE:
+        currentIntakeState = IntakeState.IDLE;
       default:
         break;
     }
@@ -107,12 +110,12 @@ public class IntakeSubsystem extends SubsystemBase {
   public void applyState() {
     switch (currentIntakeState) {
       case INTAKING_CORAL:
-      case INTAKING_ALGAE:
+      case OUTTAKING_ALGAE:
       case DEALGAEFYINGHIGH:
-        desiredIntakeSpeed = 1.0;
+        desiredIntakeSpeed = 0.7;
         break;
       case OUTTAKING_CORAL:
-      case OUTTAKING_ALGAE:
+      case INTAKING_ALGAE:
       case DEALGAEFYINGLOW:
         desiredIntakeSpeed = -1.0;
         break;
@@ -122,6 +125,8 @@ public class IntakeSubsystem extends SubsystemBase {
       case HAS_CORAL:
         desiredIntakeSpeed = 0.045;
         break;
+      case IDLE:
+        desiredIntakeSpeed = 0.2;
       default:
         break;
     }
@@ -167,9 +172,9 @@ public class IntakeSubsystem extends SubsystemBase {
    * @param speed
    */
   public void setIntakeDutyCycle(double speed) {
-    coralMotorLeft.set(speed);
-    coralMotorRight.set(-speed);
-    algaeMotor.set(speed);
+    coralMotorLeft.set(-speed);
+    coralMotorRight.set(speed);
+    algaeMotor.set(-speed);
   }
 
   /**
@@ -184,8 +189,12 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public boolean coralDetectedInstant() {
-    return Math.abs(coralMotorLeft.getVelocity().getValueAsDouble()) <= 0.02
-        && coralMotorLeft.getSupplyCurrent().getValueAsDouble() >= 1;
+    return currentIntakeState == IntakeState.INTAKING_CORAL
+        ? Math.abs(coralMotorLeft.getVelocity().getValueAsDouble()) <= 80.0
+                && coralMotorLeft.getSupplyCurrent().getValueAsDouble() >= 0.25
+            || Math.abs(coralMotorRight.getVelocity().getValueAsDouble()) <= 80.0
+                && coralMotorRight.getSupplyCurrent().getValueAsDouble() >= 0.25
+        : false;
   }
 
   public boolean getCoralDetectedWithDebouncer() {
@@ -217,7 +226,7 @@ public class IntakeSubsystem extends SubsystemBase {
     Logger.recordOutput("_Intake/gpDetectedFiltered", coralDetectedWithDebouncer);
     Logger.recordOutput("_Intake/desiredSpeed", desiredIntakeSpeed);
 
-    if (coralDetectedWithDebouncer) {
+    if (coralDetectedInstant()) {
       currentIntakeState = IntakeState.HAS_CORAL;
     } else {
       setIntakeDutyCycle(desiredIntakeSpeed);

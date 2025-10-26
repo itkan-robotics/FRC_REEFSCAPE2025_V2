@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -40,6 +41,7 @@ import frc.robot.commands.SmartAlignProfiledPID;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.FullArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.State;
 import frc.robot.subsystems.drive.Drive;
@@ -182,10 +184,11 @@ public class RobotContainer {
     baseCommand.touchpad().onTrue(superstructure.setWantedSuperStateCommand(State.L1));
     baseCommand.cross().onTrue(superstructure.setWantedSuperStateCommand(State.HOME));
 
-    baseCommand.povLeft().whileTrue(superstructure.setWantedSuperStateCommand(State.CGINTAKE));
+    baseCommand.R2().whileTrue(superstructure.setWantedSuperStateCommand(State.CGINTAKE));
+    baseCommand.povRight().whileTrue(superstructure.setWantedSuperStateCommand(State.AGINTAKE));
     // .onFalse(intake.setIntakeSpeed(-0.3).withTimeout(0.035));
     // .onFalse(fullArm.setGoal(HOME, false));
-    baseCommand.R1().whileTrue(intake.setIntakeSpeed(-1));
+    baseCommand.R1().whileTrue(new RunCommand(() -> intake.tryState(IntakeState.OUTTAKING_CORAL)));
 
     operatorCommand.R2().whileTrue(intake.outtakeBotState(storedState));
 
