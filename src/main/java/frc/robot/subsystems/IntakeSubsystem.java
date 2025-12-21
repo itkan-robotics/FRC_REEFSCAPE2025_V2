@@ -116,21 +116,21 @@ public class IntakeSubsystem extends SubsystemBase {
       case INTAKING_CORAL:
       case OUTTAKING_ALGAE:
       case DEALGAEFYINGHIGH:
-        desiredIntakeSpeed = 0.7;
+        desiredIntakeSpeed = 0.0; // 0.7
         break;
       case OUTTAKING_CORAL:
       case INTAKING_ALGAE:
       case DEALGAEFYINGLOW:
-        desiredIntakeSpeed = -1.0;
+        desiredIntakeSpeed = 0.0; // -1.0
         break;
       case HAS_ALGAE:
-        desiredIntakeSpeed = 0.5;
+        desiredIntakeSpeed = 0.0; // 0.0
         break;
       case HAS_CORAL:
-        desiredIntakeSpeed = 0.045;
+        desiredIntakeSpeed = 0.0; // 0.045
         break;
       case IDLE:
-        desiredIntakeSpeed = 0.2;
+        desiredIntakeSpeed = 0.0; // 0.2
         break;
       default:
         break;

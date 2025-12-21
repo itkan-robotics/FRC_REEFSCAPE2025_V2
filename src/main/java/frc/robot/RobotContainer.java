@@ -7,7 +7,7 @@
 // available in the root directory of this project.
 //
 // This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// but WITHOUT ANY WARRANTY; without even the implied warranty or
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
@@ -164,9 +164,9 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-
-    // Reset gyro to 0° when options button is pressed
+    baseCommand.PS().onTrue(superstructure.setWantedSuperStateCommand(State.PRECGINTAKE));
     baseCommand
+        // Reset gyro to 0° when options button is pressed
         .options()
         .onTrue(
             Commands.runOnce(

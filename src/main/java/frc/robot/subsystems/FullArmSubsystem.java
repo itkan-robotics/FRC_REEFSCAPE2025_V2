@@ -72,22 +72,23 @@ public class FullArmSubsystem extends SubsystemBase {
   public enum ArmState {
     HOME(0.05, 1.5, 0.3, -0.8, 0),
     L1(-0.13, -1.5, 0.3, -0.5, 1),
-    L2(0.19, 3.0, 0.45, -0.2, 2),
-    L3(0.1, 3.75, 0.43, -0.8, 3),
-    L4(0.09, 20, 0.55, -0.8, 4),
-    PREP_L4(0.13, 3.5, 0.52, -0.8, 21),
-    GROUND_CORAL_INTAKE(-0.18, -3.0, 0.21, -0.8, 5),
+    L2(0.19, 3.0, 0.05, -0.2, 2),
+    L3(0.1, 3.75, 0.05, -0.8, 3),
+    L4(0.09, 20, 0.05, -0.8, 4),
+    PREP_L4(0.13, 3.5, 0.05, -0.8, 21),
+    PRE_GROUND_CORAL_INTAKE(-0.13, -3.0, 0.15, -0.8, 23),
+    GROUND_CORAL_INTAKE(-0.13, -3.0, 0.55, -0.8, 5),
     LOWALGAE(0.18, 3.0, 0.35, -0.8, 6),
     HIGHALGAE(0.18, 3.0, 0.2, -0.8, 7),
     // TO-DO: TUNE
     PROCESSOR(0.0, 0.0, 0.0, -0.8, 8),
-    NET(0.0, 0.0, 0.0, -0.8, 9),
-    GROUND_ALGAE_INTAKE(-0.1, 1.0, 0.03, -0.8, 5),
+    NET(0.0, 0.0, 0.0, 0.4, 9),
+    GROUND_ALGAE_INTAKE(-0.1, 1.0, 0.03, 0.4, 5),
     /////////////
-    PRECLIMB(0.14, 3.5, 0.0, -0.8, 10),
-    CLIMB(-0.18, -1.95, 0.55, -0.8, 11),
-    RESET(0.0, 0.0, 0.0, -0.8, -1),
-    STATION_INTAKE(0.05, 1, 0.09, -0.8, 20);
+    PRECLIMB(0.14, 3.5, 0.05, -0.8, 10),
+    CLIMB(-0.18, -1.95, 0.5, -0.8, 11),
+    RESET(0.0, 0.0, 0.05, -0.8, -1),
+    STATION_INTAKE(0.05, 1, 0.03, -0.8, 20);
 
     private final double shoulderSetpoint;
     private final double extensionSetpoint;

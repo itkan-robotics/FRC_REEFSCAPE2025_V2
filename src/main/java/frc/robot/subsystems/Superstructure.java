@@ -18,6 +18,7 @@ public class Superstructure extends SubsystemBase {
   public enum State {
     HOME,
     SINTAKE,
+    PRECGINTAKE,
     CGINTAKE,
     AGINTAKE,
     LALGAE,
@@ -75,6 +76,9 @@ public class Superstructure extends SubsystemBase {
         break;
       case CGINTAKE:
         coralGroundIntake();
+        break;
+      case PRECGINTAKE:
+        preCoralGroundIntake();
         break;
       case AGINTAKE:
         algaeGroundIntake();
@@ -136,6 +140,11 @@ public class Superstructure extends SubsystemBase {
 
   private void coralGroundIntake() {
     fullArm.setGoalMethod(ArmState.GROUND_CORAL_INTAKE, false);
+    // intake.tryState(IntakeState.INTAKING_CORAL);
+  }
+
+  private void preCoralGroundIntake() {
+    fullArm.setGoalMethod(ArmState.PRE_GROUND_CORAL_INTAKE, false);
     // intake.tryState(IntakeState.INTAKING_CORAL);
   }
 
@@ -210,7 +219,7 @@ public class Superstructure extends SubsystemBase {
     graph.addBoth(State.HOME, State.HALGAE, 2);
     graph.addBoth(State.HOME, State.SINTAKE, 1);
     graph.addBoth(State.HOME, State.AGINTAKE, 1);
-    graph.addBoth(State.HOME, State.CGINTAKE, 1);
+    // graph.addBoth(State.HOME, State.CGINTAKE, 1);
     graph.addBoth(State.HOME, State.PRECLIMB, 1);
     graph.addBoth(State.HOME, State.PROCESSOR, 1);
     graph.addBoth(State.HOME, State.BARGE, 1);
@@ -225,6 +234,9 @@ public class Superstructure extends SubsystemBase {
     graph.addBoth(State.AGINTAKE, State.PROCESSOR, 1);
     graph.addBoth(State.AGINTAKE, State.SINTAKE, 1);
     graph.addBoth(State.SINTAKE, State.CGINTAKE, 1);
+
+    graph.addBoth(State.HOME, State.PRECGINTAKE, 1);
+    graph.addBoth(State.PRECGINTAKE, State.CGINTAKE, 1);
   }
 
   public State tryState() {
