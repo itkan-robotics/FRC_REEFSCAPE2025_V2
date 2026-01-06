@@ -64,6 +64,8 @@ public class FullArmSubsystem extends SubsystemBase {
 
   final MotionMagicVoltage extensionRequest;
 
+  private boolean wristFirst = true;
+
   // Motor for the WRIST of the arm and its accompanying MotionMagic voltage request
   private final TalonFX wristMotor = new TalonFX(WRIST_MOTOR_PORT);
   private final SimpleMotorLogger wristLogger = new SimpleMotorLogger(wristMotor, "_Arm/Wrist");
@@ -105,7 +107,7 @@ public class FullArmSubsystem extends SubsystemBase {
       this.outtakeSpeed = outtakeSpeed;
       this.id = id;
     }
-  
+ 
     // Getters
     public double getShoulderSetpoint() {return shoulderSetpoint;}
     public double getExtensionSetpoint() {return extensionSetpoint;}
@@ -115,6 +117,7 @@ public class FullArmSubsystem extends SubsystemBase {
     //spotless:on
   }
 
+  private ArmState desiredState;
   private ArmState currentState = ArmState.HOME; // The robot's state at startup
 
   /**
@@ -269,21 +272,31 @@ public class FullArmSubsystem extends SubsystemBase {
     } else {
       // If shoulderFirst is true, move the shoulder before the other subsystems
       // Otherwise, move the elevator and wrist before the shoulder
+      // now added wristFirst logic as well
 
       if (shoulderFirst) {
+        // Moving up
+        if (wristFirst) {
+          setWrist(currentState.getWristSetpoint());
+        }
+
         setShoulder(currentState.getShoulderSetpoint());
-        setWrist(currentState.getWristSetpoint());
 
         if (shoulderSetpointReached()) {
           setExtension(currentState.getExtensionSetpoint());
         }
 
       } else {
+        // Moving Down
         setExtension(currentState.getExtensionSetpoint());
-        setWrist(currentState.getWristSetpoint());
 
         if (extentionSetpointReached()) {
           setShoulder(currentState.getShoulderSetpoint());
+        }
+
+        // Wrist last on the way down
+        if (shoulderSetpointReached() && extentionSetpointReached()) {
+          setWrist(currentState.getWristSetpoint());
         }
       }
     }
@@ -325,9 +338,14 @@ public class FullArmSubsystem extends SubsystemBase {
    *
    * @see FullArmSubsystem#setGoalCommand setGoal Command
    */
-  public void setGoalMethod(ArmState desiredState, boolean shoulderFirst) {
+  public void setGoalMethod(ArmState desiredState, boolean shoulderFirstIgnored) {
+    boolean movingUp = desiredState.getExtensionSetpoint() > currentState.getExtensionSetpoint();
+
     // shoulderFirst is true when the desired extension is greater than the current extension
-    this.shoulderFirst = currentState.getExtensionSetpoint() < desiredState.getExtensionSetpoint();
+    this.shoulderFirst = movingUp;
+
+    this.wristFirst = movingUp;
+
     currentState = desiredState;
     // this.shoulderFirst = shoulderFirst;
   }
