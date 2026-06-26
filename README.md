@@ -1,5 +1,5 @@
 <h1> Understanding the 9128 2025 (REEFSCAPE) Robot </h1>
-<h6> <i>Written by Abdullah Khaled. For more information, visit my [website page](https://www.aakhaled.com/first/reefscape/)!</i> </h6>
+<h6> <i>Written by Abdullah Khaled. For more information, visit my <a href="https://www.aakhaled.com/first/reefscape/">website page</a>!</i> </h6>
 <br>
 <h2>Command-Based Structure</h2>
 For our programming, we chose to use a command-based structure. This type of code has three main components: subsystems, commands, and controllers.
