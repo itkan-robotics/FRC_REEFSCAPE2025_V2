@@ -1,4 +1,5 @@
 <h1> Understanding the 9128 2025 (REEFSCAPE) Robot </h1>
+<h6> <i>Written by Abdullah Khaled. For more information, visit my [website page](https://www.aakhaled.com/first/reefscape/)!</i> </h6>
 <br>
 <h2>Command-Based Structure</h2>
 For our programming, we chose to use a command-based structure. This type of code has three main components: subsystems, commands, and controllers.
@@ -34,5 +35,3 @@ The final unique aspect of our programming (that we wanted to highlight!) was ou
   </ol></li>
   <li><b>Dynamic Tolerances:</b> Finally, we added dynamic tolerances based on the robot's distance to the target for when the <b>arm should move</b> to the desired level and when the auto-align is <b>considered finished.</b> For our arm, we found that our L2 position needed to be farther back than that of L3 or L4. By using dynamic tolerances, we were able to accomodate for this problem and ensure a consistent score on all three levels.</li>
 </ol>
-
-<h6> <i>Written by Abdullah Khaled</i> </h6>
